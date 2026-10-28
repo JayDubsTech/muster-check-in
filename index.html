@@ -538,9 +538,9 @@
             <div id="musterAdminView" class="hidden flex-1 flex flex-col space-y-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Active Roster</div>
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Expected On-Site</div>
                         <div id="statTotal" class="text-3xl font-black text-white">0</div>
-                        <div class="text-xs text-slate-500 mt-1">Required on-site count</div>
+                        <div class="text-xs text-slate-500 mt-1">Signed in today</div>
                     </div>
                     <div class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
                         <div class="absolute -right-2 -bottom-2 text-emerald-500/10"><i data-lucide="user-check" class="w-20 h-20"></i></div>
@@ -571,7 +571,7 @@
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Checked In (<span id="badgeCheckedCount">0</span>)
                             </button>
                             <button id="adminTabOutBtn" onclick="switchAdminSubTab('out')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                                <i data-lucide="user-minus" class="w-4 h-4"></i> Out for Day (<span id="badgeOutCount">0</span>)
+                                <i data-lucide="user-minus" class="w-4 h-4"></i> Not Here / Out (<span id="badgeOutCount">0</span>)
                             </button>
                             <button id="adminTabRosterBtn" onclick="switchAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
                                 <i data-lucide="settings" class="w-4 h-4"></i> Master Roster
@@ -789,9 +789,9 @@
 
         <div id="printMusterSection" class="hidden">
             <div class="flex justify-between items-center mb-2 border border-black px-2 py-1 bg-gray-100 font-bold text-[10px]">
-                <div>ACTIVE ROSTER: <span id="printTotal">0</span></div>
+                <div>EXPECTED ON-SITE: <span id="printTotal">0</span></div>
                 <div>CHECKED IN: <span id="printChecked">0</span></div>
-                <div>OUT FOR DAY: <span id="printOut">0</span></div>
+                <div>NOT HERE / OUT: <span id="printOut">0</span></div>
                 <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
             </div>
 
@@ -892,11 +892,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('mode') === 'worker') {
                 window.isWorkerOnlyMode = true;
-                // Instantly bypass startup lock modal
                 document.getElementById('startupLockModal').classList.add('hidden');
-                // Hide header entirely so workers can't see navigation, mode switcher, or QR code modal button
                 document.getElementById('mainHeaderBar').classList.add('hidden');
-                // Hide top sub-tab header on Daily view (prevents switching to Admin Reports)
                 document.getElementById('dailySubTabHeader').classList.add('hidden');
             }
         }
@@ -961,6 +958,8 @@
                     snapshot.forEach(doc => { dailyData.push({ id: doc.id, ...doc.data() }); });
                     window.dailyLogRecords = dailyData;
                     window.renderDailyLogTable();
+                    window.updateDashboardMetrics();
+                    window.renderAdminTables();
                 });
 
             } catch (err) {
@@ -1024,11 +1023,15 @@
         window.dbSaveDailyLog = async function(record) {
             if (auth.currentUser) await setDoc(doc(db, ...DAILY_LOGS_PATH, record.id), record);
             window.renderDailyLogTable();
+            window.updateDashboardMetrics();
+            window.renderAdminTables();
         };
 
         window.dbRemoveDailyLog = async function(id) {
             if (auth.currentUser) await deleteDoc(doc(db, ...DAILY_LOGS_PATH, id));
             window.renderDailyLogTable();
+            window.updateDashboardMetrics();
+            window.renderAdminTables();
         };
 
         window.dbAddPerson = async function(person) {
@@ -1080,7 +1083,7 @@
         window.changeStation = function(val) { window.currentStation = val; document.getElementById('printStation').textContent = val; };
 
         window.switchAppMode = function(mode) {
-            if (window.isWorkerOnlyMode) return; // Prevent workers from switching modes
+            if (window.isWorkerOnlyMode) return;
             window.currentAppMode = mode;
             const dailyWrapper = document.getElementById('dailyModeWrapper');
             const musterWrapper = document.getElementById('musterModeWrapper');
@@ -1108,7 +1111,6 @@
             }
         };
 
-        // QR CODE MODAL LOGIC (Generates worker-specific URL)
         window.openQrModal = function() {
             const baseUrl = window.location.href.split('?')[0];
             const workerUrl = `${baseUrl}?mode=worker`;
@@ -1130,7 +1132,6 @@
             alert('Worker sign-in link copied to clipboard!');
         };
 
-        // SIGNATURE CANVAS INITIALIZERS
         function initDailySignatureCanvas() {
             dailyCanvas = document.getElementById('dailySignaturePad');
             dailyCtx = dailyCanvas.getContext('2d');
@@ -1221,9 +1222,8 @@
             document.getElementById('musterCanvasPlaceholder').classList.remove('hidden');
         };
 
-        // DAILY SUB-TABS & ACTIONS
         window.switchDailySubTab = function(sub) {
-            if (window.isWorkerOnlyMode && sub === 'log') return; // Block workers from viewing admin log
+            if (window.isWorkerOnlyMode && sub === 'log') return;
             const checkView = document.getElementById('dailyCheckInView');
             const logView = document.getElementById('dailyLogView');
             const btnCheck = document.getElementById('dailyTabCheckBtn');
@@ -1262,7 +1262,7 @@
         };
 
         window.requestDailyAdminAccess = function() {
-            if (window.isWorkerOnlyMode) return; // Block workers entirely
+            if (window.isWorkerOnlyMode) return;
             if (window.isAdminAuthenticated) {
                 window.switchDailySubTab('log');
             } else {
@@ -1399,6 +1399,8 @@
             if (confirm('Delete this daily sign-in entry?')) {
                 window.dailyLogRecords = window.dailyLogRecords.filter(r => r.id !== id);
                 window.renderDailyLogTable();
+                window.updateDashboardMetrics();
+                window.renderAdminTables();
                 await window.dbRemoveDailyLog(id);
             }
         };
@@ -1486,12 +1488,16 @@
             const listContainer = document.getElementById('musterDropdownList');
             if (!input) { listContainer.classList.add('hidden'); return; }
 
+            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const signedTodaySet = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const checkedSet = new Set(window.checkedInRecords.map(c => c.id));
             const outSet = new Set(window.outRecords.map(o => o.id));
-            const matches = window.masterRoster.filter(p => !outSet.has(p.id) && p.name.toLowerCase().includes(input));
+
+            // Only allow selection if they signed in today for daily and are not marked out
+            const matches = window.masterRoster.filter(p => signedTodaySet.has(p.id) && !outSet.has(p.id) && p.name.toLowerCase().includes(input));
             
             if (matches.length === 0) {
-                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel found</div>`;
+                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No matching signed-in personnel found (must complete daily sign-in first)</div>`;
             } else {
                 listContainer.innerHTML = matches.map(person => {
                     const isAlreadyChecked = checkedSet.has(person.id);
@@ -1602,15 +1608,20 @@
         window.closePinModal = function() { document.getElementById('pinModal').classList.add('hidden'); };
 
         window.updateDashboardMetrics = function() {
-            const total = window.masterRoster.length;
-            const outCount = window.outRecords.length;
-            const activeTotal = Math.max(0, total - outCount);
-            const checked = window.checkedInRecords.length;
-            const missing = Math.max(0, activeTotal - checked);
-            const percent = activeTotal > 0 ? Math.round((checked / activeTotal) * 100) : 0;
+            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
+            const outIds = new Set(window.outRecords.map(o => o.id));
+
+            // Expected on-site = signed in for daily shift AND not marked out
+            const expectedOnSiteList = window.masterRoster.filter(p => signedTodayIds.has(p.id) && !outIds.has(p.id));
+            const totalExpected = expectedOnSiteList.length;
+
+            const checked = window.checkedInRecords.filter(c => signedTodayIds.has(c.id) && !outIds.has(c.id)).length;
+            const missing = Math.max(0, totalExpected - checked);
+            const percent = totalExpected > 0 ? Math.round((checked / totalExpected) * 100) : 0;
 
             const statTotal = document.getElementById('statTotal');
-            if (statTotal) statTotal.textContent = activeTotal;
+            if (statTotal) statTotal.textContent = totalExpected;
             const statChecked = document.getElementById('statCheckedIn');
             if (statChecked) statChecked.textContent = checked;
             const statMissing = document.getElementById('statMissing');
@@ -1623,9 +1634,9 @@
             const badgeChecked = document.getElementById('badgeCheckedCount');
             if (badgeChecked) badgeChecked.textContent = checked;
             const badgeOut = document.getElementById('badgeOutCount');
-            if (badgeOut) badgeOut.textContent = outCount;
+            if (badgeOut) badgeOut.textContent = window.outRecords.length;
             const rosterTotal = document.getElementById('rosterTotalCount');
-            if (rosterTotal) rosterTotal.textContent = total;
+            if (rosterTotal) rosterTotal.textContent = window.masterRoster.length;
             
             window.renderDailyLogTable();
         };
@@ -1663,23 +1674,27 @@
             const missingBody = document.getElementById('missingTableBody');
             if (!missingBody) return;
 
+            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const outIds = new Set(window.outRecords.map(o => o.id));
+
             const missingSearch = (document.getElementById('missingSearchInput')?.value || '').toLowerCase();
             const checkedSearch = (document.getElementById('checkedSearchInput')?.value || '').toLowerCase();
             const outSearch = (document.getElementById('outSearchInput')?.value || '').toLowerCase();
 
-            const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id) && !outIds.has(p.id) && p.name.toLowerCase().includes(missingSearch));
+            // Missing = Signed in for daily shift, but NOT checked in for muster and NOT marked out
+            const missingList = window.masterRoster.filter(p => signedTodayIds.has(p.id) && !checkedIds.has(p.id) && !outIds.has(p.id) && p.name.toLowerCase().includes(missingSearch));
             if (missingList.length === 0) {
-                missingBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">No missing personnel.</td></tr>`;
+                missingBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">No missing personnel (all signed-in workers accounted for).</td></tr>`;
             } else {
                 missingBody.innerHTML = missingList.map((p, index) => `
                     <tr class="hover:bg-slate-800/50 transition">
                         <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
                         <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)}</td>
                         <td class="p-3.5 text-right flex items-center justify-end gap-2">
-                            <button onclick="adminMarkOut('${p.id}')" class="bg-amber-500/20 hover:bg-amber-500 border border-amber-500/40 text-amber-300 hover:text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold transition">Out for Day</button>
-                            <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Mark Present</button>
+                            <button onclick="adminMarkOut('${p.id}')" class="bg-amber-500/20 hover:bg-amber-500 border border-amber-500/40 text-amber-300 hover:text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold transition">Mark Not Here / Out</button>
+                            <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Mark Accounted</button>
                         </td>
                     </tr>
                 `).join('');
@@ -1704,19 +1719,24 @@
                 }
             }
 
-            const outFiltered = window.outRecords.filter(o => o.name.toLowerCase().includes(outSearch));
+            const outFiltered = window.masterRoster.filter(p => (outIds.has(p.id) || !signedTodayIds.has(p.id)) && p.name.toLowerCase().includes(outSearch));
             const outBody = document.getElementById('outTableBody');
             if (outBody) {
                 if (outFiltered.length === 0) {
-                    outBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">None out for day.</td></tr>`;
+                    outBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">No personnel marked out or absent.</td></tr>`;
                 } else {
-                    outBody.innerHTML = outFiltered.map((o, index) => `
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
-                            <td class="p-3.5 font-bold text-white">${escapeHtml(o.name)}</td>
-                            <td class="p-3.5 text-right"><button onclick="removeOutRecord('${o.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">Return Active</button></td>
-                        </tr>
-                    `).join('');
+                    outBody.innerHTML = outFiltered.map((p, index) => {
+                        const isExplicitOut = outIds.has(p.id);
+                        return `
+                            <tr class="hover:bg-slate-800/50 transition">
+                                <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
+                                <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)} <span class="text-xs font-normal text-slate-400 ml-2">(${isExplicitOut ? 'Marked Out' : 'Did Not Sign-In Today'})</span></td>
+                                <td class="p-3.5 text-right">
+                                    ${isExplicitOut ? `<button onclick="removeOutRecord('${p.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">Return Active</button>` : `<button onclick="adminMarkOut('${p.id}')" class="text-xs text-amber-400 hover:text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-lg transition font-bold">Mark Out</button>`}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
                 }
             }
         };
@@ -1833,9 +1853,11 @@
         };
 
         window.printMusterReport = function() {
+            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const outIds = new Set(window.outRecords.map(o => o.id));
-            const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id) && !outIds.has(p.id));
+            const missingList = window.masterRoster.filter(p => signedTodayIds.has(p.id) && !checkedIds.has(p.id) && !outIds.has(p.id));
 
             document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER LIVE SUMMARY REPORT";
             document.getElementById('printTimestamp').textContent = new Date().toLocaleString();
@@ -1843,9 +1865,9 @@
             document.getElementById('printDailySection').classList.add('hidden');
             document.getElementById('printMusterSection').classList.remove('hidden');
 
-            document.getElementById('printTotal').textContent = window.masterRoster.length - window.outRecords.length;
+            document.getElementById('printTotal').textContent = window.masterRoster.filter(p => signedTodayIds.has(p.id) && !outIds.has(p.id)).length;
             document.getElementById('printChecked').textContent = window.checkedInRecords.length;
-            document.getElementById('printOut').textContent = window.outRecords.length;
+            document.getElementById('printOut').textContent = window.outRecords.length + (window.masterRoster.length - signedTodayIds.size);
             document.getElementById('printMissing').textContent = missingList.length;
 
             const checkedBody = document.getElementById('printCheckedBody');
