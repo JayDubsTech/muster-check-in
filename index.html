@@ -61,8 +61,12 @@
             border-radius: 4px;
         }
 
-        /* PRINT STYLING FIXES */
+        /* HIGH-DENSITY PRINT STYLING FOR 100+ ROSTER SHEETS */
         @media print {
+            @page {
+                size: letter portrait;
+                margin: 0.3in;
+            }
             .no-print, header, main, footer, #startupLockModal, #pinModal, #successOverlay, #dailySuccessOverlay, #musterSuccessOverlay { 
                 display: none !important; 
             }
@@ -74,6 +78,31 @@
                 color: black !important; 
                 margin: 0 !important;
                 padding: 0 !important;
+                font-size: 9px !important;
+                line-height: 1.15 !important;
+            }
+            .print-compact-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            .print-compact-table th, 
+            .print-compact-table td {
+                padding: 2px 4px !important;
+                border: 1px solid #000 !important;
+                font-size: 8.5px !important;
+                line-height: 1.1 !important;
+            }
+            .print-compact-table th {
+                background-color: #f1f5f9 !important;
+                font-weight: 800 !important;
+                text-transform: uppercase !important;
+            }
+            .print-sig-img {
+                height: 18px !important;
+                max-width: 110px !important;
+                object-fit: contain !important;
+                display: block !important;
+                margin: 0 auto !important;
             }
             table { 
                 page-break-inside: auto; 
@@ -81,6 +110,14 @@
             tr { 
                 page-break-inside: avoid; 
                 page-break-after: auto; 
+            }
+            /* Multi-column layout helper for massive rosters */
+            .print-multi-column {
+                column-count: 2;
+                column-gap: 12px;
+            }
+            .print-multi-column table {
+                break-inside: avoid;
             }
         }
     </style>
@@ -160,9 +197,7 @@
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col no-print">
 
-        <!-- ========================================================= -->
-        <!-- SYSTEM 1: DAILY SIGN-IN SYSTEM                            -->
-        <!-- ========================================================= -->
+        <!-- SYSTEM 1: DAILY SIGN-IN SYSTEM -->
         <div id="dailyModeWrapper" class="flex-1 flex flex-col space-y-6">
             <div class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
                 <div class="flex items-center gap-2">
@@ -315,12 +350,9 @@
             </div>
         </div>
 
-        <!-- ========================================================= -->
-        <!-- SYSTEM 2: EMERGENCY MUSTER SYSTEM                         -->
-        <!-- ========================================================= -->
+        <!-- SYSTEM 2: EMERGENCY MUSTER SYSTEM -->
         <div id="musterModeWrapper" class="hidden flex-1 flex flex-col space-y-6">
             
-            <!-- Muster Navigation Tabs (Check-In vs Admin Control Center) -->
             <div class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
                 <div class="flex items-center gap-2">
                     <button id="musterTabCheckBtn" onclick="switchMusterSubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition">
@@ -611,7 +643,7 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">0000</code>)</p>
+                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">2026</code>)</p>
             </div>
             
             <input type="password" id="pinInput" maxlength="6" placeholder="****" 
@@ -626,29 +658,32 @@
         </div>
     </div>
 
-    <!-- PRINT REPORT VIEW -->
-    <div class="hidden print-only p-8 text-black">
-        <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
+    <!-- HIGH DENSITY PRINT REPORT VIEW (SLIM 100+ LINE OPTIMIZED) -->
+    <div class="hidden print-only p-2 text-black">
+        <div class="border-b border-black pb-2 mb-3 flex justify-between items-center">
             <div>
-                <h1 id="printReportTitle" class="text-2xl font-black">DAILY SITE SIGN-IN REPORT</h1>
-                <p class="text-sm font-medium">Date / Generated: <span id="printTimestamp"></span></p>
+                <h1 id="printReportTitle" class="text-lg font-black tracking-tight uppercase">DAILY SITE SIGN-IN REPORT</h1>
+                <p class="text-xs font-semibold">Generated: <span id="printTimestamp"></span></p>
             </div>
             <div class="text-right">
-                <div class="text-sm font-bold" id="printStation">Station #1</div>
-                <div class="text-xs text-gray-700">CLOUD SYNCED LOG</div>
+                <div class="text-xs font-bold" id="printStation">Station #1</div>
+                <div class="text-[9px] text-gray-600 uppercase tracking-wide">Plateau Excavation</div>
             </div>
         </div>
 
         <div id="printDailySection">
-            <h2 class="text-base font-bold mb-2 uppercase tracking-wide">SIGNED-IN PERSONNEL LOG (<span id="printDailyDateTitle"></span>)</h2>
-            <table class="w-full text-left border-collapse border border-black mb-6 text-xs">
+            <div class="flex justify-between items-center mb-1.5 border-b border-black/30 pb-1">
+                <h2 class="text-xs font-bold uppercase tracking-wide">SIGNED-IN PERSONNEL LOG (<span id="printDailyDateTitle"></span>)</h2>
+                <div class="text-xs font-bold">TOTAL SIGNED IN: <span id="printDailyTotalCount">0</span></div>
+            </div>
+            <table class="print-compact-table">
                 <thead>
-                    <tr class="bg-gray-100 uppercase font-bold">
-                        <th class="border border-black p-2 w-10">#</th>
-                        <th class="border border-black p-2">Name</th>
-                        <th class="border border-black p-2">Station</th>
-                        <th class="border border-black p-2">Time Stamp</th>
-                        <th class="border border-black p-2 w-44 text-center">Signature</th>
+                    <tr>
+                        <th style="width: 28px; text-align: center;">#</th>
+                        <th style="width: 220px;">Full Name</th>
+                        <th style="width: 150px;">Station Location</th>
+                        <th style="width: 140px;">Timestamp</th>
+                        <th style="text-align: center;">Signature Verification</th>
                     </tr>
                 </thead>
                 <tbody id="printDailyBody"></tbody>
@@ -656,22 +691,22 @@
         </div>
 
         <div id="printMusterSection" class="hidden">
-            <div class="grid grid-cols-4 gap-4 mb-6 border border-black p-3 text-center font-bold text-xs">
+            <div class="flex justify-between items-center mb-2 border border-black px-2 py-1 bg-gray-100 font-bold text-[10px]">
                 <div>ACTIVE ROSTER: <span id="printTotal">0</span></div>
                 <div>CHECKED IN: <span id="printChecked">0</span></div>
                 <div>OUT FOR DAY: <span id="printOut">0</span></div>
                 <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
             </div>
 
-            <h2 class="text-base font-bold mb-2 uppercase tracking-wide">EMERGENCY MUSTER CHECKED-IN LOG</h2>
-            <table class="w-full text-left border-collapse border border-black mb-8 text-xs">
+            <h2 class="text-xs font-bold mb-1 uppercase tracking-wide">EMERGENCY MUSTER CHECKED-IN LOG</h2>
+            <table class="print-compact-table">
                 <thead>
-                    <tr class="bg-gray-100 uppercase font-bold">
-                        <th class="border border-black p-2 w-10">#</th>
-                        <th class="border border-black p-2">Name</th>
-                        <th class="border border-black p-2">Muster Station</th>
-                        <th class="border border-black p-2">Time Stamp</th>
-                        <th class="border border-black p-2 w-44 text-center">Signature</th>
+                    <tr>
+                        <th style="width: 28px; text-align: center;">#</th>
+                        <th style="width: 220px;">Full Name</th>
+                        <th style="width: 150px;">Muster Station</th>
+                        <th style="width: 140px;">Timestamp</th>
+                        <th style="text-align: center;">Signature Verification</th>
                     </tr>
                 </thead>
                 <tbody id="printCheckedBody"></tbody>
@@ -1539,18 +1574,19 @@
             document.getElementById('printDailySection').classList.remove('hidden');
             document.getElementById('printMusterSection').classList.add('hidden');
             document.getElementById('printDailyDateTitle').textContent = dateFilter;
+            document.getElementById('printDailyTotalCount').textContent = filtered.length;
 
             const body = document.getElementById('printDailyBody');
             if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="5" class="border border-black p-4 text-center">No sign-ins for this date.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="5" style="padding: 8px; text-align: center;">No sign-ins for this date.</td></tr>`;
             } else {
                 body.innerHTML = filtered.map((r, i) => `
                     <tr>
-                        <td class="border border-black p-2 font-mono">${i + 1}</td>
-                        <td class="border border-black p-2 font-bold">${escapeHtml(r.name)}</td>
-                        <td class="border border-black p-2">${escapeHtml(r.station)}</td>
-                        <td class="border border-black p-2 font-mono">${r.timestamp}</td>
-                        <td class="border border-black p-2 text-center"><img src="${r.signatureImg}" class="h-8 max-w-[150px] mx-auto object-contain"></td>
+                        <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                        <td style="font-weight: 700;">${escapeHtml(r.name)}</td>
+                        <td>${escapeHtml(r.station)}</td>
+                        <td style="font-family: monospace;">${r.timestamp}</td>
+                        <td style="text-align: center;"><img src="${r.signatureImg}" class="print-sig-img"></td>
                     </tr>
                 `).join('');
             }
@@ -1574,13 +1610,13 @@
             document.getElementById('printMissing').textContent = missingList.length;
 
             const checkedBody = document.getElementById('printCheckedBody');
-            checkedBody.innerHTML = window.checkedInRecords.length === 0 ? `<tr><td colspan="5" class="border border-black p-4 text-center">None checked in.</td></tr>` : window.checkedInRecords.map((c, i) => `
+            checkedBody.innerHTML = window.checkedInRecords.length === 0 ? `<tr><td colspan="5" style="padding: 8px; text-align: center;">None checked in.</td></tr>` : window.checkedInRecords.map((c, i) => `
                 <tr>
-                    <td class="border border-black p-2 font-mono">${i + 1}</td>
-                    <td class="border border-black p-2 font-bold">${escapeHtml(c.name)}</td>
-                    <td class="border border-black p-2">${escapeHtml(c.station)}</td>
-                    <td class="border border-black p-2 font-mono">${c.timestamp}</td>
-                    <td class="border border-black p-2 text-center">${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[150px] mx-auto object-contain">` : 'Admin'}</td>
+                    <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                    <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
+                    <td>${escapeHtml(c.station)}</td>
+                    <td style="font-family: monospace;">${c.timestamp}</td>
+                    <td style="text-align: center;">${c.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-size: 8px; font-weight: bold;">[ADMIN MARKED]</span>'}</td>
                 </tr>
             `).join('');
 
