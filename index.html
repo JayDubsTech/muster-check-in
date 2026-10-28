@@ -63,7 +63,7 @@
 
         /* PRINT STYLING FIXES */
         @media print {
-            .no-print, header, main, footer, #startupLockModal, #pinModal, #successOverlay { 
+            .no-print, header, main, footer, #startupLockModal, #pinModal, #successOverlay, #dailySuccessOverlay { 
                 display: none !important; 
             }
             .print-only { 
@@ -128,13 +128,13 @@
                 </div>
             </div>
 
-            <!-- Mode Switcher -->
+            <!-- Mode Switcher (Separate Systems) -->
             <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-                <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950">
-                    <i data-lucide="calendar-check" class="w-4 h-4"></i> Daily Sign-In
+                <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
+                    <i data-lucide="calendar-check" class="w-4 h-4"></i> Daily Sign-In Mode
                 </button>
                 <button onclick="switchAppMode('muster')" id="modeMusterBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
-                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Emergency Muster
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Emergency Muster Mode
                 </button>
             </div>
 
@@ -160,7 +160,9 @@
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col no-print">
 
-        <!-- ================= DAILY SIGN-IN MODE ================= -->
+        <!-- ========================================================= -->
+        <!-- SYSTEM 1: DAILY SIGN-IN SYSTEM                            -->
+        <!-- ========================================================= -->
         <div id="dailyModeWrapper" class="flex-1 flex flex-col space-y-6">
             <div class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
                 <div class="flex items-center gap-2">
@@ -176,12 +178,12 @@
                 </div>
             </div>
 
-            <!-- Check-In View -->
+            <!-- Daily Check-In Form View -->
             <div id="dailyCheckInView" class="flex-1 flex flex-col justify-center">
                 <div class="bg-slate-800/90 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-w-3xl mx-auto w-full">
                     <div class="bg-slate-950/60 px-6 py-4 border-b border-slate-700/60 flex justify-between items-center">
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="user-check" class="text-amber-500 w-5 h-5"></i>
+                            <i data-lucide="calendar-check" class="text-amber-500 w-5 h-5"></i>
                             Daily Job Site Sign-In
                         </h2>
                         <span class="text-xs bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1 rounded-full font-mono">
@@ -272,7 +274,7 @@
                 </div>
             </div>
 
-            <!-- Log View -->
+            <!-- Daily Logs & Reports View -->
             <div id="dailyLogView" class="hidden flex-1 flex flex-col space-y-4">
                 <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
                     <div class="flex items-center gap-3">
@@ -313,7 +315,9 @@
             </div>
         </div>
 
-        <!-- ================= EMERGENCY MUSTER MODE ================= -->
+        <!-- ========================================================= -->
+        <!-- SYSTEM 2: EMERGENCY MUSTER SYSTEM                         -->
+        <!-- ========================================================= -->
         <div id="musterModeWrapper" class="hidden flex-1 flex-col space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
@@ -340,6 +344,7 @@
                 </div>
             </div>
 
+            <!-- Muster Dashboard Card -->
             <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden flex-1 flex flex-col">
                 <div class="bg-slate-950 p-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
@@ -359,7 +364,7 @@
 
                     <div class="flex items-center gap-2">
                         <button onclick="printMusterReport()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                            <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Report
+                            <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Muster Report
                         </button>
                         <button onclick="confirmResetMusterSession()" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
                             <i data-lucide="rotate-ccw" class="w-4 h-4 text-red-400"></i> Reset Emergency Session
@@ -543,7 +548,7 @@
                 <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
             </div>
 
-            <h2 class="text-base font-bold mb-2 uppercase tracking-wide">CHECKED IN PERSONNEL LOG</h2>
+            <h2 class="text-base font-bold mb-2 uppercase tracking-wide">EMERGENCY MUSTER CHECKED-IN LOG</h2>
             <table class="w-full text-left border-collapse border border-black mb-8 text-xs">
                 <thead>
                     <tr class="bg-gray-100 uppercase font-bold">
@@ -595,7 +600,6 @@
         window.checkedInRecords = [];
         window.outRecords = [];
         window.dailyLogRecords = [];
-        window.selectedPerson = null;
         window.dailySelectedPerson = null;
         window.currentStation = "Station #1 - Main Office";
         window.currentAppMode = 'daily';
@@ -605,15 +609,15 @@
         window.adminPin = '2026';
         window.isAdminAuthenticated = false;
 
-        let canvas, dailyCanvas, ctx, dailyCtx;
-        let isDrawing = false, dailyIsDrawing = false;
-        let hasSignature = false, dailyHasSignature = false;
+        let dailyCanvas, dailyCtx;
+        let dailyIsDrawing = false;
+        let dailyHasSignature = false;
 
         window.verifyStartupPin = function() {
             const inputVal = document.getElementById('startupPinInput').value;
             if (inputVal === APP_STARTUP_PASSWORD) {
                 document.getElementById('startupLockModal').classList.add('hidden');
-                setTimeout(() => { resizeCanvas(); resizeDailyCanvas(); }, 100);
+                setTimeout(() => { resizeDailyCanvas(); }, 100);
             } else {
                 document.getElementById('startupPinError').classList.remove('hidden');
             }
@@ -622,7 +626,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             initClock();
-            initSignatureCanvases();
+            initDailySignatureCanvas();
             initFirebaseSync();
             initDateDefaults();
 
@@ -630,7 +634,7 @@
                 if (e.key === 'Enter') verifyStartupPin();
             });
 
-            window.addEventListener('resize', () => { resizeCanvas(); resizeDailyCanvas(); });
+            window.addEventListener('resize', () => { resizeDailyCanvas(); });
         });
 
         function initDateDefaults() {
@@ -642,7 +646,6 @@
         async function initFirebaseSync() {
             let syncConnected = false;
 
-            // Timeout safety fallback: if Firebase takes more than 3 seconds, fallback gracefully
             const timeoutId = setTimeout(() => {
                 if (!syncConnected) {
                     updateSyncBadge(false, "Offline / Local Mode");
@@ -661,7 +664,6 @@
                 clearTimeout(timeoutId);
                 updateSyncBadge(true, "Live Synced Across iPads");
 
-                // Master Roster Listener
                 onSnapshot(collection(db, ...ROSTER_COLLECTION_PATH), (snapshot) => {
                     const rosterData = [];
                     snapshot.forEach(doc => { rosterData.push({ id: doc.id, ...doc.data() }); });
@@ -670,11 +672,9 @@
                     window.updateDashboardMetrics();
                     window.renderAdminTables();
                 }, (err) => {
-                    console.warn("Firestore Roster fallback:", err);
                     loadLocalStorageFallback();
                 });
 
-                // Muster Check-ins
                 onSnapshot(collection(db, ...CHECKINS_COLLECTION_PATH), (snapshot) => {
                     const checkinData = [];
                     snapshot.forEach(doc => { checkinData.push({ id: doc.id, ...doc.data() }); });
@@ -683,7 +683,6 @@
                     window.renderAdminTables();
                 });
 
-                // Out Records
                 onSnapshot(collection(db, ...OUT_COLLECTION_PATH), (snapshot) => {
                     const outData = [];
                     snapshot.forEach(doc => { outData.push({ id: doc.id, ...doc.data() }); });
@@ -692,7 +691,6 @@
                     window.renderAdminTables();
                 });
 
-                // Daily Logs
                 onSnapshot(collection(db, ...DAILY_LOGS_PATH), (snapshot) => {
                     const dailyData = [];
                     snapshot.forEach(doc => { dailyData.push({ id: doc.id, ...doc.data() }); });
@@ -702,16 +700,13 @@
 
             } catch (err) {
                 clearTimeout(timeoutId);
-                console.error("Firebase Auth Error:", err);
                 updateSyncBadge(false, "Offline / Local Mode");
                 loadLocalStorageFallback();
             }
         }
 
         function saveLocalStorageFallback() {
-            try {
-                localStorage.setItem('plateau_master_roster', JSON.stringify(window.masterRoster));
-            } catch (e) {}
+            try { localStorage.setItem('plateau_master_roster', JSON.stringify(window.masterRoster)); } catch (e) {}
         }
 
         function loadLocalStorageFallback() {
@@ -738,7 +733,6 @@
             statusText.textContent = text;
         }
 
-        // DATABASE & LOCAL SYNC ACTIONS
         window.dbSaveCheckIn = async function(record) {
             if (auth.currentUser) {
                 await setDoc(doc(db, ...CHECKINS_COLLECTION_PATH, record.id), record);
@@ -774,9 +768,7 @@
             saveLocalStorageFallback();
             window.updateDashboardMetrics();
             window.renderAdminTables();
-            if (auth.currentUser) {
-                await setDoc(doc(db, ...ROSTER_COLLECTION_PATH, person.id), person);
-            }
+            if (auth.currentUser) await setDoc(doc(db, ...ROSTER_COLLECTION_PATH, person.id), person);
         };
 
         window.dbRemovePerson = async function(id) {
@@ -826,7 +818,7 @@
             if (mode === 'daily') {
                 dailyWrapper.classList.remove('hidden');
                 musterWrapper.classList.add('hidden');
-                modeDailyBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950";
+                modeDailyBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
                 modeMusterBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
                 headerTitle.textContent = "DAILY SITE SIGN-IN";
                 headerIcon.className = "bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40";
@@ -834,24 +826,14 @@
             } else {
                 dailyWrapper.classList.add('hidden');
                 musterWrapper.classList.remove('hidden');
-                modeMusterBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white";
+                modeMusterBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white shadow-md";
                 modeDailyBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
                 headerTitle.textContent = "EMERGENCY MUSTER CHECK-IN";
                 headerIcon.className = "bg-red-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 animate-pulse";
-                setTimeout(resizeCanvas, 50);
             }
         };
 
-        function initSignatureCanvases() {
-            canvas = document.getElementById('signaturePad');
-            ctx = canvas.getContext('2d');
-            canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
-            canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-            canvas.addEventListener('touchend', handlePointerUp);
-            canvas.addEventListener('mousedown', handlePointerDown);
-            canvas.addEventListener('mousemove', handlePointerMove);
-            canvas.addEventListener('mouseup', handlePointerUp);
-
+        function initDailySignatureCanvas() {
             dailyCanvas = document.getElementById('dailySignaturePad');
             dailyCtx = dailyCanvas.getContext('2d');
             dailyCanvas.addEventListener('touchstart', handleDailyPointerDown, { passive: false });
@@ -860,21 +842,7 @@
             dailyCanvas.addEventListener('mousedown', handleDailyPointerDown);
             dailyCanvas.addEventListener('mousemove', handleDailyPointerMove);
             dailyCanvas.addEventListener('mouseup', handleDailyPointerUp);
-
-            resizeCanvas();
             resizeDailyCanvas();
-        }
-
-        function resizeCanvas() {
-            if (!canvas) return;
-            const rect = canvas.getBoundingClientRect();
-            if (rect.width === 0) return;
-            const ratio = window.devicePixelRatio || 1;
-            canvas.width = rect.width * ratio;
-            canvas.height = rect.height * ratio;
-            ctx.scale(ratio, ratio);
-            ctx.strokeStyle = '#38BDF8'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            if (hasSignature) clearSignatureCanvas();
         }
 
         function resizeDailyCanvas() {
@@ -888,28 +856,6 @@
             dailyCtx.strokeStyle = '#38BDF8'; dailyCtx.lineWidth = 3; dailyCtx.lineCap = 'round'; dailyCtx.lineJoin = 'round';
             if (dailyHasSignature) clearDailySignatureCanvas();
         }
-
-        function handlePointerDown(e) {
-            e.preventDefault(); isDrawing = true; hasSignature = true;
-            document.getElementById('canvasPlaceholder').classList.add('hidden');
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            ctx.beginPath(); ctx.moveTo(clientX - rect.left, clientY - rect.top);
-        }
-        function handlePointerMove(e) {
-            if (!isDrawing) return; e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            ctx.lineTo(clientX - rect.left, clientY - rect.top); ctx.stroke();
-        }
-        function handlePointerUp() { isDrawing = false; }
-        window.clearSignatureCanvas = function() {
-            if (!ctx || !canvas) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height); hasSignature = false;
-            document.getElementById('canvasPlaceholder').classList.remove('hidden');
-        };
 
         function handleDailyPointerDown(e) {
             e.preventDefault(); dailyIsDrawing = true; dailyHasSignature = true;
@@ -1188,7 +1134,6 @@
             const checkedSearch = (document.getElementById('checkedSearchInput')?.value || '').toLowerCase();
             const outSearch = (document.getElementById('outSearchInput')?.value || '').toLowerCase();
 
-            // Missing
             const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id) && !outIds.has(p.id) && p.name.toLowerCase().includes(missingSearch));
             const missingBody = document.getElementById('missingTableBody');
             if (missingList.length === 0) {
@@ -1206,7 +1151,6 @@
                 `).join('');
             }
 
-            // Checked
             const checkedFiltered = window.checkedInRecords.filter(c => c.name.toLowerCase().includes(checkedSearch));
             const checkedBody = document.getElementById('checkedTableBody');
             if (checkedFiltered.length === 0) {
@@ -1224,7 +1168,6 @@
                 `).join('');
             }
 
-            // Out
             const outFiltered = window.outRecords.filter(o => o.name.toLowerCase().includes(outSearch));
             const outBody = document.getElementById('outTableBody');
             if (outFiltered.length === 0) {
@@ -1320,7 +1263,7 @@
             const dateFilter = document.getElementById('logDateFilter').value;
             const filtered = window.dailyLogRecords.filter(r => r.dateStr === dateFilter);
 
-            document.getElementById('printReportTitle').textContent = "DAILY SITE SIGN-IN LOG";
+            document.getElementById('printReportTitle').textContent = "DAILY SITE SIGN-IN REPORT";
             document.getElementById('printTimestamp').textContent = dateFilter;
             document.getElementById('printStation').textContent = window.currentStation;
             document.getElementById('printDailySection').classList.remove('hidden');
