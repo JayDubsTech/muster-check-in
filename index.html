@@ -455,7 +455,7 @@
         </div>
     </div>
 
-    <!-- PRINT REPORT VIEW (CHECKED-IN LOG ONLY) -->
+    <!-- PRINT REPORT VIEW (INCLUDES BOTH CHECKED-IN LOG & MISSING NAMES LIST) -->
     <div class="hidden print-only p-8 text-black">
         <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
             <div>
@@ -488,11 +488,23 @@
             </thead>
             <tbody id="printCheckedBody"></tbody>
         </table>
+
+        <!-- MISSING PERSONNEL NAMES LIST -->
+        <h2 class="text-lg font-bold mb-2 text-red-700">MISSING / UNACCOUNTED PERSONNEL</h2>
+        <table class="w-full text-left border-collapse border border-black text-xs">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-black p-2 w-10">#</th>
+                    <th class="border border-black p-2">Name</th>
+                </tr>
+            </thead>
+            <tbody id="printMissingBody"></tbody>
+        </table>
     </div>
 
     <!-- Footer -->
     <footer class="bg-slate-950 border-t border-slate-800/80 py-3 px-6 text-center text-xs text-slate-500 no-print">
-        <span>Plateau Excavation -- Muster Check-In -- Work In Progress</span>
+        <span>Work In Progress // Plateau Excavation // Muster Check-In</span>
     </footer>
 
     <!-- FIREBASE REALTIME SYNC SCRIPTS -->
@@ -1045,7 +1057,7 @@
             document.body.removeChild(link);
         };
 
-        // PRINT REPORT - CHECKED-IN LOG ONLY
+        // PRINT REPORT - INCLUDES BOTH CHECKED-IN LOG & MISSING PERSONNEL NAMES
         window.printMusterReport = function() {
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id));
@@ -1068,6 +1080,18 @@
                         <td class="border border-black p-2 text-center">
                             ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-10 max-w-[150px] mx-auto object-contain" alt="Signature">` : '<span class="text-xs italic text-gray-600">Admin Present</span>'}
                         </td>
+                    </tr>
+                `).join('');
+            }
+
+            const printMissingBody = document.getElementById('printMissingBody');
+            if (missingList.length === 0) {
+                printMissingBody.innerHTML = `<tr><td colspan="2" class="border border-black p-4 text-center font-bold text-green-700">ALL PERSONNEL SAFELY ACCOUNTED FOR</td></tr>`;
+            } else {
+                printMissingBody.innerHTML = missingList.map((p, i) => `
+                    <tr>
+                        <td class="border border-black p-2 font-mono">${i + 1}</td>
+                        <td class="border border-black p-2 font-bold">${escapeHtml(p.name)}</td>
                     </tr>
                 `).join('');
             }
