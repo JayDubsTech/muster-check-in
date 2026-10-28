@@ -1138,12 +1138,6 @@ const firebaseConfig = {
             await window.dbRemovePerson(id);
         };
 
-        window.restoreDefaultRoster = async function() {
-            if (confirm('Reload default sample 20+ names into master roster?')) {
-                await window.dbRestoreDefaults();
-            }
-        };
-
         window.exportCSV = function() {
             const checkedMap = new Map(window.checkedInRecords.map(c => [c.id, c]));
             
