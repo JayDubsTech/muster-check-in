@@ -67,7 +67,7 @@
                 size: letter portrait;
                 margin: 0.3in;
             }
-            .no-print, header, main, footer, #startupLockModal, #pinModal, #successOverlay, #dailySuccessOverlay, #musterSuccessOverlay { 
+            .no-print, header, main, footer, #startupLockModal, #pinModal, #successOverlay, #dailySuccessOverlay, #musterSuccessOverlay, #qrModal { 
                 display: none !important; 
             }
             .print-only { 
@@ -167,8 +167,12 @@
                 </button>
             </div>
 
-            <!-- Station Location Selector & Time -->
+            <!-- Station Location Selector, QR Code Button & Time -->
             <div class="flex items-center flex-wrap gap-3">
+                <button onclick="openQrModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+                    <i data-lucide="qr-code" class="w-4 h-4"></i> Station QR Code
+                </button>
+
                 <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
                     <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
                     <select id="stationSelect" onchange="changeStation(this.value)" class="bg-transparent text-xs font-bold text-white focus:outline-none">
@@ -349,6 +353,9 @@
                         </div>
                         <button onclick="printDailyLogReport()" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
                             <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Report
+                        </button>
+                        <button onclick="exportDailyCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-4 h-4"></i> CSV
                         </button>
                     </div>
                 </div>
@@ -698,6 +705,33 @@
         </div>
     </main>
 
+    <!-- QR CODE MODAL -->
+    <div id="qrModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
+            <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto border border-amber-500/30">
+                <i data-lucide="qr-code" class="w-7 h-7"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-white">Employee Sign-In QR Code</h3>
+                <p class="text-xs text-slate-400 mt-1">Scan with any smartphone camera to open the Daily Check-In screen.</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl inline-block shadow-inner">
+                <img id="qrCodeImage" src="" alt="QR Code" class="w-48 h-48 mx-auto object-contain">
+            </div>
+
+            <div class="space-y-2 text-left">
+                <label class="block text-xs font-bold text-slate-400 uppercase">Shareable Link:</label>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="qrUrlInput" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none">
+                    <button onclick="copyQrUrl()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition">Copy</button>
+                </div>
+            </div>
+
+            <button onclick="closeQrModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">Close</button>
+        </div>
+    </div>
+
     <!-- ADMIN PIN SECURITY MODAL -->
     <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
@@ -706,7 +740,7 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">0000</code>)</p>
+                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">2026</code>)</p>
             </div>
             
             <input type="password" id="pinInput" maxlength="6" placeholder="****" 
@@ -950,7 +984,6 @@
             statusText.textContent = text;
         }
 
-        // ISOLATED DATABASE WRITE FUNCTIONS
         window.dbSaveMusterCheckIn = async function(record) {
             if (auth.currentUser) {
                 await setDoc(doc(db, ...MUSTER_CHECKINS_PATH, record.id), record);
@@ -1056,6 +1089,28 @@
                 headerIcon.className = "bg-red-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 animate-pulse";
                 setTimeout(resizeMusterCanvas, 50);
             }
+        };
+
+        // QR CODE MODAL LOGIC
+        window.openQrModal = function() {
+            const currentUrl = window.location.href;
+            document.getElementById('qrUrlInput').value = currentUrl;
+            // Generate QR code using public API endpoint
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+            document.getElementById('qrCodeImage').src = qrApiUrl;
+            document.getElementById('qrModal').classList.remove('hidden');
+        };
+
+        window.closeQrModal = function() {
+            document.getElementById('qrModal').classList.add('hidden');
+        };
+
+        window.copyQrUrl = function() {
+            const input = document.getElementById('qrUrlInput');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value);
+            alert('Link copied to clipboard!');
         };
 
         // SIGNATURE CANVAS INITIALIZERS
