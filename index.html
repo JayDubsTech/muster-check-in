@@ -455,7 +455,7 @@
         </div>
     </div>
 
-    <!-- PRINT REPORT VIEW (VISIBLE ON PRINT) -->
+    <!-- PRINT REPORT VIEW -->
     <div class="hidden print-only p-8 text-black">
         <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
             <div>
@@ -474,27 +474,28 @@
             <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
         </div>
 
+        <!-- CHECKED-IN LOG WITH SIGNATURE IMAGES -->
         <h2 class="text-lg font-bold mb-2">CHECKED IN PERSONNEL LOG</h2>
         <table class="w-full text-left border-collapse border border-black mb-8 text-xs">
             <thead>
                 <tr class="bg-gray-200">
-                    <th class="border border-black p-2 w-12">#</th>
+                    <th class="border border-black p-2 w-10">#</th>
                     <th class="border border-black p-2">Name</th>
                     <th class="border border-black p-2">Muster Station</th>
                     <th class="border border-black p-2">Time Stamp</th>
-                    <th class="border border-black p-2 w-48">Signature</th>
+                    <th class="border border-black p-2 w-44">Signature</th>
                 </tr>
             </thead>
             <tbody id="printCheckedBody"></tbody>
         </table>
 
+        <!-- MISSING PERSONNEL NAMES ONLY -->
         <h2 class="text-lg font-bold mb-2 text-red-700">MISSING / UNACCOUNTED PERSONNEL</h2>
         <table class="w-full text-left border-collapse border border-black text-xs">
             <thead>
                 <tr class="bg-gray-200">
-                    <th class="border border-black p-2 w-12">#</th>
+                    <th class="border border-black p-2 w-10">#</th>
                     <th class="border border-black p-2">Name</th>
-                    <th class="border border-black p-2">Department / Role</th>
                 </tr>
             </thead>
             <tbody id="printMissingBody"></tbody>
@@ -512,7 +513,6 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Configuration setup
         const firebaseConfig = {
             apiKey: "AIzaSyAuZpJ27iYOmfOA5S49ZMY4mxQHhyNMOF8",
             authDomain: "mustercheckin.firebaseapp.com",
@@ -529,27 +529,22 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Firestore Strict Collections Paths
         const ROSTER_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'master_roster'];
         const CHECKINS_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'checkins'];
 
-        // Global State & Passwords
         window.masterRoster = [];
         window.checkedInRecords = [];
         window.selectedPerson = null;
         window.currentStation = "Station #1 - Main Office";
         
-        // --- APP STARTUP PASSWORD CONFIGURATION ---
-        const APP_STARTUP_PASSWORD = '26006'; // Change this code to whatever password you want!
-        window.adminPin = '2026';            // Admin settings PIN
+        const APP_STARTUP_PASSWORD = '26006';
+        window.adminPin = '2026';
         window.isAdminAuthenticated = false;
 
-        // Canvas Signature State
         let canvas, ctx;
         let isDrawing = false;
         let hasSignature = false;
 
-        // Startup Password Gate Verifier
         window.verifyStartupPin = function() {
             const inputVal = document.getElementById('startupPinInput').value;
             if (inputVal === APP_STARTUP_PASSWORD) {
@@ -560,7 +555,6 @@
             }
         };
 
-        // Initialize Authentication & Listeners on DOM Ready
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             initClock();
@@ -584,23 +578,17 @@
 
                 updateSyncBadge(true, "Live Synced Across iPads");
 
-                // Listen to Master Roster Collection Live
                 const rosterRef = collection(db, ...ROSTER_COLLECTION_PATH);
                 onSnapshot(rosterRef, (snapshot) => {
                     const rosterData = [];
                     snapshot.forEach(doc => {
                         rosterData.push({ id: doc.id, ...doc.data() });
                     });
-                    
                     window.masterRoster = rosterData;
                     window.updateDashboardMetrics();
                     window.renderAdminTables();
-                }, (error) => {
-                    console.error("Roster sync error:", error);
-                    updateSyncBadge(false, "Sync Error");
                 });
 
-                // Listen to Active Check-Ins Collection Live
                 const checkinsRef = collection(db, ...CHECKINS_COLLECTION_PATH);
                 onSnapshot(checkinsRef, (snapshot) => {
                     const checkinData = [];
@@ -610,9 +598,6 @@
                     window.checkedInRecords = checkinData;
                     window.updateDashboardMetrics();
                     window.renderAdminTables();
-                }, (error) => {
-                    console.error("Check-in sync error:", error);
-                    updateSyncBadge(false, "Sync Error");
                 });
 
             } catch (err) {
@@ -634,60 +619,47 @@
             statusText.textContent = text;
         }
 
-        // Attach FireStore Database Handlers to Window
         window.dbSaveCheckIn = async function(record) {
             if (!auth.currentUser) return;
-            const docRef = doc(db, ...CHECKINS_COLLECTION_PATH, record.id);
-            await setDoc(docRef, record);
+            await setDoc(doc(db, ...CHECKINS_COLLECTION_PATH, record.id), record);
         };
 
         window.dbRemoveCheckIn = async function(id) {
             if (!auth.currentUser) return;
-            const docRef = doc(db, ...CHECKINS_COLLECTION_PATH, id);
-            await deleteDoc(docRef);
+            await deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, id));
         };
 
         window.dbAddPerson = async function(person) {
             if (!auth.currentUser) return;
-            const docRef = doc(db, ...ROSTER_COLLECTION_PATH, person.id);
-            await setDoc(docRef, person);
+            await setDoc(doc(db, ...ROSTER_COLLECTION_PATH, person.id), person);
         };
 
         window.dbRemovePerson = async function(id) {
             if (!auth.currentUser) return;
-            const rosterRef = doc(db, ...ROSTER_COLLECTION_PATH, id);
-            await deleteDoc(rosterRef);
-            const checkinRef = doc(db, ...CHECKINS_COLLECTION_PATH, id);
-            await deleteDoc(checkinRef);
+            await deleteDoc(doc(db, ...ROSTER_COLLECTION_PATH, id));
+            await deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, id));
         };
 
         window.dbResetAllCheckIns = async function() {
             if (!auth.currentUser) return;
-            const promises = window.checkedInRecords.map(c => {
-                const docRef = doc(db, ...CHECKINS_COLLECTION_PATH, c.id);
-                return deleteDoc(docRef);
-            });
+            const promises = window.checkedInRecords.map(c => deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, c.id)));
             await Promise.all(promises);
         };
 
-        // Live Clock
         function initClock() {
             function updateClock() {
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                document.getElementById('liveClock').textContent = timeStr;
+                document.getElementById('liveClock').textContent = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
             updateClock();
             setInterval(updateClock, 1000);
         }
 
-        // Station Selector
         window.changeStation = function(val) {
             window.currentStation = val;
             document.getElementById('printStation').textContent = val;
         };
 
-        // Canvas Touch Drawing Engine
         function initSignatureCanvas() {
             canvas = document.getElementById('signaturePad');
             ctx = canvas.getContext('2d');
@@ -716,25 +688,18 @@
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            if (hasSignature) {
-                clearSignatureCanvas();
-            }
+            if (hasSignature) clearSignatureCanvas();
         }
 
         function getCanvasCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
             let clientX = e.clientX;
             let clientY = e.clientY;
-
             if (e.touches && e.touches.length > 0) {
                 clientX = e.touches[0].clientX;
                 clientY = e.touches[0].clientY;
             }
-
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         function handlePointerDown(e) {
@@ -742,7 +707,6 @@
             isDrawing = true;
             hasSignature = true;
             document.getElementById('canvasPlaceholder').classList.add('hidden');
-            
             const coords = getCanvasCoordinates(e);
             ctx.beginPath();
             ctx.moveTo(coords.x, coords.y);
@@ -756,9 +720,7 @@
             ctx.stroke();
         }
 
-        function handlePointerUp() {
-            isDrawing = false;
-        }
+        function handlePointerUp() { isDrawing = false; }
 
         window.clearSignatureCanvas = function() {
             if (!ctx || !canvas) return;
@@ -767,11 +729,9 @@
             document.getElementById('canvasPlaceholder').classList.remove('hidden');
         };
 
-        // UI Interactions & Dropdown Filtering
         window.filterDropdownList = function() {
             const input = document.getElementById('nameSearchInput').value.toLowerCase().trim();
             const listContainer = document.getElementById('dropdownList');
-            
             if (!input) {
                 listContainer.classList.add('hidden');
                 return;
@@ -796,7 +756,6 @@
                     `;
                 }).join('');
             }
-
             listContainer.classList.remove('hidden');
         };
 
@@ -806,7 +765,6 @@
 
             document.getElementById('dropdownList').classList.add('hidden');
             document.getElementById('nameSearchInput').value = '';
-            
             document.getElementById('selectedPersonName').textContent = `${window.selectedPerson.name} (${window.selectedPerson.dept || 'Staff'})`;
             document.getElementById('selectedPersonCard').classList.remove('hidden');
 
@@ -828,13 +786,11 @@
             document.getElementById('nameSearchInput').value = '';
         };
 
-        // Submit Check-In logic
         window.submitCheckIn = async function() {
             if (!window.selectedPerson) {
                 alert('Please select your name from the master list first.');
                 return;
             }
-
             if (!hasSignature) {
                 alert('Digital signature is required to verify check-in.');
                 return;
@@ -865,9 +821,7 @@
             document.getElementById('confirmTime').textContent = timestamp;
             document.getElementById('successOverlay').classList.remove('hidden');
 
-            setTimeout(() => {
-                window.resetUserCheckInForm();
-            }, 3000);
+            setTimeout(() => { window.resetUserCheckInForm(); }, 3000);
         };
 
         window.resetUserCheckInForm = function() {
@@ -876,7 +830,6 @@
             window.clearSignatureCanvas();
         };
 
-        // Realtime Stats Calculator
         window.updateDashboardMetrics = function() {
             const total = window.masterRoster.length;
             const checked = window.checkedInRecords.length;
@@ -899,7 +852,6 @@
             document.getElementById('rosterTotalCount').textContent = total;
         };
 
-        // Tab Switchers
         window.switchTab = function(tab) {
             const userTab = document.getElementById('userTab');
             const adminTab = document.getElementById('adminTab');
@@ -933,8 +885,7 @@
         };
 
         window.verifyPin = function() {
-            const inputPin = document.getElementById('pinInput').value;
-            if (inputPin === window.adminPin) {
+            if (document.getElementById('pinInput').value === window.adminPin) {
                 window.isAdminAuthenticated = true;
                 window.closePinModal();
                 window.switchTab('admin');
@@ -943,15 +894,12 @@
             }
         };
 
-        window.closePinModal = function() {
-            document.getElementById('pinModal').classList.add('hidden');
-        };
+        window.closePinModal = function() { document.getElementById('pinModal').classList.add('hidden'); };
 
         window.switchAdminSubTab = function(subTab) {
             const subMissing = document.getElementById('subTabMissing');
             const subChecked = document.getElementById('subTabChecked');
             const subRoster = document.getElementById('subTabRoster');
-
             const btnMissing = document.getElementById('adminTabMissingBtn');
             const btnChecked = document.getElementById('adminTabCheckedBtn');
             const btnRoster = document.getElementById('adminTabRosterBtn');
@@ -960,9 +908,7 @@
             subChecked.classList.add('hidden');
             subRoster.classList.add('hidden');
 
-            btnMissing.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
-            btnChecked.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
-            btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+            btnMissing.className = btnChecked.className = btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
 
             if (subTab === 'missing') {
                 subMissing.classList.remove('hidden');
@@ -977,7 +923,6 @@
             }
         };
 
-        // Render Tables
         window.renderAdminTables = function() {
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const missingSearch = (document.getElementById('missingSearchInput')?.value || '').toLowerCase();
@@ -1019,9 +964,7 @@
                             ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain" alt="Signature">` : '<span class="text-xs text-slate-500">Admin Override</span>'}
                         </td>
                         <td class="p-3.5 text-right">
-                            <button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">
-                                Undo
-                            </button>
+                            <button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">Undo</button>
                         </td>
                     </tr>
                 `).join('');
@@ -1031,17 +974,11 @@
         window.adminManualCheckIn = async function(id) {
             const person = window.masterRoster.find(p => p.id === id);
             if (!person) return;
-
             const now = new Date();
             const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
-            
             await window.dbSaveCheckIn({
-                id: person.id,
-                name: person.name,
-                dept: person.dept || 'Staff',
-                station: `${window.currentStation} (Admin)`,
-                timestamp: `${timestamp}`,
-                signatureImg: null
+                id: person.id, name: person.name, dept: person.dept || 'Staff',
+                station: `${window.currentStation} (Admin)`, timestamp: timestamp, signatureImg: null
             });
         };
 
@@ -1051,14 +988,12 @@
             }
         };
 
-        // Master Roster Manager Functions
         window.renderMasterRosterManagerList = function() {
             const container = document.getElementById('masterRosterList');
             if (window.masterRoster.length === 0) {
                 container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Master roster is empty.</div>`;
                 return;
             }
-
             container.innerHTML = window.masterRoster.map(p => `
                 <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
                     <div>
@@ -1078,64 +1013,34 @@
             const deptInput = document.getElementById('addDeptInput');
             const name = nameInput.value.trim();
             const dept = deptInput.value.trim() || 'General Staff';
-
-            if (!name) {
-                alert('Please enter a name.');
-                return;
-            }
-
-            const newPerson = {
-                id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4),
-                name: name,
-                dept: dept
-            };
-
-            await window.dbAddPerson(newPerson);
-            
-            nameInput.value = '';
-            deptInput.value = '';
+            if (!name) return alert('Please enter a name.');
+            await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name, dept: dept });
+            nameInput.value = ''; deptInput.value = '';
         };
 
         window.bulkImportPersonnel = async function() {
             const rawText = document.getElementById('bulkImportInput').value;
-            if (!rawText.trim()) {
-                alert('Please enter names to import.');
-                return;
-            }
-
+            if (!rawText.trim()) return alert('Please enter names to import.');
             const lines = rawText.split('\n');
-            let importedCount = 0;
-
+            let count = 0;
             for (const line of lines) {
                 const parts = line.split(',');
                 const name = parts[0] ? parts[0].trim() : '';
                 const dept = parts[1] ? parts[1].trim() : 'General Staff';
-
                 if (name.length > 0) {
-                    await window.dbAddPerson({
-                        id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4),
-                        name: name,
-                        dept: dept
-                    });
-                    importedCount++;
+                    await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name, dept: dept });
+                    count++;
                 }
             }
-
             document.getElementById('bulkImportInput').value = '';
-            alert(`Pushed ${importedCount} names to cloud master roster.`);
+            alert(`Pushed ${count} names to cloud master roster.`);
         };
 
-        window.deleteRosterItem = async function(id) {
-            await window.dbRemovePerson(id);
-        };
+        window.deleteRosterItem = async function(id) { await window.dbRemovePerson(id); };
 
-        // EXPORT CSV - EXACT REQUIRED COLUMNS: Name, Muster Station, Time Stamp, Signature
         window.exportCSV = function() {
             const checkedMap = new Map(window.checkedInRecords.map(c => [c.id, c]));
-            
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Name,Muster Station,Time Stamp,Signature Status\n";
-
+            let csvContent = "data:text/csv;charset=utf-8,Name,Muster Station,Time Stamp,Signature Status\n";
             window.masterRoster.forEach(p => {
                 const record = checkedMap.get(p.id);
                 if (record) {
@@ -1144,17 +1049,15 @@
                     csvContent += `"${p.name.replace(/"/g, '""')}","N/A (MISSING)","N/A","NOT SIGNED"\n`;
                 }
             });
-
-            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
+            link.setAttribute("href", encodeURI(csvContent));
             link.setAttribute("download", `Muster_Report_${new Date().toISOString().substring(0, 10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         };
 
-        // PRINT REPORT - EXACT REQUIRED COLUMNS & SIGNATURE IMAGES
+        // PRINT REPORT - INCLUDES CHECKED-IN LOG WITH SIGNATURES & NAMES OF MISSING PERSONNEL
         window.printMusterReport = function() {
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id));
@@ -1175,7 +1078,7 @@
                         <td class="border border-black p-2">${escapeHtml(c.station || 'Station #1')}</td>
                         <td class="border border-black p-2 font-mono">${c.timestamp}</td>
                         <td class="border border-black p-2 text-center">
-                            ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-10 max-w-[160px] mx-auto object-contain" alt="Signature">` : '<span class="text-xs font-italic text-gray-600">Admin Present</span>'}
+                            ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-10 max-w-[150px] mx-auto object-contain" alt="Signature">` : '<span class="text-xs italic text-gray-600">Admin Present</span>'}
                         </td>
                     </tr>
                 `).join('');
@@ -1183,13 +1086,12 @@
 
             const printMissingBody = document.getElementById('printMissingBody');
             if (missingList.length === 0) {
-                printMissingBody.innerHTML = `<tr><td colspan="3" class="border border-black p-4 text-center font-bold text-green-700">ALL PERSONNEL SAFELY ACCOUNTED FOR</td></tr>`;
+                printMissingBody.innerHTML = `<tr><td colspan="2" class="border border-black p-4 text-center font-bold text-green-700">ALL PERSONNEL SAFELY ACCOUNTED FOR</td></tr>`;
             } else {
                 printMissingBody.innerHTML = missingList.map((p, i) => `
                     <tr>
                         <td class="border border-black p-2 font-mono">${i + 1}</td>
                         <td class="border border-black p-2 font-bold">${escapeHtml(p.name)}</td>
-                        <td class="border border-black p-2 text-gray-700">${escapeHtml(p.dept || 'Staff')}</td>
                     </tr>
                 `).join('');
             }
