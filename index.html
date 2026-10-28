@@ -514,9 +514,15 @@
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Configuration setup
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : { apiKey: "demo", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
+const firebaseConfig = {
+    apiKey: "AIzaSyAuZpJ27iYOmfOA5S49ZMY4mxQHhyNMOF8",
+    authDomain: "mustercheckin.firebaseapp.com",
+    projectId: "mustercheckin",
+    storageBucket: "mustercheckin.firebasestorage.app",
+    messagingSenderId: "56340878572",
+    appId: "1:56340878572:web:9dd10169130acc096801c9",
+    measurementId: "G-835K5PRZP3"
+};
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'muster-point-default-app';
 
