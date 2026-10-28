@@ -139,7 +139,7 @@
     </div>
 
     <!-- Top Navigation Header Bar -->
-    <header class="bg-slate-950 border-b border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
+    <header id="mainHeaderBar" class="bg-slate-950 border-b border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
             <!-- Branding & Title -->
             <div class="flex items-center gap-3">
@@ -158,7 +158,7 @@
             </div>
 
             <!-- Mode Switcher (Separate Systems) -->
-            <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+            <div id="modeSwitcherContainer" class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
                 <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
                     <i data-lucide="calendar-check" class="w-4 h-4"></i> Daily Sign-In Mode
                 </button>
@@ -168,7 +168,7 @@
             </div>
 
             <!-- Station Location Selector, QR Code Button & Time -->
-            <div class="flex items-center flex-wrap gap-3">
+            <div id="stationNavControls" class="flex items-center flex-wrap gap-3">
                 <button onclick="openQrModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
                     <i data-lucide="qr-code" class="w-4 h-4"></i> Station QR Code
                 </button>
@@ -195,7 +195,7 @@
 
         <!-- SYSTEM 1: DAILY SIGN-IN SYSTEM -->
         <div id="dailyModeWrapper" class="flex-1 flex flex-col space-y-6">
-            <div class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
+            <div id="dailySubTabHeader" class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
                 <div class="flex items-center gap-2">
                     <button id="dailyTabCheckBtn" onclick="switchDailySubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
                         <i data-lucide="pen-tool" class="w-4 h-4"></i> Personnel Check-In
@@ -713,7 +713,7 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">Employee Sign-In QR Code</h3>
-                <p class="text-xs text-slate-400 mt-1">Scan with any smartphone camera to open the Daily Check-In screen.</p>
+                <p class="text-xs text-slate-400 mt-1">Scan this code with a phone camera to open the direct sign-in screen (bypasses password & admin menus).</p>
             </div>
             
             <div class="bg-white p-4 rounded-2xl inline-block shadow-inner">
@@ -721,7 +721,7 @@
             </div>
 
             <div class="space-y-2 text-left">
-                <label class="block text-xs font-bold text-slate-400 uppercase">Shareable Link:</label>
+                <label class="block text-xs font-bold text-slate-400 uppercase">Direct Worker Sign-In Link:</label>
                 <div class="flex items-center gap-2">
                     <input type="text" id="qrUrlInput" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none">
                     <button onclick="copyQrUrl()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition">Copy</button>
@@ -852,6 +852,7 @@
         window.currentStation = "Station #1 - Main Office";
         window.currentAppMode = 'daily';
         window.pendingAdminAction = null;
+        window.isWorkerOnlyMode = false;
         
         const APP_STARTUP_PASSWORD = '26006';
         window.adminPin = '2026';
@@ -876,6 +877,7 @@
             initClock();
             initDailySignatureCanvas();
             initMusterSignatureCanvas();
+            checkWorkerUrlMode();
             initFirebaseSync();
             initDateDefaults();
 
@@ -885,6 +887,19 @@
 
             window.addEventListener('resize', () => { resizeDailyCanvas(); resizeMusterCanvas(); });
         });
+
+        function checkWorkerUrlMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('mode') === 'worker') {
+                window.isWorkerOnlyMode = true;
+                // Instantly bypass startup lock modal
+                document.getElementById('startupLockModal').classList.add('hidden');
+                // Hide header entirely so workers can't see navigation, mode switcher, or QR code modal button
+                document.getElementById('mainHeaderBar').classList.add('hidden');
+                // Hide top sub-tab header on Daily view (prevents switching to Admin Reports)
+                document.getElementById('dailySubTabHeader').classList.add('hidden');
+            }
+        }
 
         function initDateDefaults() {
             const todayStr = new Date().toISOString().substring(0, 10);
@@ -1055,7 +1070,8 @@
         function initClock() {
             function updateClock() {
                 const now = new Date();
-                document.getElementById('liveClock').textContent = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const clockEl = document.getElementById('liveClock');
+                if (clockEl) clockEl.textContent = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
             updateClock();
             setInterval(updateClock, 1000);
@@ -1064,6 +1080,7 @@
         window.changeStation = function(val) { window.currentStation = val; document.getElementById('printStation').textContent = val; };
 
         window.switchAppMode = function(mode) {
+            if (window.isWorkerOnlyMode) return; // Prevent workers from switching modes
             window.currentAppMode = mode;
             const dailyWrapper = document.getElementById('dailyModeWrapper');
             const musterWrapper = document.getElementById('musterModeWrapper');
@@ -1091,12 +1108,12 @@
             }
         };
 
-        // QR CODE MODAL LOGIC
+        // QR CODE MODAL LOGIC (Generates worker-specific URL)
         window.openQrModal = function() {
-            const currentUrl = window.location.href;
-            document.getElementById('qrUrlInput').value = currentUrl;
-            // Generate QR code using public API endpoint
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+            const baseUrl = window.location.href.split('?')[0];
+            const workerUrl = `${baseUrl}?mode=worker`;
+            document.getElementById('qrUrlInput').value = workerUrl;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(workerUrl)}`;
             document.getElementById('qrCodeImage').src = qrApiUrl;
             document.getElementById('qrModal').classList.remove('hidden');
         };
@@ -1110,7 +1127,7 @@
             input.select();
             input.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(input.value);
-            alert('Link copied to clipboard!');
+            alert('Worker sign-in link copied to clipboard!');
         };
 
         // SIGNATURE CANVAS INITIALIZERS
@@ -1206,6 +1223,7 @@
 
         // DAILY SUB-TABS & ACTIONS
         window.switchDailySubTab = function(sub) {
+            if (window.isWorkerOnlyMode && sub === 'log') return; // Block workers from viewing admin log
             const checkView = document.getElementById('dailyCheckInView');
             const logView = document.getElementById('dailyLogView');
             const btnCheck = document.getElementById('dailyTabCheckBtn');
@@ -1244,6 +1262,7 @@
         };
 
         window.requestDailyAdminAccess = function() {
+            if (window.isWorkerOnlyMode) return; // Block workers entirely
             if (window.isAdminAuthenticated) {
                 window.switchDailySubTab('log');
             } else {
@@ -1337,34 +1356,42 @@
 
         window.renderDailyLogTable = function() {
             const dateFilter = document.getElementById('logDateFilter').value;
-            document.getElementById('activeLogDateTitle').textContent = dateFilter;
+            const dateTitle = document.getElementById('activeLogDateTitle');
+            if (dateTitle) dateTitle.textContent = dateFilter;
             const filtered = window.dailyLogRecords.filter(r => r.dateStr === dateFilter);
-            document.getElementById('dailyLogCount').textContent = filtered.length;
+            const countEl = document.getElementById('dailyLogCount');
+            if (countEl) countEl.textContent = filtered.length;
 
             const totalRoster = window.masterRoster.length;
             const checkedInCount = filtered.length;
             const missingCount = Math.max(0, totalRoster - checkedInCount);
             const percent = totalRoster > 0 ? Math.round((checkedInCount / totalRoster) * 100) : 0;
 
-            document.getElementById('dailyStatTotal').textContent = totalRoster;
-            document.getElementById('dailyStatCheckedIn').textContent = checkedInCount;
-            document.getElementById('dailyStatMissing').textContent = missingCount;
-            document.getElementById('dailyStatPercent').textContent = `${percent}%`;
+            const statTotal = document.getElementById('dailyStatTotal');
+            if (statTotal) statTotal.textContent = totalRoster;
+            const statChecked = document.getElementById('dailyStatCheckedIn');
+            if (statChecked) statChecked.textContent = checkedInCount;
+            const statMissing = document.getElementById('dailyStatMissing');
+            if (statMissing) statMissing.textContent = missingCount;
+            const statPercent = document.getElementById('dailyStatPercent');
+            if (statPercent) statPercent.textContent = `${percent}%`;
 
             const tbody = document.getElementById('dailyLogTableBody');
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No sign-ins recorded for ${dateFilter}.</td></tr>`;
-            } else {
-                tbody.innerHTML = filtered.map((r, i) => `
-                    <tr class="hover:bg-slate-800/55 transition">
-                        <td class="p-3.5 text-slate-400 font-mono">${i + 1}</td>
-                        <td class="p-3.5 font-bold text-white">${escapeHtml(r.name)}</td>
-                        <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(r.station)}</td>
-                        <td class="p-3.5 text-amber-400 font-mono text-xs">${r.timestamp}</td>
-                        <td class="p-3.5"><img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain" alt="Sig"></td>
-                        <td class="p-3.5 text-right"><button onclick="deleteDailyLogRecord('${r.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">Remove</button></td>
-                    </tr>
-                `).join('');
+            if (tbody) {
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No sign-ins recorded for ${dateFilter}.</td></tr>`;
+                } else {
+                    tbody.innerHTML = filtered.map((r, i) => `
+                        <tr class="hover:bg-slate-800/55 transition">
+                            <td class="p-3.5 text-slate-400 font-mono">${i + 1}</td>
+                            <td class="p-3.5 font-bold text-white">${escapeHtml(r.name)}</td>
+                            <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(r.station)}</td>
+                            <td class="p-3.5 text-amber-400 font-mono text-xs">${r.timestamp}</td>
+                            <td class="p-3.5"><img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain" alt="Sig"></td>
+                            <td class="p-3.5 text-right"><button onclick="deleteDailyLogRecord('${r.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">Remove</button></td>
+                        </tr>
+                    `).join('');
+                }
             }
         };
 
@@ -1378,6 +1405,7 @@
 
         window.renderDailyRosterManagerList = function() {
             const container = document.getElementById('dailyMasterRosterList');
+            if (!container) return;
             document.getElementById('dailyRosterTotalCount').textContent = window.masterRoster.length;
             if (window.masterRoster.length === 0) { container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Roster empty.</div>`; return; }
             container.innerHTML = window.masterRoster.map(p => `
@@ -1581,15 +1609,23 @@
             const missing = Math.max(0, activeTotal - checked);
             const percent = activeTotal > 0 ? Math.round((checked / activeTotal) * 100) : 0;
 
-            document.getElementById('statTotal').textContent = activeTotal;
-            document.getElementById('statCheckedIn').textContent = checked;
-            document.getElementById('statMissing').textContent = missing;
-            document.getElementById('statPercent').textContent = `${percent}%`;
+            const statTotal = document.getElementById('statTotal');
+            if (statTotal) statTotal.textContent = activeTotal;
+            const statChecked = document.getElementById('statCheckedIn');
+            if (statChecked) statChecked.textContent = checked;
+            const statMissing = document.getElementById('statMissing');
+            if (statMissing) statMissing.textContent = missing;
+            const statPercent = document.getElementById('statPercent');
+            if (statPercent) statPercent.textContent = `${percent}%`;
 
-            document.getElementById('badgeMissingCount').textContent = missing;
-            document.getElementById('badgeCheckedCount').textContent = checked;
-            document.getElementById('badgeOutCount').textContent = outCount;
-            document.getElementById('rosterTotalCount').textContent = total;
+            const badgeMissing = document.getElementById('badgeMissingCount');
+            if (badgeMissing) badgeMissing.textContent = missing;
+            const badgeChecked = document.getElementById('badgeCheckedCount');
+            if (badgeChecked) badgeChecked.textContent = checked;
+            const badgeOut = document.getElementById('badgeOutCount');
+            if (badgeOut) badgeOut.textContent = outCount;
+            const rosterTotal = document.getElementById('rosterTotalCount');
+            if (rosterTotal) rosterTotal.textContent = total;
             
             window.renderDailyLogTable();
         };
@@ -1624,6 +1660,9 @@
         };
 
         window.renderAdminTables = function() {
+            const missingBody = document.getElementById('missingTableBody');
+            if (!missingBody) return;
+
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const outIds = new Set(window.outRecords.map(o => o.id));
             const missingSearch = (document.getElementById('missingSearchInput')?.value || '').toLowerCase();
@@ -1631,7 +1670,6 @@
             const outSearch = (document.getElementById('outSearchInput')?.value || '').toLowerCase();
 
             const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id) && !outIds.has(p.id) && p.name.toLowerCase().includes(missingSearch));
-            const missingBody = document.getElementById('missingTableBody');
             if (missingList.length === 0) {
                 missingBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">No missing personnel.</td></tr>`;
             } else {
@@ -1649,33 +1687,37 @@
 
             const checkedFiltered = window.checkedInRecords.filter(c => c.name.toLowerCase().includes(checkedSearch));
             const checkedBody = document.getElementById('checkedTableBody');
-            if (checkedFiltered.length === 0) {
-                checkedBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No check-ins.</td></tr>`;
-            } else {
-                checkedBody.innerHTML = checkedFiltered.map((c, index) => `
-                    <tr class="hover:bg-slate-800/50 transition">
-                        <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
-                        <td class="p-3.5 font-bold text-white">${escapeHtml(c.name)}</td>
-                        <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(c.station)}</td>
-                        <td class="p-3.5 text-amber-400 font-mono text-xs">${c.timestamp}</td>
-                        <td class="p-3.5">${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain">` : '<span class="text-xs text-slate-500">Admin</span>'}</td>
-                        <td class="p-3.5 text-right"><button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg transition">Undo</button></td>
-                    </tr>
-                `).join('');
+            if (checkedBody) {
+                if (checkedFiltered.length === 0) {
+                    checkedBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No check-ins.</td></tr>`;
+                } else {
+                    checkedBody.innerHTML = checkedFiltered.map((c, index) => `
+                        <tr class="hover:bg-slate-800/50 transition">
+                            <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
+                            <td class="p-3.5 font-bold text-white">${escapeHtml(c.name)}</td>
+                            <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(c.station)}</td>
+                            <td class="p-3.5 text-amber-400 font-mono text-xs">${c.timestamp}</td>
+                            <td class="p-3.5">${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain">` : '<span class="text-xs text-slate-500">Admin</span>'}</td>
+                            <td class="p-3.5 text-right"><button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg transition">Undo</button></td>
+                        </tr>
+                    `).join('');
+                }
             }
 
             const outFiltered = window.outRecords.filter(o => o.name.toLowerCase().includes(outSearch));
             const outBody = document.getElementById('outTableBody');
-            if (outFiltered.length === 0) {
-                outBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">None out for day.</td></tr>`;
-            } else {
-                outBody.innerHTML = outFiltered.map((o, index) => `
-                    <tr class="hover:bg-slate-800/50 transition">
-                        <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
-                        <td class="p-3.5 font-bold text-white">${escapeHtml(o.name)}</td>
-                        <td class="p-3.5 text-right"><button onclick="removeOutRecord('${o.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">Return Active</button></td>
-                    </tr>
-                `).join('');
+            if (outBody) {
+                if (outFiltered.length === 0) {
+                    outBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">None out for day.</td></tr>`;
+                } else {
+                    outBody.innerHTML = outFiltered.map((o, index) => `
+                        <tr class="hover:bg-slate-800/50 transition">
+                            <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
+                            <td class="p-3.5 font-bold text-white">${escapeHtml(o.name)}</td>
+                            <td class="p-3.5 text-right"><button onclick="removeOutRecord('${o.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">Return Active</button></td>
+                        </tr>
+                    `).join('');
+                }
             }
         };
 
@@ -1726,6 +1768,7 @@
 
         window.renderMasterRosterManagerList = function() {
             const container = document.getElementById('masterRosterList');
+            if (!container) return;
             if (window.masterRoster.length === 0) { container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Roster empty.</div>`; return; }
             container.innerHTML = window.masterRoster.map(p => `
                 <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
