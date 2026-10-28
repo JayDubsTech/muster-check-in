@@ -69,6 +69,28 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-900">
 
+    <!-- STARTUP APP LOCK GATE MODAL -->
+    <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
+            <div class="w-16 h-16 bg-red-600/10 text-red-500 rounded-full flex items-center justify-center mx-auto border border-red-500/30 animate-pulse">
+                <i data-lucide="shield-alert" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-white">RESTRICTED SITE APP</h3>
+                <p class="text-xs text-slate-400 mt-1">Enter site access password to launch app.</p>
+            </div>
+            
+            <input type="password" id="startupPinInput" maxlength="8" placeholder="****" 
+                class="w-full text-center tracking-widest text-3xl font-mono bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-xl py-3 text-white focus:outline-none">
+            
+            <div id="startupPinError" class="hidden text-xs text-red-400 font-semibold">Incorrect password. Try again.</div>
+
+            <button onclick="verifyStartupPin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20">
+                UNLOCK APP
+            </button>
+        </div>
+    </div>
+
     <!-- Top Emergency Header Bar -->
     <header class="bg-slate-950 border-b border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -513,15 +535,15 @@
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Configuration setup
-const firebaseConfig = {
-    apiKey: "AIzaSyAuZpJ27iYOmfOA5S49ZMY4mxQHhyNMOF8",
-    authDomain: "mustercheckin.firebaseapp.com",
-    projectId: "mustercheckin",
-    storageBucket: "mustercheckin.firebasestorage.app",
-    messagingSenderId: "56340878572",
-    appId: "1:56340878572:web:9dd10169130acc096801c9",
-    measurementId: "G-835K5PRZP3"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAuZpJ27iYOmfOA5S49ZMY4mxQHhyNMOF8",
+            authDomain: "mustercheckin.firebaseapp.com",
+            projectId: "mustercheckin",
+            storageBucket: "mustercheckin.firebasestorage.app",
+            messagingSenderId: "56340878572",
+            appId: "1:56340878572:web:9dd10169130acc096801c9",
+            measurementId: "G-835K5PRZP3"
+        };
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'muster-point-default-app';
 
@@ -533,12 +555,15 @@ const firebaseConfig = {
         const ROSTER_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'master_roster'];
         const CHECKINS_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'checkins'];
 
-        // Global State
+        // Global State & Passwords
         window.masterRoster = [];
         window.checkedInRecords = [];
         window.selectedPerson = null;
-        window.currentStation = "Station #1 - Main Gate";
-        window.adminPin = '1234';
+        window.currentStation = "Station #1 - Main Office";
+        
+        // --- APP STARTUP PASSWORD CONFIGURATION ---
+        const APP_STARTUP_PASSWORD = '26006'; // Change this code to whatever password you want!
+        window.adminPin = '2026';            // Admin settings PIN
         window.isAdminAuthenticated = false;
 
         // Canvas Signature State
@@ -546,7 +571,31 @@ const firebaseConfig = {
         let isDrawing = false;
         let hasSignature = false;
 
-        // Initialize Authentication & Listeners
+        // Startup Password Gate Verifier
+        window.verifyStartupPin = function() {
+            const inputVal = document.getElementById('startupPinInput').value;
+            if (inputVal === APP_STARTUP_PASSWORD) {
+                document.getElementById('startupLockModal').classList.add('hidden');
+                setTimeout(resizeCanvas, 100);
+            } else {
+                document.getElementById('startupPinError').classList.remove('hidden');
+            }
+        };
+
+        // Initialize Authentication & Listeners on DOM Ready
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initClock();
+            initSignatureCanvas();
+            initFirebaseSync();
+
+            document.getElementById('startupPinInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') verifyStartupPin();
+            });
+
+            window.addEventListener('resize', resizeCanvas);
+        });
+
         async function initFirebaseSync() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -565,14 +614,9 @@ const firebaseConfig = {
                         rosterData.push({ id: doc.id, ...doc.data() });
                     });
                     
-                    // If DB is completely empty on first load, seed defaults
-                    if (rosterData.length === 0 && snapshot.empty) {
-                        seedInitialRoster();
-                    } else {
-                        window.masterRoster = rosterData;
-                        window.updateDashboardMetrics();
-                        window.renderAdminTables();
-                    }
+                    window.masterRoster = rosterData;
+                    window.updateDashboardMetrics();
+                    window.renderAdminTables();
                 }, (error) => {
                     console.error("Roster sync error:", error);
                     updateSyncBadge(false, "Sync Error");
@@ -596,13 +640,6 @@ const firebaseConfig = {
             } catch (err) {
                 console.error("Firebase Auth Error:", err);
                 updateSyncBadge(false, "Offline Mode");
-            }
-        }
-
-        async function seedInitialRoster() {
-            for (const person of DEFAULT_ROSTER) {
-                const docRef = doc(db, ...ROSTER_COLLECTION_PATH, person.id);
-                await setDoc(docRef, person);
             }
         }
 
@@ -640,42 +677,20 @@ const firebaseConfig = {
 
         window.dbRemovePerson = async function(id) {
             if (!auth.currentUser) return;
-            // Remove from roster
             const rosterRef = doc(db, ...ROSTER_COLLECTION_PATH, id);
             await deleteDoc(rosterRef);
-            // Also clear checkin if exists
             const checkinRef = doc(db, ...CHECKINS_COLLECTION_PATH, id);
             await deleteDoc(checkinRef);
         };
 
         window.dbResetAllCheckIns = async function() {
             if (!auth.currentUser) return;
-            // Delete all check-ins live across all connected iPads
             const promises = window.checkedInRecords.map(c => {
                 const docRef = doc(db, ...CHECKINS_COLLECTION_PATH, c.id);
                 return deleteDoc(docRef);
             });
             await Promise.all(promises);
         };
-
-        window.dbRestoreDefaults = async function() {
-            if (!auth.currentUser) return;
-            // Clear current roster
-            for (const p of window.masterRoster) {
-                await deleteDoc(doc(db, ...ROSTER_COLLECTION_PATH, p.id));
-            }
-            await seedInitialRoster();
-        };
-
-        // Initialize App on DOM Ready
-        window.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            initClock();
-            initSignatureCanvas();
-            initFirebaseSync();
-
-            window.addEventListener('resize', resizeCanvas);
-        });
 
         // Live Clock
         function initClock() {
@@ -700,12 +715,9 @@ const firebaseConfig = {
             ctx = canvas.getContext('2d');
             resizeCanvas();
 
-            // Touch events for iPad
             canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
             canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
             canvas.addEventListener('touchend', handlePointerUp);
-
-            // Mouse events
             canvas.addEventListener('mousedown', handlePointerDown);
             canvas.addEventListener('mousemove', handlePointerMove);
             canvas.addEventListener('mouseup', handlePointerUp);
@@ -715,6 +727,7 @@ const firebaseConfig = {
         function resizeCanvas() {
             if (!canvas) return;
             const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0) return;
             const ratio = window.devicePixelRatio || 1;
             canvas.width = rect.width * ratio;
             canvas.height = rect.height * ratio;
