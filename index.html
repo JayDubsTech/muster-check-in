@@ -808,7 +808,7 @@
         const db = getFirestore(app);
 
         const ROSTER_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'master_roster'];
-        const CHECKINS_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'checkins'];
+        const MUSTER_CHECKINS_PATH = ['artifacts', appId, 'public', 'data', 'muster_checkins'];
         const OUT_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'out_records'];
         const DAILY_LOGS_PATH = ['artifacts', appId, 'public', 'data', 'daily_logs'];
 
@@ -894,7 +894,7 @@
                     loadLocalStorageFallback();
                 });
 
-                onSnapshot(collection(db, ...CHECKINS_COLLECTION_PATH), (snapshot) => {
+                onSnapshot(collection(db, ...MUSTER_CHECKINS_PATH), (snapshot) => {
                     const checkinData = [];
                     snapshot.forEach(doc => { checkinData.push({ id: doc.id, ...doc.data() }); });
                     window.checkedInRecords = checkinData;
@@ -953,21 +953,22 @@
             statusText.textContent = text;
         }
 
-        window.dbSaveCheckIn = async function(record) {
+        // ISOLATED DATABASE WRITE FUNCTIONS
+        window.dbSaveMusterCheckIn = async function(record) {
             if (auth.currentUser) {
-                await setDoc(doc(db, ...CHECKINS_COLLECTION_PATH, record.id), record);
+                await setDoc(doc(db, ...MUSTER_CHECKINS_PATH, record.id), record);
                 await deleteDoc(doc(db, ...OUT_COLLECTION_PATH, record.id)).catch(() => {});
             }
         };
 
-        window.dbRemoveCheckIn = async function(id) {
-            if (auth.currentUser) await deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, id));
+        window.dbRemoveMusterCheckIn = async function(id) {
+            if (auth.currentUser) await deleteDoc(doc(db, ...MUSTER_CHECKINS_PATH, id));
         };
 
         window.dbSaveOutRecord = async function(record) {
             if (auth.currentUser) {
                 await setDoc(doc(db, ...OUT_COLLECTION_PATH, record.id), record);
-                await deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, record.id)).catch(() => {});
+                await deleteDoc(doc(db, ...MUSTER_CHECKINS_PATH, record.id)).catch(() => {});
             }
         };
 
@@ -1004,21 +1005,21 @@
             window.renderDailyRosterManagerList();
             if (auth.currentUser) {
                 await deleteDoc(doc(db, ...ROSTER_COLLECTION_PATH, id));
-                await deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, id)).catch(() => {});
+                await deleteDoc(doc(db, ...MUSTER_CHECKINS_PATH, id)).catch(() => {});
                 await deleteDoc(doc(db, ...OUT_COLLECTION_PATH, id)).catch(() => {});
             }
         };
 
-        window.dbResetAllCheckIns = async function() {
+        window.dbResetAllMusterSessions = async function() {
+            if (auth.currentUser) {
+                const promisesChecked = window.checkedInRecords.map(c => deleteDoc(doc(db, ...MUSTER_CHECKINS_PATH, c.id)));
+                const promisesOut = window.outRecords.map(o => deleteDoc(doc(db, ...OUT_COLLECTION_PATH, o.id)));
+                await Promise.all([...promisesChecked, ...promisesOut]);
+            }
             window.checkedInRecords = [];
             window.outRecords = [];
             window.updateDashboardMetrics();
             window.renderAdminTables();
-            if (auth.currentUser) {
-                const promisesChecked = window.checkedInRecords.map(c => deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, c.id)));
-                const promisesOut = window.outRecords.map(o => deleteDoc(doc(db, ...OUT_COLLECTION_PATH, o.id)));
-                await Promise.all([...promisesChecked, ...promisesOut]);
-            }
         };
 
         function initClock() {
@@ -1288,7 +1289,6 @@
             const filtered = window.dailyLogRecords.filter(r => r.dateStr === dateFilter);
             document.getElementById('dailyLogCount').textContent = filtered.length;
 
-            // Update Daily Metrics Bar
             const totalRoster = window.masterRoster.length;
             const checkedInCount = filtered.length;
             const missingCount = Math.max(0, totalRoster - checkedInCount);
@@ -1477,7 +1477,7 @@
             window.checkedInRecords.push(record);
             window.updateDashboardMetrics();
             window.renderAdminTables();
-            await window.dbSaveCheckIn(record);
+            await window.dbSaveMusterCheckIn(record);
 
             document.getElementById('musterConfirmName').textContent = window.musterSelectedPerson.name;
             document.getElementById('musterConfirmStation').textContent = window.currentStation;
@@ -1642,7 +1642,7 @@
             window.checkedInRecords.push(record);
             window.updateDashboardMetrics();
             window.renderAdminTables();
-            await window.dbSaveCheckIn(record);
+            await window.dbSaveMusterCheckIn(record);
         };
 
         window.adminMarkOut = async function(id) {
@@ -1661,7 +1661,7 @@
                 window.checkedInRecords = window.checkedInRecords.filter(c => c.id !== id);
                 window.updateDashboardMetrics();
                 window.renderAdminTables();
-                await window.dbRemoveCheckIn(id);
+                await window.dbRemoveMusterCheckIn(id);
             }
         };
 
@@ -1760,7 +1760,7 @@
                     <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
                     <td>${escapeHtml(c.station)}</td>
                     <td style="font-family: monospace;">${c.timestamp}</td>
-                    <td style="text-align: center;">${c.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-size: 8px; font-weight: bold;">[ADMIN MARKED]</span>'}</td>
+                    <td style="text-align: center;">${c.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
                 </tr>
             `).join('');
 
@@ -1769,13 +1769,13 @@
 
         window.confirmResetMusterSession = async function() {
             if (confirm('RESET LIVE MUSTER SESSION?\n\nThis will clear all check-ins across ALL connected iPads while keeping the master roster intact.')) {
-                await window.dbResetAllCheckIns();
+                await window.dbResetAllMusterSessions();
                 alert('Muster session reset.');
             }
         };
 
         function escapeHtml(str) {
-            if (-!str) return '';
+            if (!str) return '';
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
