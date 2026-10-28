@@ -111,14 +111,6 @@
                 page-break-inside: avoid; 
                 page-break-after: auto; 
             }
-            /* Multi-column layout helper for massive rosters */
-            .print-multi-column {
-                column-count: 2;
-                column-gap: 12px;
-            }
-            .print-multi-column table {
-                break-inside: avoid;
-            }
         }
     </style>
 </head>
@@ -205,7 +197,7 @@
                         <i data-lucide="pen-tool" class="w-4 h-4"></i> Personnel Check-In
                     </button>
                     <button id="dailyTabLogBtn" onclick="requestDailyAdminAccess()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Daily Sign-In Logs & Reports
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Daily Admin & Reports
                     </button>
                 </div>
                 <div class="hidden sm:block text-xs font-mono text-slate-400 px-3">
@@ -309,25 +301,63 @@
                 </div>
             </div>
 
-            <!-- Daily Logs & Reports View -->
-            <div id="dailyLogView" class="hidden flex-1 flex flex-col space-y-4">
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-                    <div class="flex items-center gap-3">
-                        <label class="text-xs font-bold text-slate-300 uppercase">Filter by Date:</label>
-                        <input type="date" id="logDateFilter" onchange="renderDailyLogTable()" class="bg-slate-900 border border-slate-700 text-white text-sm font-mono rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
-                        <button onclick="setTodayDateFilter()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition">Today</button>
+            <!-- Daily Admin & Reports View -->
+            <div id="dailyLogView" class="hidden flex-1 flex flex-col space-y-6">
+                
+                <!-- Daily Metrics Dashboard Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Roster</div>
+                        <div id="dailyStatTotal" class="text-3xl font-black text-white">0</div>
+                        <div class="text-xs text-slate-500 mt-1">Active site workforce</div>
                     </div>
+                    <div class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 text-emerald-500/10"><i data-lucide="user-check" class="w-20 h-20"></i></div>
+                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Signed In Today</div>
+                        <div id="dailyStatCheckedIn" class="text-3xl font-black text-emerald-400">0</div>
+                        <div class="text-xs text-emerald-500/80 mt-1">Checked in for shift</div>
+                    </div>
+                    <div class="bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 text-amber-500/10"><i data-lucide="user-x" class="w-20 h-20"></i></div>
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Not Yet Signed In</div>
+                        <div id="dailyStatMissing" class="text-3xl font-black text-amber-400">0</div>
+                        <div class="text-xs text-amber-500/80 mt-1">Pending attendance</div>
+                    </div>
+                    <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Turnout Rate</div>
+                        <div id="dailyStatPercent" class="text-3xl font-black text-cyan-400">0%</div>
+                        <div class="text-xs text-slate-500 mt-1">Daily attendance rate</div>
+                    </div>
+                </div>
+
+                <!-- Sub-Navigation for Daily Admin (Logs vs Roster Management) -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
                     <div class="flex items-center gap-2">
-                        <button onclick="printDailyLogReport()" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                            <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Day Report
+                        <button id="dailyAdminSubLogsBtn" onclick="switchDailyAdminSubTab('logs')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Signed-In Log
                         </button>
-                        <button onclick="exportDailyCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                            <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+                        <button id="dailyAdminSubRosterBtn" onclick="switchDailyAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
+                            <i data-lucide="users" class="w-4 h-4"></i> Add/Manage Personnel
+                        </button>
+                    </div>
+
+                    <div id="dailyLogsControls" class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs font-bold text-slate-300 uppercase">Date:</label>
+                            <input type="date" id="logDateFilter" onchange="renderDailyLogTable()" class="bg-slate-900 border border-slate-700 text-white text-sm font-mono rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500">
+                            <button onclick="setTodayDateFilter()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Today</button>
+                        </div>
+                        <button onclick="printDailyLogReport()" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Report
+                        </button>
+                        <button onclick="exportDailyCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-4 h-4"></i> CSV
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl flex-1 flex flex-col">
+                <!-- Daily Signed-In Table Sub-View -->
+                <div id="dailyAdminLogsContainer" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl flex-1 flex flex-col">
                     <div class="bg-slate-950 px-6 py-3 border-b border-slate-700 flex justify-between items-center">
                         <h3 class="font-bold text-white text-sm">Signed-In Personnel for <span id="activeLogDateTitle" class="text-amber-400">---</span> (<span id="dailyLogCount">0</span>)</h3>
                     </div>
@@ -345,6 +375,42 @@
                             </thead>
                             <tbody id="dailyLogTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Daily Roster Management Sub-View -->
+                <div id="dailyAdminRosterContainer" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
+                            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> Add Individual Person
+                            </h3>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Full Name</label>
+                                <input type="text" id="dailyAddNameInput" placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500">
+                            </div>
+                            <button onclick="addSinglePersonnelFromDaily()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">
+                                Add to Master Roster
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
+                            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <i data-lucide="file-text" class="text-emerald-500 w-5 h-5"></i> Bulk Import Roster Names
+                            </h3>
+                            <p class="text-xs text-slate-400">Paste names (one per line).</p>
+                            <textarea id="dailyBulkImportInput" rows="3" placeholder="John Doe&#10;Jane Smith" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-mono focus:outline-none focus:border-emerald-500"></textarea>
+                            <button onclick="bulkImportPersonnelFromDaily()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">
+                                Bulk Import Names
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-white text-base">Master Roster Database (<span id="dailyRosterTotalCount">0</span>)</h3>
+                        </div>
+                        <div class="max-h-60 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-xl" id="dailyMasterRosterList"></div>
                     </div>
                 </div>
             </div>
@@ -658,7 +724,7 @@
         </div>
     </div>
 
-    <!-- HIGH DENSITY PRINT REPORT VIEW (SLIM 100+ LINE OPTIMIZED) -->
+    <!-- HIGH DENSITY PRINT REPORT VIEW -->
     <div class="hidden print-only p-2 text-black">
         <div class="border-b border-black pb-2 mb-3 flex justify-between items-center">
             <div>
@@ -823,6 +889,7 @@
                     saveLocalStorageFallback();
                     window.updateDashboardMetrics();
                     window.renderAdminTables();
+                    window.renderDailyLogTable();
                 }, (err) => {
                     loadLocalStorageFallback();
                 });
@@ -868,6 +935,7 @@
                     window.masterRoster = JSON.parse(local);
                     window.updateDashboardMetrics();
                     window.renderAdminTables();
+                    window.renderDailyLogTable();
                 }
             } catch (e) {}
         }
@@ -909,10 +977,12 @@
 
         window.dbSaveDailyLog = async function(record) {
             if (auth.currentUser) await setDoc(doc(db, ...DAILY_LOGS_PATH, record.id), record);
+            window.renderDailyLogTable();
         };
 
         window.dbRemoveDailyLog = async function(id) {
             if (auth.currentUser) await deleteDoc(doc(db, ...DAILY_LOGS_PATH, id));
+            window.renderDailyLogTable();
         };
 
         window.dbAddPerson = async function(person) {
@@ -920,6 +990,8 @@
             saveLocalStorageFallback();
             window.updateDashboardMetrics();
             window.renderAdminTables();
+            window.renderDailyLogTable();
+            window.renderDailyRosterManagerList();
             if (auth.currentUser) await setDoc(doc(db, ...ROSTER_COLLECTION_PATH, person.id), person);
         };
 
@@ -928,6 +1000,8 @@
             saveLocalStorageFallback();
             window.updateDashboardMetrics();
             window.renderAdminTables();
+            window.renderDailyLogTable();
+            window.renderDailyRosterManagerList();
             if (auth.currentUser) {
                 await deleteDoc(doc(db, ...ROSTER_COLLECTION_PATH, id));
                 await deleteDoc(doc(db, ...CHECKINS_COLLECTION_PATH, id)).catch(() => {});
@@ -1097,6 +1171,25 @@
             }
         };
 
+        window.switchDailyAdminSubTab = function(sub) {
+            const logsContainer = document.getElementById('dailyAdminLogsContainer');
+            const rosterContainer = document.getElementById('dailyAdminRosterContainer');
+            const logsControls = document.getElementById('dailyLogsControls');
+            const btnLogs = document.getElementById('dailyAdminSubLogsBtn');
+            const btnRoster = document.getElementById('dailyAdminSubRosterBtn');
+
+            if (sub === 'logs') {
+                logsContainer.classList.remove('hidden'); rosterContainer.classList.add('hidden'); logsControls.classList.remove('hidden');
+                btnLogs.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
+                btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+            } else {
+                logsContainer.classList.add('hidden'); rosterContainer.classList.remove('hidden'); logsControls.classList.add('hidden');
+                btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
+                btnLogs.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                window.renderDailyRosterManagerList();
+            }
+        };
+
         window.requestDailyAdminAccess = function() {
             if (window.isAdminAuthenticated) {
                 window.switchDailySubTab('log');
@@ -1194,6 +1287,18 @@
             document.getElementById('activeLogDateTitle').textContent = dateFilter;
             const filtered = window.dailyLogRecords.filter(r => r.dateStr === dateFilter);
             document.getElementById('dailyLogCount').textContent = filtered.length;
+
+            // Update Daily Metrics Bar
+            const totalRoster = window.masterRoster.length;
+            const checkedInCount = filtered.length;
+            const missingCount = Math.max(0, totalRoster - checkedInCount);
+            const percent = totalRoster > 0 ? Math.round((checkedInCount / totalRoster) * 100) : 0;
+
+            document.getElementById('dailyStatTotal').textContent = totalRoster;
+            document.getElementById('dailyStatCheckedIn').textContent = checkedInCount;
+            document.getElementById('dailyStatMissing').textContent = missingCount;
+            document.getElementById('dailyStatPercent').textContent = `${percent}%`;
+
             const tbody = document.getElementById('dailyLogTableBody');
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No sign-ins recorded for ${dateFilter}.</td></tr>`;
@@ -1217,6 +1322,43 @@
                 window.renderDailyLogTable();
                 await window.dbRemoveDailyLog(id);
             }
+        };
+
+        window.renderDailyRosterManagerList = function() {
+            const container = document.getElementById('dailyMasterRosterList');
+            document.getElementById('dailyRosterTotalCount').textContent = window.masterRoster.length;
+            if (window.masterRoster.length === 0) { container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Roster empty.</div>`; return; }
+            container.innerHTML = window.masterRoster.map(p => `
+                <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
+                    <div class="font-bold text-white text-sm">${escapeHtml(p.name)}</div>
+                    <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-500 hover:text-red-400 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        window.addSinglePersonnelFromDaily = async function() {
+            const name = document.getElementById('dailyAddNameInput').value.trim();
+            if (!name) return alert('Enter name.');
+            await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name });
+            document.getElementById('dailyAddNameInput').value = '';
+            window.renderDailyRosterManagerList();
+        };
+
+        window.bulkImportPersonnelFromDaily = async function() {
+            const raw = document.getElementById('dailyBulkImportInput').value;
+            if (!raw.trim()) return alert('Paste names.');
+            const lines = raw.split('\n'); let count = 0;
+            for (const line of lines) {
+                const name = line.trim();
+                if (name) {
+                    await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name });
+                    count++;
+                }
+            }
+            document.getElementById('dailyBulkImportInput').value = '';
+            alert(`Imported ${count} names.`);
+            window.renderDailyRosterManagerList();
         };
 
         window.exportDailyCSV = function() {
@@ -1396,6 +1538,8 @@
             document.getElementById('badgeCheckedCount').textContent = checked;
             document.getElementById('badgeOutCount').textContent = outCount;
             document.getElementById('rosterTotalCount').textContent = total;
+            
+            window.renderDailyLogTable();
         };
 
         window.switchAdminSubTab = function(subTab) {
@@ -1631,7 +1775,7 @@
         };
 
         function escapeHtml(str) {
-            if (!str) return '';
+            if (-!str) return '';
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
