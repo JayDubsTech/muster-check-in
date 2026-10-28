@@ -60,19 +60,37 @@
             background: #475569;
             border-radius: 4px;
         }
+
+        /* PRINT STYLING FIXES */
         @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            /* Hide all interactive app elements */
+            .no-print, header, main, footer, #startupLockModal, #pinModal, #successOverlay { 
+                display: none !important; 
+            }
+            /* Show only the dedicated printable container */
+            .print-only { 
+                display: block !important; 
+            }
+            body { 
+                background: white !important; 
+                color: black !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            table { 
+                page-break-inside: auto; 
+            }
+            tr { 
+                page-break-inside: avoid; 
+                page-break-after: auto; 
+            }
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-900">
 
     <!-- STARTUP APP LOCK GATE MODAL -->
-    <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+    <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
             <div class="w-16 h-16 bg-red-600/10 text-red-500 rounded-full flex items-center justify-center mx-auto border border-red-500/30 animate-pulse">
                 <i data-lucide="shield-alert" class="w-8 h-8"></i>
@@ -145,7 +163,7 @@
     </header>
 
     <!-- Main Dynamic Content Wrapper -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col no-print">
 
         <!-- ================= USER CHECK-IN TAB ================= -->
         <div id="userTab" class="flex-1 flex flex-col justify-center">
@@ -253,7 +271,7 @@
             </div>
 
             <!-- Confirmation Success Screen Overlay -->
-            <div id="successOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div id="successOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 no-print">
                 <div class="bg-slate-900 border-2 border-emerald-500 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl space-y-5 animate-in fade-in zoom-in duration-300">
                     <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/40">
                         <i data-lucide="check-circle" class="w-12 h-12"></i>
@@ -433,14 +451,14 @@
     </main>
 
     <!-- ADMIN PIN SECURITY MODAL -->
-    <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
             <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto border border-amber-500/30">
                 <i data-lucide="lock" class="w-7 h-7"></i>
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">1234</code>)</p>
+                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">2026</code>)</p>
             </div>
             
             <input type="password" id="pinInput" maxlength="6" placeholder="****" 
@@ -455,47 +473,49 @@
         </div>
     </div>
 
-    <!-- PRINT REPORT VIEW (INCLUDES BOTH CHECKED-IN LOG & MISSING NAMES LIST) -->
+    <!-- PRINT REPORT VIEW (ONLY VISIBLE DURING PRINT) -->
     <div class="hidden print-only p-8 text-black">
         <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-black">EMERGENCY MUSTER LIVE SUMMARY REPORT</h1>
-                <p class="text-sm">Generated: <span id="printTimestamp"></span></p>
+                <p class="text-sm font-medium">Generated: <span id="printTimestamp"></span></p>
             </div>
             <div class="text-right">
                 <div class="text-sm font-bold" id="printStation">Station #1</div>
-                <div class="text-xs">STATUS: LIVE CLOUD SYNCED INCIDENT</div>
+                <div class="text-xs text-gray-700">STATUS: LIVE CLOUD SYNCED INCIDENT</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-6 border border-black p-4 text-center font-bold">
+        <!-- TOP METRICS BOX -->
+        <div class="grid grid-cols-3 gap-4 mb-6 border border-black p-3 text-center font-bold text-sm">
             <div>TOTAL ROSTER: <span id="printTotal">0</span></div>
             <div>CHECKED IN: <span id="printChecked">0</span></div>
             <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
         </div>
 
         <!-- CHECKED-IN LOG WITH SIGNATURE IMAGES -->
-        <h2 class="text-lg font-bold mb-2">CHECKED IN PERSONNEL LOG</h2>
+        <h2 class="text-base font-bold mb-2 uppercase tracking-wide">CHECKED IN PERSONNEL LOG</h2>
         <table class="w-full text-left border-collapse border border-black mb-8 text-xs">
             <thead>
-                <tr class="bg-gray-200">
+                <tr class="bg-gray-100 uppercase font-bold">
                     <th class="border border-black p-2 w-10">#</th>
                     <th class="border border-black p-2">Name</th>
                     <th class="border border-black p-2">Muster Station</th>
                     <th class="border border-black p-2">Time Stamp</th>
-                    <th class="border border-black p-2 w-44">Signature</th>
+                    <th class="border border-black p-2 w-44 text-center">Signature</th>
                 </tr>
             </thead>
             <tbody id="printCheckedBody"></tbody>
         </table>
 
         <!-- MISSING PERSONNEL NAMES LIST -->
-        <h2 class="text-lg font-bold mb-2 text-red-700">MISSING / UNACCOUNTED PERSONNEL</h2>
+        <h2 class="text-base font-bold mb-2 text-red-700 uppercase tracking-wide">MISSING / UNACCOUNTED PERSONNEL</h2>
         <table class="w-full text-left border-collapse border border-black text-xs">
             <thead>
-                <tr class="bg-gray-200">
+                <tr class="bg-gray-100 uppercase font-bold">
                     <th class="border border-black p-2 w-10">#</th>
                     <th class="border border-black p-2">Name</th>
+                    <th class="border border-black p-2">Department / Role</th>
                 </tr>
             </thead>
             <tbody id="printMissingBody"></tbody>
@@ -975,7 +995,13 @@
             const person = window.masterRoster.find(p => p.id === id);
             if (!person) return;
             const now = new Date();
-            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
+            const timestamp = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+
             await window.dbSaveCheckIn({
                 id: person.id, name: person.name, dept: person.dept || 'Staff',
                 station: `${window.currentStation} (Admin)`, timestamp: timestamp, signatureImg: null
@@ -1057,12 +1083,13 @@
             document.body.removeChild(link);
         };
 
-        // PRINT REPORT - INCLUDES BOTH CHECKED-IN LOG & MISSING PERSONNEL NAMES
+        // PRINT REPORT GENERATION
         window.printMusterReport = function() {
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id));
 
             document.getElementById('printTimestamp').textContent = new Date().toLocaleString();
+            document.getElementById('printStation').textContent = window.currentStation;
             document.getElementById('printTotal').textContent = window.masterRoster.length;
             document.getElementById('printChecked').textContent = window.checkedInRecords.length;
             document.getElementById('printMissing').textContent = missingList.length;
@@ -1078,7 +1105,7 @@
                         <td class="border border-black p-2">${escapeHtml(c.station || 'Station #1')}</td>
                         <td class="border border-black p-2 font-mono">${c.timestamp}</td>
                         <td class="border border-black p-2 text-center">
-                            ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-10 max-w-[150px] mx-auto object-contain" alt="Signature">` : '<span class="text-xs italic text-gray-600">Admin Present</span>'}
+                            ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[150px] mx-auto object-contain" alt="Signature">` : '<span class="text-xs italic text-gray-600">Admin Present</span>'}
                         </td>
                     </tr>
                 `).join('');
@@ -1086,12 +1113,13 @@
 
             const printMissingBody = document.getElementById('printMissingBody');
             if (missingList.length === 0) {
-                printMissingBody.innerHTML = `<tr><td colspan="2" class="border border-black p-4 text-center font-bold text-green-700">ALL PERSONNEL SAFELY ACCOUNTED FOR</td></tr>`;
+                printMissingBody.innerHTML = `<tr><td colspan="3" class="border border-black p-4 text-center font-bold text-emerald-700">ALL PERSONNEL SAFELY ACCOUNTED FOR</td></tr>`;
             } else {
                 printMissingBody.innerHTML = missingList.map((p, i) => `
                     <tr>
                         <td class="border border-black p-2 font-mono">${i + 1}</td>
                         <td class="border border-black p-2 font-bold">${escapeHtml(p.name)}</td>
+                        <td class="border border-black p-2">${escapeHtml(p.dept || 'General Staff')}</td>
                     </tr>
                 `).join('');
             }
