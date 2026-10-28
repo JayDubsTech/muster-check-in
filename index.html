@@ -47,7 +47,7 @@
             color: #F8FAFC;
         }
         canvas {
-            touch-action: none; /* Allows free smooth signature drawing on iOS touch screens */
+            touch-action: none;
         }
         ::-webkit-scrollbar {
             width: 6px;
@@ -64,6 +64,8 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             body { background: white !important; color: black !important; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
         }
     </style>
 </head>
@@ -195,9 +197,7 @@
                         </div>
 
                         <!-- Custom Select Dropdown -->
-                        <div id="dropdownList" class="hidden mt-2 bg-slate-900 border border-slate-700 rounded-xl max-h-56 overflow-y-auto divide-y divide-slate-800 shadow-2xl z-20 relative">
-                            <!-- Populated dynamically via JS -->
-                        </div>
+                        <div id="dropdownList" class="hidden mt-2 bg-slate-900 border border-slate-700 rounded-xl max-h-56 overflow-y-auto divide-y divide-slate-800 shadow-2xl z-20 relative"></div>
                         
                         <!-- Selected Name Indicator -->
                         <div id="selectedPersonCard" class="hidden mt-3 bg-slate-900/90 border-2 border-emerald-500/80 rounded-xl p-3.5 flex items-center justify-between">
@@ -276,11 +276,9 @@
 
         </div>
 
-
         <!-- ================= ADMIN DASHBOARD TAB ================= -->
         <div id="adminTab" class="hidden flex-1 flex-col space-y-6">
             
-            <!-- Dashboard Top Summary Stats Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Roster</div>
@@ -308,8 +306,6 @@
 
             <!-- Main Admin Control Panel Card -->
             <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden flex-1 flex flex-col">
-                
-                <!-- Admin Navigation Header Bar -->
                 <div class="bg-slate-950 p-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <button id="adminTabMissingBtn" onclick="switchAdminSubTab('missing')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
@@ -323,7 +319,6 @@
                         </button>
                     </div>
 
-                    <!-- Quick Actions -->
                     <div class="flex items-center gap-2">
                         <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
                             <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i> CSV Export
@@ -361,9 +356,7 @@
                                         <th class="p-3.5 text-right">Quick Admin Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="missingTableBody" class="divide-y divide-slate-800 text-sm">
-                                    <!-- Populated JS -->
-                                </tbody>
+                                <tbody id="missingTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
                             </table>
                         </div>
                     </div>
@@ -384,15 +377,13 @@
                                     <tr class="bg-slate-950 text-slate-400 text-xs uppercase font-bold border-b border-slate-800">
                                         <th class="p-3.5">#</th>
                                         <th class="p-3.5">Full Name</th>
-                                        <th class="p-3.5">Station Location</th>
-                                        <th class="p-3.5">Timestamp</th>
-                                        <th class="p-3.5">Digital Signature</th>
+                                        <th class="p-3.5">Muster Station</th>
+                                        <th class="p-3.5">Time Stamp</th>
+                                        <th class="p-3.5">Signature</th>
                                         <th class="p-3.5 text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="checkedTableBody" class="divide-y divide-slate-800 text-sm">
-                                    <!-- Populated JS -->
-                                </tbody>
+                                <tbody id="checkedTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
                             </table>
                         </div>
                     </div>
@@ -401,8 +392,6 @@
                 <!-- SUB-TAB 3: MASTER ROSTER MANAGER -->
                 <div id="subTabRoster" class="hidden p-4 sm:p-6 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <!-- Add Single Name Form -->
                         <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
                             <h3 class="font-bold text-white text-base flex items-center gap-2">
                                 <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> Add Individual Person
@@ -420,7 +409,6 @@
                             </button>
                         </div>
 
-                        <!-- Bulk Import Roster Form -->
                         <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
                             <h3 class="font-bold text-white text-base flex items-center gap-2">
                                 <i data-lucide="file-text" class="text-emerald-500 w-5 h-5"></i> Bulk Import Roster Names
@@ -431,24 +419,17 @@
                                 Bulk Import Names
                             </button>
                         </div>
-
                     </div>
 
-                    <!-- Full Master Roster View & Delete -->
                     <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3">
                         <div class="flex justify-between items-center">
                             <h3 class="font-bold text-white text-base">Master Roster Database (<span id="rosterTotalCount">0</span>)</h3>
                         </div>
-                        <div class="max-h-60 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-xl" id="masterRosterList">
-                            <!-- JS Populated -->
-                        </div>
+                        <div class="max-h-60 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-xl" id="masterRosterList"></div>
                     </div>
-
                 </div>
-
             </div>
         </div>
-
     </main>
 
     <!-- ADMIN PIN SECURITY MODAL -->
@@ -468,17 +449,13 @@
             <div id="pinError" class="hidden text-xs text-red-400 font-semibold">Incorrect PIN code. Try again.</div>
 
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="closePinModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition">
-                    Cancel
-                </button>
-                <button onclick="verifyPin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">
-                    Unlock
-                </button>
+                <button onclick="closePinModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition">Cancel</button>
+                <button onclick="verifyPin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">Unlock</button>
             </div>
         </div>
     </div>
 
-    <!-- PRINT REPORT VIEW (ONLY VISIBLE WHEN PRINTING) -->
+    <!-- PRINT REPORT VIEW (VISIBLE ON PRINT) -->
     <div class="hidden print-only p-8 text-black">
         <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
             <div>
@@ -497,35 +474,36 @@
             <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
         </div>
 
-        <h2 class="text-lg font-bold mb-2 text-red-700">MISSING / UNACCOUNTED PERSONNEL</h2>
-        <table class="w-full text-left border-collapse border border-black mb-6 text-xs">
+        <h2 class="text-lg font-bold mb-2">CHECKED IN PERSONNEL LOG</h2>
+        <table class="w-full text-left border-collapse border border-black mb-8 text-xs">
             <thead>
                 <tr class="bg-gray-200">
-                    <th class="border border-black p-2">#</th>
-                    <th class="border border-black p-2">Name</th>
-                    <th class="border border-black p-2">Department</th>
-                </tr>
-            </thead>
-            <tbody id="printMissingBody"></tbody>
-        </table>
-
-        <h2 class="text-lg font-bold mb-2">CHECKED IN PERSONNEL</h2>
-        <table class="w-full text-left border-collapse border border-black text-xs">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="border border-black p-2">#</th>
+                    <th class="border border-black p-2 w-12">#</th>
                     <th class="border border-black p-2">Name</th>
                     <th class="border border-black p-2">Muster Station</th>
-                    <th class="border border-black p-2">Timestamp</th>
+                    <th class="border border-black p-2">Time Stamp</th>
+                    <th class="border border-black p-2 w-48">Signature</th>
                 </tr>
             </thead>
             <tbody id="printCheckedBody"></tbody>
+        </table>
+
+        <h2 class="text-lg font-bold mb-2 text-red-700">MISSING / UNACCOUNTED PERSONNEL</h2>
+        <table class="w-full text-left border-collapse border border-black text-xs">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-black p-2 w-12">#</th>
+                    <th class="border border-black p-2">Name</th>
+                    <th class="border border-black p-2">Department / Role</th>
+                </tr>
+            </thead>
+            <tbody id="printMissingBody"></tbody>
         </table>
     </div>
 
     <!-- Footer -->
     <footer class="bg-slate-950 border-t border-slate-800/80 py-3 px-6 text-center text-xs text-slate-500 no-print">
-        <span>Plateau Excavation - Muster Check-In</span>
+        <span>Realtime Sync Activated &bull; Multi-iPad Emergency Muster Network &bull; Firebase Powered</span>
     </footer>
 
     <!-- FIREBASE REALTIME SYNC SCRIPTS -->
@@ -562,8 +540,8 @@
         window.currentStation = "Station #1 - Main Office";
         
         // --- APP STARTUP PASSWORD CONFIGURATION ---
-        const APP_STARTUP_PASSWORD = '26006'; // Change this code to whatever password you want!
-        window.adminPin = '2026';            // Admin settings PIN
+        const APP_STARTUP_PASSWORD = '5678'; // Change this code to whatever password you want!
+        window.adminPin = '1234';            // Admin settings PIN
         window.isAdminAuthenticated = false;
 
         // Canvas Signature State
@@ -1151,30 +1129,32 @@
             await window.dbRemovePerson(id);
         };
 
+        // EXPORT CSV - EXACT REQUIRED COLUMNS: Name, Muster Station, Time Stamp, Signature
         window.exportCSV = function() {
             const checkedMap = new Map(window.checkedInRecords.map(c => [c.id, c]));
             
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Status,Name,Department,Muster Station,Timestamp,Signature Verified\n";
+            csvContent += "Name,Muster Station,Time Stamp,Signature Status\n";
 
             window.masterRoster.forEach(p => {
                 const record = checkedMap.get(p.id);
                 if (record) {
-                    csvContent += `CHECKED IN,"${p.name.replace(/"/g, '""')}","${(p.dept||'').replace(/"/g, '""')}","${record.station || ''}","${record.timestamp}","${record.signatureImg ? 'YES' : 'NO (Admin Override)'}"\n`;
+                    csvContent += `"${p.name.replace(/"/g, '""')}","${(record.station || '').replace(/"/g, '""')}","${record.timestamp}","${record.signatureImg ? 'VERIFIED SIGNATURE' : 'ADMIN OVERRIDE'}"\n`;
                 } else {
-                    csvContent += `MISSING,"${p.name.replace(/"/g, '""')}","${(p.dept||'').replace(/"/g, '""')}","N/A","N/A","N/A"\n`;
+                    csvContent += `"${p.name.replace(/"/g, '""')}","N/A (MISSING)","N/A","NOT SIGNED"\n`;
                 }
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Muster_Summary_Report_${new Date().toISOString().substring(0, 10)}.csv`);
+            link.setAttribute("download", `Muster_Report_${new Date().toISOString().substring(0, 10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         };
 
+        // PRINT REPORT - EXACT REQUIRED COLUMNS & SIGNATURE IMAGES
         window.printMusterReport = function() {
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const missingList = window.masterRoster.filter(p => !checkedIds.has(p.id));
@@ -1184,24 +1164,35 @@
             document.getElementById('printChecked').textContent = window.checkedInRecords.length;
             document.getElementById('printMissing').textContent = missingList.length;
 
-            const printMissingBody = document.getElementById('printMissingBody');
-            printMissingBody.innerHTML = missingList.map((p, i) => `
-                <tr>
-                    <td class="border border-black p-2">${i + 1}</td>
-                    <td class="border border-black p-2 font-bold">${escapeHtml(p.name)}</td>
-                    <td class="border border-black p-2">${escapeHtml(p.dept || 'Staff')}</td>
-                </tr>
-            `).join('');
-
             const printCheckedBody = document.getElementById('printCheckedBody');
-            printCheckedBody.innerHTML = window.checkedInRecords.map((c, i) => `
-                <tr>
-                    <td class="border border-black p-2">${i + 1}</td>
-                    <td class="border border-black p-2 font-bold">${escapeHtml(c.name)} (${escapeHtml(c.dept)})</td>
-                    <td class="border border-black p-2">${escapeHtml(c.station || 'Station #1')}</td>
-                    <td class="border border-black p-2">${c.timestamp}</td>
-                </tr>
-            `).join('');
+            if (window.checkedInRecords.length === 0) {
+                printCheckedBody.innerHTML = `<tr><td colspan="5" class="border border-black p-4 text-center">No personnel checked in yet.</td></tr>`;
+            } else {
+                printCheckedBody.innerHTML = window.checkedInRecords.map((c, i) => `
+                    <tr>
+                        <td class="border border-black p-2 font-mono">${i + 1}</td>
+                        <td class="border border-black p-2 font-bold">${escapeHtml(c.name)}</td>
+                        <td class="border border-black p-2">${escapeHtml(c.station || 'Station #1')}</td>
+                        <td class="border border-black p-2 font-mono">${c.timestamp}</td>
+                        <td class="border border-black p-2 text-center">
+                            ${c.signatureImg ? `<img src="${c.signatureImg}" class="h-10 max-w-[160px] mx-auto object-contain" alt="Signature">` : '<span class="text-xs font-italic text-gray-600">Admin Present</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const printMissingBody = document.getElementById('printMissingBody');
+            if (missingList.length === 0) {
+                printMissingBody.innerHTML = `<tr><td colspan="3" class="border border-black p-4 text-center font-bold text-green-700">ALL PERSONNEL SAFELY ACCOUNTED FOR</td></tr>`;
+            } else {
+                printMissingBody.innerHTML = missingList.map((p, i) => `
+                    <tr>
+                        <td class="border border-black p-2 font-mono">${i + 1}</td>
+                        <td class="border border-black p-2 font-bold">${escapeHtml(p.name)}</td>
+                        <td class="border border-black p-2 text-gray-700">${escapeHtml(p.dept || 'Staff')}</td>
+                    </tr>
+                `).join('');
+            }
 
             window.print();
         };
