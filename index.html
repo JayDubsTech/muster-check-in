@@ -1025,6 +1025,7 @@
             window.renderDailyLogTable();
             window.updateDashboardMetrics();
             window.renderAdminTables();
+            window.renderDailyRosterManagerList();
         };
 
         window.dbRemoveDailyLog = async function(id) {
@@ -1032,6 +1033,7 @@
             window.renderDailyLogTable();
             window.updateDashboardMetrics();
             window.renderAdminTables();
+            window.renderDailyRosterManagerList();
         };
 
         window.dbAddPerson = async function(person) {
@@ -1343,6 +1345,31 @@
             document.getElementById('dailySuccessOverlay').classList.remove('hidden');
         };
 
+        window.adminManualDailySignIn = async function(personId) {
+            const p = window.masterRoster.find(x => x.id === personId);
+            if (!p) return;
+            const now = new Date();
+            const dateStr = now.toISOString().substring(0, 10);
+            const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            
+            const recordId = `${p.id}_${dateStr}`;
+            const record = { 
+                id: recordId, 
+                personId: p.id, 
+                name: p.name, 
+                station: `${window.currentStation} (Admin Override)`, 
+                dateStr: dateStr, 
+                timestamp: timestamp, 
+                signatureImg: null 
+            };
+
+            window.dailyLogRecords = window.dailyLogRecords.filter(r => r.id !== recordId);
+            window.dailyLogRecords.push(record);
+            await window.dbSaveDailyLog(record);
+            window.renderDailyLogTable();
+            window.renderDailyRosterManagerList();
+        };
+
         window.resetDailyCheckInForm = function() {
             document.getElementById('dailySuccessOverlay').classList.add('hidden');
             window.clearDailySelectedPerson();
@@ -1387,7 +1414,7 @@
                             <td class="p-3.5 font-bold text-white">${escapeHtml(r.name)}</td>
                             <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(r.station)}</td>
                             <td class="p-3.5 text-amber-400 font-mono text-xs">${r.timestamp}</td>
-                            <td class="p-3.5"><img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain" alt="Sig"></td>
+                            <td class="p-3.5">${r.signatureImg ? `<img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain" alt="Sig">` : '<span class="text-xs text-slate-500 font-bold">[ADMIN]</span>'}</td>
                             <td class="p-3.5 text-right"><button onclick="deleteDailyLogRecord('${r.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">Remove</button></td>
                         </tr>
                     `).join('');
@@ -1410,12 +1437,25 @@
             if (!container) return;
             document.getElementById('dailyRosterTotalCount').textContent = window.masterRoster.length;
             if (window.masterRoster.length === 0) { container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Roster empty.</div>`; return; }
-            container.innerHTML = window.masterRoster.map(p => `
-                <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
-                    <div class="font-bold text-white text-sm">${escapeHtml(p.name)}</div>
-                    <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-500 hover:text-red-400 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </div>
-            `).join('');
+            
+            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const signedTodaySet = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
+
+            container.innerHTML = window.masterRoster.map(p => {
+                const isSigned = signedTodaySet.has(p.id);
+                return `
+                    <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
+                        <div class="font-bold text-white text-sm">
+                            ${escapeHtml(p.name)}
+                            ${isSigned ? '<span class="ml-2 text-xs bg-emerald-500/20 text-emerald-400 font-semibold px-2 py-0.5 rounded-full">Signed In Today</span>' : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${!isSigned ? `<button onclick="adminManualDailySignIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg font-bold transition">Manual Sign-In</button>` : ''}
+                            <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-500 hover:text-red-400 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
             lucide.createIcons();
         };
 
@@ -1639,6 +1679,7 @@
             if (rosterTotal) rosterTotal.textContent = window.masterRoster.length;
             
             window.renderDailyLogTable();
+            window.renderDailyRosterManagerList();
         };
 
         window.switchAdminSubTab = function(subTab) {
@@ -1727,7 +1768,6 @@
                 } else {
                     outBody.innerHTML = outFiltered.map((p, index) => {
                         const isExplicitOut = outIds.has(p.id);
-                        const isCheckedIn = checkedIds.has(p.id);
                         return `
                             <tr class="hover:bg-slate-800/50 transition">
                                 <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
@@ -1847,7 +1887,7 @@
                         <td style="font-weight: 700;">${escapeHtml(r.name)}</td>
                         <td>${escapeHtml(r.station)}</td>
                         <td style="font-family: monospace;">${r.timestamp}</td>
-                        <td style="text-align: center;"><img src="${r.signatureImg}" class="print-sig-img"></td>
+                        <td style="text-align: center;">${r.signatureImg ? `<img src="${r.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
                     </tr>
                 `).join('');
             }
