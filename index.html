@@ -140,7 +140,7 @@
 
     <!-- Top Navigation Header Bar -->
     <header id="mainHeaderBar" class="bg-slate-950 border-b border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <!-- Branding & Title -->
             <div class="flex items-center gap-3 shrink-0">
                 <div id="headerBrandIcon" class="bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40">
@@ -157,8 +157,8 @@
                 </div>
             </div>
 
-            <!-- Right-side controls container to guarantee single-row alignment -->
-            <div class="flex items-center gap-3 shrink-0">
+            <!-- Grouped Controls: Mode Switcher, QR, Station Selector, and Live Clock -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
                 <!-- Mode Switcher (Separate Systems) -->
                 <div id="modeSwitcherContainer" class="flex items-center gap-1 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
                     <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
@@ -169,7 +169,7 @@
                     </button>
                 </div>
 
-                <!-- Station Location Selector, QR Code Button & Time -->
+                <!-- Station Location Selector & QR Code Button (Relocated Below Mode Buttons) -->
                 <div id="stationNavControls" class="flex items-center gap-2">
                     <button onclick="openQrModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
                         <i data-lucide="qr-code" class="w-4 h-4"></i> Station QR Code
@@ -184,10 +184,11 @@
                             <option value="Station #4 - Admin" class="bg-slate-900">Station #4 - Admin</option>
                         </select>
                     </div>
+                </div>
 
-                    <div class="hidden lg:block text-right bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-                        <div id="liveClock" class="text-sm font-mono font-bold text-amber-400">00:00:00 AM</div>
-                    </div>
+                <!-- Live Clock -->
+                <div class="hidden lg:block text-right bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 ml-auto">
+                    <div id="liveClock" class="text-sm font-mono font-bold text-amber-400">00:00:00 AM</div>
                 </div>
             </div>
         </div>
@@ -875,7 +876,6 @@
         // 11:59 PM Operational Shift Date Helper (Rolls over at 11:59:59 PM)
         function getShiftDateStr(dateObj = new Date()) {
             const d = new Date(dateObj.getTime());
-            // If current time is 11:59 PM (23:59:00 or later), treat it as rolling into the next calendar day
             if (d.getHours() === 23 && d.getMinutes() >= 59) {
                 d.setDate(d.getDate() + 1);
             }
@@ -885,12 +885,10 @@
         // Helper to format YYYY-MM-DD or full timestamps into MM/DD/YYYY
         function formatToMMDDYYYY(dateInput) {
             if (!dateInput) return '';
-            // If it's a YYYY-MM-DD string
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
                 const parts = dateInput.split('-');
                 return `${parts[1]}/${parts[2]}/${parts[0]}`;
             }
-            // If it's a full timestamp string or Date object
             const d = new Date(dateInput);
             if (!isNaN(d)) {
                 const mm = String(d.getMonth() + 1).padStart(2, '0');
