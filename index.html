@@ -32,7 +32,7 @@
     <!-- Custom styling & font setup -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Touch safety optimizations for iPad / mobile */
+        /* Touch safety optimizations for mobile / personal devices */
         * {
             touch-action: manipulation;
             user-select: none;
@@ -61,7 +61,7 @@
             border-radius: 4px;
         }
 
-        /* HIGH-DENSITY PRINT STYLING FOR 100+ ROSTER SHEETS */
+        /* HIGH-DENSITY PRINT STYLING FOR ROSTER SHEETS */
         @media print {
             @page {
                 size: letter portrait;
@@ -138,7 +138,7 @@
         </div>
     </div>
 
-    <!-- Top Navigation Header Bar (Desktop/Station iPad Admin) -->
+    <!-- Top Navigation Header Bar (Desktop/Admin) -->
     <header id="mainHeaderBar" class="bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <!-- Branding & Title -->
@@ -157,7 +157,7 @@
                 </div>
             </div>
 
-            <!-- Grouped Controls: Mode Switcher, QR, Theme, Language & Station Selector -->
+            <!-- Grouped Controls: Mode Switcher, QR, Theme, Language -->
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
                 <!-- Mode Switcher (Separate Systems) -->
                 <div id="modeSwitcherContainer" class="flex items-center gap-1 bg-slate-300 dark:bg-slate-900 p-1.5 rounded-xl border border-slate-400 dark:border-slate-800">
@@ -169,21 +169,11 @@
                     </button>
                 </div>
 
-                <!-- Station Controls, Theme Toggle, Language Toggle -->
+                <!-- QR Modal Button, Theme Toggle, Language Toggle -->
                 <div id="stationNavControls" class="flex items-center gap-2">
                     <button onclick="openQrModal()" class="bg-slate-300 dark:bg-slate-900 hover:bg-slate-400 dark:hover:bg-slate-800 border border-slate-400 dark:border-slate-700 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
                         <i data-lucide="qr-code" class="w-4 h-4"></i> <span data-i18n="qrBtn">Station QR Code</span>
                     </button>
-
-                    <div class="bg-slate-300 dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
-                        <select id="stationSelect" onchange="changeStation(this.value)" class="bg-transparent text-xs font-bold text-slate-900 dark:text-white focus:outline-none">
-                            <option value="Station #1 - Main Office" class="bg-slate-100 dark:bg-slate-900">Station #1 - Main Office</option>
-                            <option value="Station #2 - NE Pad 1" class="bg-slate-100 dark:bg-slate-900">Station #2 - NE Pad 1</option>
-                            <option value="Station #3 - NE Pad 2" class="bg-slate-100 dark:bg-slate-900">Station #3 - NE Pad 2</option>
-                            <option value="Station #4 - Admin" class="bg-slate-100 dark:bg-slate-900">Station #4 - Admin</option>
-                        </select>
-                    </div>
 
                     <!-- Light / Dark Mode Toggle Button -->
                     <button onclick="toggleThemeMode()" class="bg-slate-300 dark:bg-slate-900 hover:bg-slate-400 dark:hover:bg-slate-800 border border-slate-400 dark:border-slate-700 p-2 rounded-xl text-slate-800 dark:text-amber-400 transition" title="Toggle Light/Dark Mode">
@@ -405,7 +395,6 @@
                                 <tr class="bg-slate-200 dark:bg-slate-950/60 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-300 dark:border-slate-800">
                                     <th class="p-3.5">#</th>
                                     <th class="p-3.5" data-i18n="thFullName">Full Name</th>
-                                    <th class="p-3.5" data-i18n="thStation">Station</th>
                                     <th class="p-3.5" data-i18n="thTimestamp">Exact Timestamp</th>
                                     <th class="p-3.5" data-i18n="thSignature">Signature</th>
                                     <th class="p-3.5 text-right" data-i18n="thAction">Action</th>
@@ -522,7 +511,7 @@
                             <div id="musterDuplicateWarning" class="hidden mt-3 p-3.5 bg-amber-500/10 border border-amber-500/40 rounded-xl flex items-center gap-3 text-amber-700 dark:text-amber-300 text-sm">
                                 <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0"></i>
                                 <div>
-                                    <strong data-i18n="alreadyCheckedInMuster">Already Checked In:</strong> <span id="musterDuplicateTimeStr"></span> (<span id="musterDuplicateStationStr"></span>). <span data-i18n="submittingWillUpdate">Submitting will update your timestamp.</span>
+                                    <strong data-i18n="alreadyCheckedInMuster">Already Checked In:</strong> <span id="musterDuplicateTimeStr"></span>. <span data-i18n="submittingWillUpdate">Submitting will update your timestamp.</span>
                                 </div>
                             </div>
                         </div>
@@ -563,7 +552,6 @@
                         </div>
                         <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-left font-mono text-sm space-y-1.5">
                             <div class="flex justify-between text-slate-400"><span data-i18n="nameLabel">Name:</span> <strong id="musterConfirmName" class="text-white">---</strong></div>
-                            <div class="flex justify-between text-slate-400"><span data-i18n="thStation">Station:</span> <strong id="musterConfirmStation" class="text-amber-400">---</strong></div>
                             <div class="flex justify-between text-slate-400"><span data-i18n="dateTimeLabel">Time:</span> <strong id="musterConfirmTime" class="text-emerald-400">---</strong></div>
                         </div>
                         <button onclick="resetMusterCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition" data-i18n="nextPersonCheckIn">
@@ -668,7 +656,6 @@
                                         <tr class="bg-slate-200 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-300 dark:border-slate-800">
                                             <th class="p-3.5">#</th>
                                             <th class="p-3.5" data-i18n="thFullName">Full Name</th>
-                                            <th class="p-3.5" data-i18n="thStation">Muster Station</th>
                                             <th class="p-3.5" data-i18n="thTimestamp">Time Stamp</th>
                                             <th class="p-3.5" data-i18n="thSignature">Signature</th>
                                             <th class="p-3.5 text-right" data-i18n="thAction">Action</th>
@@ -813,8 +800,8 @@
                 <p class="text-xs font-semibold">Generated: <span id="printTimestamp"></span></p>
             </div>
             <div class="text-right">
-                <div class="text-xs font-bold" id="printStation">Station #1</div>
-                <div class="text-[9px] text-gray-600 uppercase tracking-wide">Plateau Excavation</div>
+                <div class="text-xs font-bold">Plateau Excavation</div>
+                <div class="text-[9px] text-gray-600 uppercase tracking-wide">Job Site Sign-In</div>
             </div>
         </div>
 
@@ -827,9 +814,8 @@
                 <thead>
                     <tr>
                         <th style="width: 28px; text-align: center;">#</th>
-                        <th style="width: 220px;">Full Name</th>
-                        <th style="width: 150px;">Station Location</th>
-                        <th style="width: 140px;">Timestamp</th>
+                        <th style="width: 250px;">Full Name</th>
+                        <th style="width: 150px;">Timestamp</th>
                         <th style="text-align: center;">Signature Verification</th>
                     </tr>
                 </thead>
@@ -850,9 +836,8 @@
                 <thead>
                     <tr>
                         <th style="width: 28px; text-align: center;">#</th>
-                        <th style="width: 220px;">Full Name</th>
-                        <th style="width: 150px;">Muster Station</th>
-                        <th style="width: 140px;">Timestamp</th>
+                        <th style="width: 250px;">Full Name</th>
+                        <th style="width: 150px;">Timestamp</th>
                         <th style="text-align: center;">Signature Verification</th>
                     </tr>
                 </thead>
@@ -899,7 +884,6 @@
         window.dailyLogRecords = [];
         window.dailySelectedPerson = null;
         window.musterSelectedPerson = null;
-        window.currentStation = "Station #1 - Main Office";
         window.currentAppMode = 'daily';
         window.pendingAdminAction = null;
         window.isWorkerOnlyMode = false;
@@ -959,7 +943,6 @@
                 printReport: "Print Report",
                 signedInFor: "Signed-In Personnel for",
                 thFullName: "Full Name",
-                thStation: "Station",
                 thTimestamp: "Exact Timestamp",
                 thSignature: "Signature",
                 thAction: "Action",
@@ -1056,7 +1039,6 @@
                 printReport: "Imprimir Reporte",
                 signedInFor: "Personal Registrado para",
                 thFullName: "Nombre Completo",
-                thStation: "Estación",
                 thTimestamp: "Hora Exacta",
                 thSignature: "Firma",
                 thAction: "Acción",
@@ -1166,7 +1148,7 @@
             if (savedTheme === 'light') {
                 html.classList.remove('dark');
                 if (icon) icon.setAttribute('data-lucide', 'moon');
-                if (workerIcon) icon.setAttribute('data-lucide', 'moon');
+                if (workerIcon) workerIcon.setAttribute('data-lucide', 'moon');
             } else {
                 html.classList.add('dark');
                 if (icon) icon.setAttribute('data-lucide', 'sun');
@@ -1238,14 +1220,11 @@
                 const type = urlParams.get('type');
                 if (type === 'muster') {
                     window.switchAppMode('muster');
-                    // Hide muster sub-tabs so worker ONLY sees the clean check-in form view
                     const subHeader = document.getElementById('musterSubTabHeader');
                     if (subHeader) subHeader.classList.add('hidden');
-                    // Ensure admin view is hidden and check-in view is active
                     document.getElementById('musterCheckInView').classList.remove('hidden');
                     document.getElementById('musterAdminView').classList.add('hidden');
                     
-                    // Style worker header icon for emergency muster
                     const wIconBg = document.getElementById('workerHeaderIcon');
                     if (wIconBg) wIconBg.className = "bg-red-600 text-white p-2 rounded-lg";
                     const wLucide = document.getElementById('workerHeaderLucideIcon');
@@ -1286,7 +1265,7 @@
 
                 syncConnected = true;
                 clearTimeout(timeoutId);
-                updateSyncBadge(true, "Live Synced Across iPads");
+                updateSyncBadge(true, "Live Synced Across Devices");
 
                 onSnapshot(collection(db, ...ROSTER_COLLECTION_PATH), (snapshot) => {
                     const rosterData = [];
@@ -1454,11 +1433,8 @@
             setInterval(updateClock, 1000);
         }
 
-        window.changeStation = function(val) { window.currentStation = val; document.getElementById('printStation').textContent = val; };
-
         window.switchAppMode = function(mode) {
             if (window.isWorkerOnlyMode) {
-                // In worker mode, lock to the type dictated by URL
                 return;
             }
             window.currentAppMode = mode;
@@ -1728,7 +1704,7 @@
             const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
             
             const recordId = `${window.dailySelectedPerson.id}_${dateStr}`;
-            const record = { id: recordId, personId: window.dailySelectedPerson.id, name: window.dailySelectedPerson.name, station: window.currentStation, dateStr: dateStr, timestamp: timestamp, signatureImg: signatureImg };
+            const record = { id: recordId, personId: window.dailySelectedPerson.id, name: window.dailySelectedPerson.name, dateStr: dateStr, timestamp: timestamp, signatureImg: signatureImg };
 
             window.dailyLogRecords = window.dailyLogRecords.filter(r => r.id !== recordId);
             window.dailyLogRecords.push(record);
@@ -1751,7 +1727,6 @@
                 id: recordId, 
                 personId: p.id, 
                 name: p.name, 
-                station: `${window.currentStation} (Admin Override)`, 
                 dateStr: dateStr, 
                 timestamp: timestamp, 
                 signatureImg: null 
@@ -1800,13 +1775,12 @@
             const tbody = document.getElementById('dailyLogTableBody');
             if (tbody) {
                 if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'No hay registros para esta fecha.' : 'No sign-ins recorded for ' + formatToMMDDYYYY(dateFilter)}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'No hay registros para esta fecha.' : 'No sign-ins recorded for ' + formatToMMDDYYYY(dateFilter)}</td></tr>`;
                 } else {
                     tbody.innerHTML = filtered.map((r, i) => `
                         <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/55 transition">
                             <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${i + 1}</td>
                             <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(r.name)}</td>
-                            <td class="p-3.5 text-slate-700 dark:text-slate-300 text-xs">${escapeHtml(r.station)}</td>
                             <td class="p-3.5 text-amber-600 dark:text-amber-400 font-mono text-xs">${r.timestamp}</td>
                             <td class="p-3.5">${r.signatureImg ? `<img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded p-1 object-contain" alt="Sig">` : '<span class="text-xs text-slate-500 font-bold">[ADMIN]</span>'}</td>
                             <td class="p-3.5 text-right"><button onclick="deleteDailyLogRecord('${r.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">${window.currentLang === 'es' ? 'Eliminar' : 'Remove'}</button></td>
@@ -1885,17 +1859,6 @@
             window.renderDailyRosterManagerList();
         };
 
-        window.exportDailyCSV = function() {
-            const dateFilter = document.getElementById('logDateFilter').value;
-            const filtered = sortRosterAlphabetically([...window.dailyLogRecords.filter(r => r.dateStr === dateFilter)]);
-            let csv = "data:text/csv;charset=utf-8,Name,Station,Date,Timestamp,Status\n";
-            filtered.forEach(r => { csv += `"${r.name.replace(/"/g, '""')}","${r.station}","${formatToMMDDYYYY(r.dateStr)}","${r.timestamp}","VERIFIED SIGNED-IN"\n`; });
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", `Daily_Sign_In_Log_${formatToMMDDYYYY(dateFilter).replace(/\//g, '-')}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        };
-
         // MUSTER SUB-TABS & ACTIONS
         window.switchMusterSubTab = function(sub) {
             if (window.isWorkerOnlyMode && sub === 'admin') return;
@@ -1968,7 +1931,6 @@
             const warningEl = document.getElementById('musterDuplicateWarning');
             if (existing) {
                 document.getElementById('musterDuplicateTimeStr').textContent = existing.timestamp;
-                document.getElementById('musterDuplicateStationStr').textContent = existing.station || 'Station';
                 warningEl.classList.remove('hidden');
             } else {
                 warningEl.classList.add('hidden');
@@ -1999,7 +1961,6 @@
                 id: window.musterSelectedPerson.id,
                 name: window.musterSelectedPerson.name,
                 timestamp: timestamp,
-                station: window.currentStation,
                 signatureImg: signatureImg
             };
 
@@ -2010,7 +1971,6 @@
             await window.dbSaveMusterCheckIn(record);
 
             document.getElementById('musterConfirmName').textContent = window.musterSelectedPerson.name;
-            document.getElementById('musterConfirmStation').textContent = window.currentStation;
             document.getElementById('musterConfirmTime').textContent = timestamp;
             document.getElementById('musterSuccessOverlay').classList.remove('hidden');
         };
@@ -2056,7 +2016,6 @@
             const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const outIds = new Set(window.outRecords.map(o => o.id));
 
-            // Expected on-site = signed in for daily shift AND not marked out
             const expectedOnSiteList = window.masterRoster.filter(p => signedTodayIds.has(p.id) && !outIds.has(p.id));
             const totalExpected = expectedOnSiteList.length;
 
@@ -2129,7 +2088,6 @@
             const checkedSearch = (document.getElementById('checkedSearchInput')?.value || '').toLowerCase();
             const outSearch = (document.getElementById('outSearchInput')?.value || '').toLowerCase();
 
-            // Missing = Signed in for daily shift, but NOT checked in for muster and NOT marked out
             const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
             const missingList = sortedRoster.filter(p => signedTodayIds.has(p.id) && !checkedIds.has(p.id) && !outIds.has(p.id) && p.name.toLowerCase().includes(missingSearch));
             if (missingList.length === 0) {
@@ -2151,13 +2109,12 @@
             const checkedBody = document.getElementById('checkedTableBody');
             if (checkedBody) {
                 if (checkedFiltered.length === 0) {
-                    checkedBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'Sin registros.' : 'No check-ins.'}</td></tr>`;
+                    checkedBody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'Sin registros.' : 'No check-ins.'}</td></tr>`;
                 } else {
                     checkedBody.innerHTML = checkedFiltered.map((c, index) => `
                         <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
                             <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${index + 1}</td>
                             <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(c.name)}</td>
-                            <td class="p-3.5 text-slate-700 dark:text-slate-300 text-xs">${escapeHtml(c.station)}</td>
                             <td class="p-3.5 text-amber-600 dark:text-amber-400 font-mono text-xs">${c.timestamp}</td>
                             <td class="p-3.5">${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded p-1 object-contain">` : '<span class="text-xs text-slate-500">Admin</span>'}</td>
                             <td class="p-3.5 text-right"><button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 p-2 rounded-lg transition">${window.currentLang === 'es' ? 'Deshacer' : 'Undo'}</button></td>
@@ -2199,7 +2156,7 @@
                 String(now.getHours()).padStart(2, '0') + ':' +
                 String(now.getMinutes()).padStart(2, '0') + ':' +
                 String(now.getSeconds()).padStart(2, '0');
-            const record = { id: p.id, name: p.name, station: `${window.currentStation} (Admin)`, timestamp: ts, signatureImg: null };
+            const record = { id: p.id, name: p.name, timestamp: ts, signatureImg: null };
             window.checkedInRecords = window.checkedInRecords.filter(c => c.id !== p.id);
             window.checkedInRecords.push(record);
             window.updateDashboardMetrics();
@@ -2284,7 +2241,6 @@
 
             document.getElementById('printReportTitle').textContent = "DAILY SITE SIGN-IN REPORT";
             document.getElementById('printTimestamp').textContent = formatToMMDDYYYY(dateFilter);
-            document.getElementById('printStation').textContent = window.currentStation;
             document.getElementById('printDailySection').classList.remove('hidden');
             document.getElementById('printMusterSection').classList.add('hidden');
             document.getElementById('printDailyDateTitle').textContent = formatToMMDDYYYY(dateFilter);
@@ -2292,13 +2248,12 @@
 
             const body = document.getElementById('printDailyBody');
             if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="5" style="padding: 8px; text-align: center;">No sign-ins for this date.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="4" style="padding: 8px; text-align: center;">No sign-ins for this date.</td></tr>`;
             } else {
                 body.innerHTML = filtered.map((r, i) => `
                     <tr>
                         <td style="text-align: center; font-weight: bold;">${i + 1}</td>
                         <td style="font-weight: 700;">${escapeHtml(r.name)}</td>
-                        <td>${escapeHtml(r.station)}</td>
                         <td style="font-family: monospace;">${r.timestamp}</td>
                         <td style="text-align: center;">${r.signatureImg ? `<img src="${r.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
                     </tr>
@@ -2318,7 +2273,6 @@
 
             document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER LIVE SUMMARY REPORT";
             document.getElementById('printTimestamp').textContent = formatToMMDDYYYY(new Date());
-            document.getElementById('printStation').textContent = window.currentStation;
             document.getElementById('printDailySection').classList.add('hidden');
             document.getElementById('printMusterSection').classList.remove('hidden');
 
@@ -2328,11 +2282,10 @@
             document.getElementById('printMissing').textContent = missingList.length;
 
             const checkedBody = document.getElementById('printCheckedBody');
-            checkedBody.innerHTML = sortedChecked.length === 0 ? `<tr><td colspan="5" style="padding: 8px; text-align: center;">None checked in.</td></tr>` : sortedChecked.map((c, i) => `
+            checkedBody.innerHTML = sortedChecked.length === 0 ? `<tr><td colspan="4" style="padding: 8px; text-align: center;">None checked in.</td></tr>` : sortedChecked.map((c, i) => `
                 <tr>
                     <td style="text-align: center; font-weight: bold;">${i + 1}</td>
                     <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
-                    <td>${escapeHtml(c.station)}</td>
                     <td style="font-family: monospace;">${c.timestamp}</td>
                     <td style="text-align: center;">${c.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
                 </tr>
@@ -2342,7 +2295,7 @@
         };
 
         window.confirmResetMusterSession = async function() {
-            if (confirm(window.currentLang === 'es' ? '¿REINICIAR SESIÓN DE EMERGENCIA?\n\nEsto borrará todos los registros de emergencia en todos los iPads.' : 'RESET LIVE MUSTER SESSION?\n\nThis will clear all check-ins across ALL connected iPads while keeping the master roster intact.')) {
+            if (confirm(window.currentLang === 'es' ? '¿REINICIAR SESIÓN DE EMERGENCIA?\n\nEsto borrará todos los registros de emergencia en todos los dispositivos.' : 'RESET LIVE MUSTER SESSION?\n\nThis will clear all check-ins across ALL connected devices while keeping the master roster intact.')) {
                 await window.dbResetAllMusterSessions();
                 alert(window.currentLang === 'es' ? 'Sesión de emergencia reiniciada.' : 'Muster session reset.');
             }
