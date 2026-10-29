@@ -750,7 +750,7 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">0000</code>)</p>
+                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">2026</code>)</p>
             </div>
             
             <input type="password" id="pinInput" maxlength="6" placeholder="****" 
@@ -872,6 +872,35 @@
         let dailyIsDrawing = false, musterIsDrawing = false;
         let dailyHasSignature = false, musterHasSignature = false;
 
+        // 11:59 PM Operational Shift Date Helper (Rolls over at 11:59:59 PM)
+        function getShiftDateStr(dateObj = new Date()) {
+            const d = new Date(dateObj.getTime());
+            // If current time is 11:59 PM (23:59:00 or later), treat it as rolling into the next calendar day
+            if (d.getHours() === 23 && d.getMinutes() >= 59) {
+                d.setDate(d.getDate() + 1);
+            }
+            return d.toISOString().substring(0, 10);
+        }
+
+        // Helper to format YYYY-MM-DD or full timestamps into MM/DD/YYYY
+        function formatToMMDDYYYY(dateInput) {
+            if (!dateInput) return '';
+            // If it's a YYYY-MM-DD string
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+                const parts = dateInput.split('-');
+                return `${parts[1]}/${parts[2]}/${parts[0]}`;
+            }
+            // If it's a full timestamp string or Date object
+            const d = new Date(dateInput);
+            if (!isNaN(d)) {
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const yyyy = d.getFullYear();
+                return `${mm}/${dd}/${yyyy}`;
+            }
+            return dateInput;
+        }
+
         window.verifyStartupPin = function() {
             const inputVal = document.getElementById('startupPinInput').value;
             if (inputVal === APP_STARTUP_PASSWORD) {
@@ -909,9 +938,9 @@
         }
 
         function initDateDefaults() {
-            const todayStr = new Date().toISOString().substring(0, 10);
+            const todayStr = getShiftDateStr();
             document.getElementById('logDateFilter').value = todayStr;
-            document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('currentDateDisplay').textContent = formatToMMDDYYYY(todayStr);
         }
 
         async function initFirebaseSync() {
@@ -1295,7 +1324,7 @@
             const listContainer = document.getElementById('dailyDropdownList');
             if (!input) { listContainer.classList.add('hidden'); return; }
 
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const signedTodaySet = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
             const matches = sortedRoster.filter(p => p.name.toLowerCase().includes(input));
@@ -1324,7 +1353,7 @@
             document.getElementById('dailySelectedPersonName').textContent = window.dailySelectedPerson.name;
             document.getElementById('dailySelectedPersonCard').classList.remove('hidden');
 
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const existingToday = window.dailyLogRecords.find(r => r.personId === window.dailySelectedPerson.id && r.dateStr === todayDateStr);
             const warningEl = document.getElementById('dailyDuplicateWarning');
             if (existingToday) {
@@ -1348,7 +1377,7 @@
 
             const signatureImg = dailyCanvas.toDataURL('image/png');
             const now = new Date();
-            const dateStr = now.toISOString().substring(0, 10);
+            const dateStr = getShiftDateStr(now);
             const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
             
             const recordId = `${window.dailySelectedPerson.id}_${dateStr}`;
@@ -1367,7 +1396,7 @@
             const p = window.masterRoster.find(x => x.id === personId);
             if (!p) return;
             const now = new Date();
-            const dateStr = now.toISOString().substring(0, 10);
+            const dateStr = getShiftDateStr(now);
             const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
             
             const recordId = `${p.id}_${dateStr}`;
@@ -1395,14 +1424,14 @@
         };
 
         window.setTodayDateFilter = function() {
-            document.getElementById('logDateFilter').value = new Date().toISOString().substring(0, 10);
+            document.getElementById('logDateFilter').value = getShiftDateStr();
             window.renderDailyLogTable();
         };
 
         window.renderDailyLogTable = function() {
             const dateFilter = document.getElementById('logDateFilter').value;
             const dateTitle = document.getElementById('activeLogDateTitle');
-            if (dateTitle) dateTitle.textContent = dateFilter;
+            if (dateTitle) dateTitle.textContent = formatToMMDDYYYY(dateFilter);
             const filtered = sortRosterAlphabetically([...window.dailyLogRecords.filter(r => r.dateStr === dateFilter)]);
             const countEl = document.getElementById('dailyLogCount');
             if (countEl) countEl.textContent = filtered.length;
@@ -1424,7 +1453,7 @@
             const tbody = document.getElementById('dailyLogTableBody');
             if (tbody) {
                 if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No sign-ins recorded for ${dateFilter}.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No sign-ins recorded for ${formatToMMDDYYYY(dateFilter)}.</td></tr>`;
                 } else {
                     tbody.innerHTML = filtered.map((r, i) => `
                         <tr class="hover:bg-slate-800/55 transition">
@@ -1464,7 +1493,7 @@
                 return; 
             }
             
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const signedTodaySet = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
 
             container.innerHTML = filteredRoster.map(p => {
@@ -1513,10 +1542,10 @@
             const dateFilter = document.getElementById('logDateFilter').value;
             const filtered = sortRosterAlphabetically([...window.dailyLogRecords.filter(r => r.dateStr === dateFilter)]);
             let csv = "data:text/csv;charset=utf-8,Name,Station,Date,Timestamp,Status\n";
-            filtered.forEach(r => { csv += `"${r.name.replace(/"/g, '""')}","${r.station}","${r.dateStr}","${r.timestamp}","VERIFIED SIGNED-IN"\n`; });
+            filtered.forEach(r => { csv += `"${r.name.replace(/"/g, '""')}","${r.station}","${formatToMMDDYYYY(r.dateStr)}","${r.timestamp}","VERIFIED SIGNED-IN"\n`; });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", `Daily_Sign_In_Log_${dateFilter}.csv`);
+            link.setAttribute("download", `Daily_Sign_In_Log_${formatToMMDDYYYY(dateFilter).replace(/\//g, '-')}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
@@ -1554,7 +1583,7 @@
             const listContainer = document.getElementById('musterDropdownList');
             if (!input) { listContainer.classList.add('hidden'); return; }
 
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const signedTodaySet = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const checkedSet = new Set(window.checkedInRecords.map(c => c.id));
             const outSet = new Set(window.outRecords.map(o => o.id));
@@ -1674,7 +1703,7 @@
         window.closePinModal = function() { document.getElementById('pinModal').classList.add('hidden'); };
 
         window.updateDashboardMetrics = function() {
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const outIds = new Set(window.outRecords.map(o => o.id));
 
@@ -1742,7 +1771,7 @@
             const missingBody = document.getElementById('missingTableBody');
             if (!missingBody) return;
 
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const outIds = new Set(window.outRecords.map(o => o.id));
@@ -1905,11 +1934,11 @@
             const filtered = sortRosterAlphabetically([...window.dailyLogRecords.filter(r => r.dateStr === dateFilter)]);
 
             document.getElementById('printReportTitle').textContent = "DAILY SITE SIGN-IN REPORT";
-            document.getElementById('printTimestamp').textContent = dateFilter;
+            document.getElementById('printTimestamp').textContent = formatToMMDDYYYY(dateFilter);
             document.getElementById('printStation').textContent = window.currentStation;
             document.getElementById('printDailySection').classList.remove('hidden');
             document.getElementById('printMusterSection').classList.add('hidden');
-            document.getElementById('printDailyDateTitle').textContent = dateFilter;
+            document.getElementById('printDailyDateTitle').textContent = formatToMMDDYYYY(dateFilter);
             document.getElementById('printDailyTotalCount').textContent = filtered.length;
 
             const body = document.getElementById('printDailyBody');
@@ -1930,7 +1959,7 @@
         };
 
         window.printMusterReport = function() {
-            const todayDateStr = new Date().toISOString().substring(0, 10);
+            const todayDateStr = getShiftDateStr();
             const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const checkedIds = new Set(window.checkedInRecords.map(c => c.id));
             const outIds = new Set(window.outRecords.map(o => o.id));
@@ -1939,7 +1968,7 @@
             const sortedChecked = sortRosterAlphabetically([...window.checkedInRecords]);
 
             document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER LIVE SUMMARY REPORT";
-            document.getElementById('printTimestamp').textContent = new Date().toLocaleString();
+            document.getElementById('printTimestamp').textContent = formatToMMDDYYYY(new Date());
             document.getElementById('printStation').textContent = window.currentStation;
             document.getElementById('printDailySection').classList.add('hidden');
             document.getElementById('printMusterSection').classList.remove('hidden');
