@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Live Multi-Device Site Check-In</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Custom styling & font setup -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -30,6 +27,10 @@
             }
         }
     </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom styling & font setup -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Touch safety optimizations for iPad */
         * {
@@ -43,8 +44,7 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0F172A;
-            color: #F8FAFC;
+            transition: background-color 0.2s, color 0.2s;
         }
         canvas {
             touch-action: none;
@@ -114,7 +114,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-900">
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
 
     <!-- STARTUP APP LOCK GATE MODAL -->
     <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
@@ -123,23 +123,23 @@
                 <i data-lucide="shield-check" class="w-8 h-8"></i>
             </div>
             <div>
-                <h3 class="text-xl font-bold text-white">RESTRICTED SITE APP</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter site access password to launch app.</p>
+                <h3 class="text-xl font-bold text-white" data-i18n="restrictedApp">RESTRICTED SITE APP</h3>
+                <p class="text-xs text-slate-400 mt-1" data-i18n="enterSitePassword">Enter site access password to launch app.</p>
             </div>
             
             <input type="password" id="startupPinInput" maxlength="8" placeholder="****" 
                 class="w-full text-center tracking-widest text-3xl font-mono bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-xl py-3 text-white focus:outline-none">
             
-            <div id="startupPinError" class="hidden text-xs text-red-400 font-semibold">Incorrect password. Try again.</div>
+            <div id="startupPinError" class="hidden text-xs text-red-400 font-semibold" data-i18n="incorrectPassword">Incorrect password. Try again.</div>
 
-            <button onclick="verifyStartupPin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20">
+            <button onclick="verifyStartupPin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20" data-i18n="unlockApp">
                 UNLOCK APP
             </button>
         </div>
     </div>
 
     <!-- Top Navigation Header Bar -->
-    <header id="mainHeaderBar" class="bg-slate-950 border-b border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
+    <header id="mainHeaderBar" class="bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <!-- Branding & Title -->
             <div class="flex items-center gap-3 shrink-0">
@@ -147,48 +147,58 @@
                     <i data-lucide="clipboard-check" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 id="headerTitleText" class="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
+                    <h1 id="headerTitleText" class="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                         DAILY SITE SIGN-IN
                     </h1>
-                    <p class="text-xs text-amber-400 font-medium flex items-center gap-1.5">
+                    <p class="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5">
                         <span id="syncStatusBadge" class="w-2 h-2 rounded-full bg-amber-500 inline-block animate-ping"></span>
                         <span id="syncStatusText">Connecting Live Sync...</span>
                     </p>
                 </div>
             </div>
 
-            <!-- Grouped Controls: Mode Switcher, QR, Station Selector, and Live Clock -->
+            <!-- Grouped Controls: Mode Switcher, QR, Theme, Language & Station Selector -->
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
                 <!-- Mode Switcher (Separate Systems) -->
-                <div id="modeSwitcherContainer" class="flex items-center gap-1 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+                <div id="modeSwitcherContainer" class="flex items-center gap-1 bg-slate-300 dark:bg-slate-900 p-1.5 rounded-xl border border-slate-400 dark:border-slate-800">
                     <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
-                        <i data-lucide="calendar-check" class="w-4 h-4"></i> Daily Sign-In Mode
+                        <i data-lucide="calendar-check" class="w-4 h-4"></i> <span data-i18n="modeDaily">Daily Sign-In Mode</span>
                     </button>
-                    <button onclick="switchAppMode('muster')" id="modeMusterBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
-                        <i data-lucide="shield-alert" class="w-4 h-4"></i> Emergency Muster Mode
+                    <button onclick="switchAppMode('muster')" id="modeMusterBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i> <span data-i18n="modeMuster">Emergency Muster Mode</span>
                     </button>
                 </div>
 
-                <!-- Station Location Selector & QR Code Button (Relocated Below Mode Buttons) -->
+                <!-- Station Controls, Theme Toggle, Language Toggle -->
                 <div id="stationNavControls" class="flex items-center gap-2">
-                    <button onclick="openQrModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
-                        <i data-lucide="qr-code" class="w-4 h-4"></i> Station QR Code
+                    <button onclick="openQrModal()" class="bg-slate-300 dark:bg-slate-900 hover:bg-slate-400 dark:hover:bg-slate-800 border border-slate-400 dark:border-slate-700 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+                        <i data-lucide="qr-code" class="w-4 h-4"></i> <span data-i18n="qrBtn">Station QR Code</span>
                     </button>
 
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
-                        <select id="stationSelect" onchange="changeStation(this.value)" class="bg-transparent text-xs font-bold text-white focus:outline-none">
-                            <option value="Station #1 - Main Office" class="bg-slate-900">Station #1 - Main Office</option>
-                            <option value="Station #2 - NE Pad 1" class="bg-slate-900">Station #2 - NE Pad 1</option>
-                            <option value="Station #3 - NE Pad 2" class="bg-slate-900">Station #3 - NE Pad 2</option>
-                            <option value="Station #4 - Admin" class="bg-slate-900">Station #4 - Admin</option>
+                    <div class="bg-slate-300 dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
+                        <select id="stationSelect" onchange="changeStation(this.value)" class="bg-transparent text-xs font-bold text-slate-900 dark:text-white focus:outline-none">
+                            <option value="Station #1 - Main Office" class="bg-slate-100 dark:bg-slate-900">Station #1 - Main Office</option>
+                            <option value="Station #2 - NE Pad 1" class="bg-slate-100 dark:bg-slate-900">Station #2 - NE Pad 1</option>
+                            <option value="Station #3 - NE Pad 2" class="bg-slate-100 dark:bg-slate-900">Station #3 - NE Pad 2</option>
+                            <option value="Station #4 - Admin" class="bg-slate-100 dark:bg-slate-900">Station #4 - Admin</option>
                         </select>
                     </div>
+
+                    <!-- Light / Dark Mode Toggle Button -->
+                    <button onclick="toggleThemeMode()" class="bg-slate-300 dark:bg-slate-900 hover:bg-slate-400 dark:hover:bg-slate-800 border border-slate-400 dark:border-slate-700 p-2 rounded-xl text-slate-800 dark:text-amber-400 transition" title="Toggle Light/Dark Mode">
+                        <i id="themeToggleIcon" data-lucide="sun" class="w-4 h-4"></i>
+                    </button>
+
+                    <!-- English / Spanish Language Toggle Button -->
+                    <button onclick="toggleLanguage()" class="bg-slate-300 dark:bg-slate-900 hover:bg-slate-400 dark:hover:bg-slate-800 border border-slate-400 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-black text-slate-800 dark:text-amber-400 transition">
+                        <span id="langBtnText">ES</span>
+                    </button>
                 </div>
 
                 <!-- Live Clock -->
-                <div class="hidden lg:block text-right bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 ml-auto">
-                    <div id="liveClock" class="text-sm font-mono font-bold text-amber-400">00:00:00 AM</div>
+                <div class="hidden lg:block text-right bg-slate-300 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-400 dark:border-slate-800 ml-auto">
+                    <div id="liveClock" class="text-sm font-mono font-bold text-amber-700 dark:text-amber-400">00:00:00 AM</div>
                 </div>
             </div>
         </div>
@@ -199,92 +209,92 @@
 
         <!-- SYSTEM 1: DAILY SIGN-IN SYSTEM -->
         <div id="dailyModeWrapper" class="flex-1 flex flex-col space-y-6">
-            <div id="dailySubTabHeader" class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
+            <div id="dailySubTabHeader" class="flex justify-between items-center bg-slate-200 dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-300 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                     <button id="dailyTabCheckBtn" onclick="switchDailySubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
-                        <i data-lucide="pen-tool" class="w-4 h-4"></i> Personnel Check-In
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> <span data-i18n="personnelCheckIn">Personnel Check-In</span>
                     </button>
-                    <button id="dailyTabLogBtn" onclick="requestDailyAdminAccess()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Daily Admin & Reports
+                    <button id="dailyTabLogBtn" onclick="requestDailyAdminAccess()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> <span data-i18n="dailyAdminReports">Daily Admin & Reports</span>
                     </button>
                 </div>
-                <div class="hidden sm:block text-xs font-mono text-slate-400 px-3">
-                    Today: <span id="currentDateDisplay" class="text-amber-400 font-bold">---</span>
+                <div class="hidden sm:block text-xs font-mono text-slate-500 dark:text-slate-400 px-3">
+                    <span data-i18n="todayLabel">Today:</span> <span id="currentDateDisplay" class="text-amber-700 dark:text-amber-400 font-bold">---</span>
                 </div>
             </div>
 
             <!-- Daily Check-In Form View -->
             <div id="dailyCheckInView" class="flex-1 flex flex-col justify-center">
-                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-w-3xl mx-auto w-full">
-                    <div class="bg-slate-950/60 px-6 py-4 border-b border-slate-700/60 flex justify-between items-center">
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-w-3xl mx-auto w-full">
+                    <div class="bg-slate-100 dark:bg-slate-950/60 px-6 py-4 border-b border-slate-300 dark:border-slate-700/60 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <i data-lucide="calendar-check" class="text-amber-500 w-5 h-5"></i>
-                            Daily Job Site Sign-In
+                            <span data-i18n="dailySignInHeader">Daily Job Site Sign-In</span>
                         </h2>
-                        <span class="text-xs bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1 rounded-full font-mono">
+                        <span class="text-xs bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full font-mono" data-i18n="dailySignInSteps">
                             Step 1: Select Name &bull; Step 2: Sign
                         </span>
                     </div>
 
                     <div class="p-6 sm:p-8 space-y-6">
                         <div>
-                            <label class="block text-sm font-bold text-slate-300 mb-2 flex justify-between items-center">
-                               <span>1. SELECT YOUR NAME FROM MASTER LIST *</span>
-                               <span class="text-xs text-amber-400 font-normal">Type to search quick</span>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex justify-between items-center">
+                               <span data-i18n="selectNameMaster">1. SELECT YOUR NAME FROM MASTER LIST *</span>
+                               <span class="text-xs text-amber-600 dark:text-amber-400 font-normal" data-i18n="typeToSearch">Type to search quick</span>
                             </label>
                             <div class="relative">
                                 <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                                <input type="text" id="dailyNameSearchInput" placeholder="Tap here to search name..." 
-                                    class="w-full bg-slate-900 border-2 border-slate-700 focus:border-amber-500 text-white font-semibold text-lg rounded-xl pl-12 pr-4 py-3.5 focus:outline-none transition-colors"
+                                <input type="text" id="dailyNameSearchInput" placeholder="Tap here to search name..." data-i18n-ph="searchPlaceholder"
+                                    class="w-full bg-slate-100 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 focus:border-amber-500 text-slate-900 dark:text-white font-semibold text-lg rounded-xl pl-12 pr-4 py-3.5 focus:outline-none transition-colors"
                                     oninput="filterDailyDropdownList()">
                             </div>
 
-                            <div id="dailyDropdownList" class="hidden mt-2 bg-slate-900 border border-slate-700 rounded-xl max-h-56 overflow-y-auto divide-y divide-slate-800 shadow-2xl z-20 relative"></div>
+                            <div id="dailyDropdownList" class="hidden mt-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl max-h-56 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800 shadow-2xl z-20 relative"></div>
                             
-                            <div id="dailySelectedPersonCard" class="hidden mt-3 bg-slate-900/90 border-2 border-emerald-500/80 rounded-xl p-3.5 flex items-center justify-between">
+                            <div id="dailySelectedPersonCard" class="hidden mt-3 bg-slate-100 dark:bg-slate-900/90 border-2 border-emerald-500/80 rounded-xl p-3.5 flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
                                         <i data-lucide="user-check" class="w-5 h-5"></i>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Selected Individual</p>
-                                        <p id="dailySelectedPersonName" class="text-lg font-extrabold text-white"></p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider" data-i18n="selectedIndividual">Selected Individual</p>
+                                        <p id="dailySelectedPersonName" class="text-lg font-extrabold text-slate-900 dark:text-white"></p>
                                     </div>
                                 </div>
-                                <button onclick="clearDailySelectedPerson()" class="p-2 text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800 transition">
+                                <button onclick="clearDailySelectedPerson()" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition">
                                     <i data-lucide="x" class="w-5 h-5"></i>
                                 </button>
                             </div>
 
-                            <div id="dailyDuplicateWarning" class="hidden mt-3 p-3.5 bg-amber-500/10 border border-amber-500/40 rounded-xl flex items-center gap-3 text-amber-300 text-sm">
-                                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 shrink-0"></i>
+                            <div id="dailyDuplicateWarning" class="hidden mt-3 p-3.5 bg-amber-500/10 border border-amber-500/40 rounded-xl flex items-center gap-3 text-amber-700 dark:text-amber-300 text-sm">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0"></i>
                                 <div>
-                                    <strong>Already Signed In Today:</strong> <span id="dailyDuplicateTimeStr"></span>. Submitting will update your sign-in timestamp.
+                                    <strong data-i18n="alreadySignedIn">Already Signed In Today:</strong> <span id="dailyDuplicateTimeStr"></span>. <span data-i18n="submittingWillUpdate">Submitting will update your sign-in timestamp.</span>
                                 </div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-2">
-                                <label class="block text-sm font-bold text-slate-300">
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300" data-i18n="signBelow">
                                     2. SIGN BELOW WITH FINGER OR STYLUS *
                                 </label>
-                                <button type="button" onclick="clearDailySignatureCanvas()" class="text-xs font-semibold text-slate-400 hover:text-white bg-slate-700/60 hover:bg-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-                                    <i data-lucide="eraser" class="w-3.5 h-3.5"></i> Clear Signature
+                                <button type="button" onclick="clearDailySignatureCanvas()" class="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-200 dark:bg-slate-700/60 hover:bg-slate-300 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                                    <i data-lucide="eraser" class="w-3.5 h-3.5"></i> <span data-i18n="clearSignature">Clear Signature</span>
                                 </button>
                             </div>
-                            <div class="relative bg-slate-950 border-2 border-dashed border-slate-700 rounded-xl overflow-hidden focus-within:border-amber-500">
+                            <div class="relative bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden focus-within:border-amber-500">
                                 <canvas id="dailySignaturePad" class="w-full h-44 sm:h-52 cursor-crosshair block"></canvas>
-                                <div id="dailyCanvasPlaceholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-600 font-medium text-sm flex-col gap-1">
+                                <div id="dailyCanvasPlaceholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-400 dark:text-slate-600 font-medium text-sm flex-col gap-1">
                                     <i data-lucide="pen-tool" class="w-6 h-6 opacity-40"></i>
-                                    <span>Sign inside this area</span>
+                                    <span data-i18n="signInsideArea">Sign inside this area</span>
                                 </div>
                             </div>
                         </div>
 
                         <button onclick="submitDailyCheckIn()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xl py-4 px-6 rounded-xl shadow-lg shadow-amber-500/20 active:scale-[0.99] transition-all flex items-center justify-center gap-3">
                             <i data-lucide="check-circle-2" class="w-7 h-7"></i>
-                            <span>CONFIRM DAILY SIGN-IN</span>
+                            <span data-i18n="confirmDailyBtn">CONFIRM DAILY SIGN-IN</span>
                         </button>
                     </div>
                 </div>
@@ -295,14 +305,14 @@
                             <i data-lucide="check-circle" class="w-12 h-12"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-black text-white">SIGN-IN RECORDED</h3>
-                            <p class="text-sm text-slate-400 mt-1">Synced to daily log database.</p>
+                            <h3 class="text-2xl font-black text-white" data-i18n="signInRecorded">SIGN-IN RECORDED</h3>
+                            <p class="text-sm text-slate-400 mt-1" data-i18n="syncedToDatabase">Synced to daily log database.</p>
                         </div>
                         <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-left font-mono text-sm space-y-1.5">
-                            <div class="flex justify-between text-slate-400"><span>Name:</span> <strong id="dailyConfirmName" class="text-white">---</strong></div>
-                            <div class="flex justify-between text-slate-400"><span>Date/Time:</span> <strong id="dailyConfirmTime" class="text-emerald-400">---</strong></div>
+                            <div class="flex justify-between text-slate-400"><span data-i18n="nameLabel">Name:</span> <strong id="dailyConfirmName" class="text-white">---</strong></div>
+                            <div class="flex justify-between text-slate-400"><span data-i18n="dateTimeLabel">Date/Time:</span> <strong id="dailyConfirmTime" class="text-emerald-400">---</strong></div>
                         </div>
-                        <button onclick="resetDailyCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">
+                        <button onclick="resetDailyCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition" data-i18n="nextPersonSignIn">
                             Next Person Sign-In Now
                         </button>
                     </div>
@@ -314,71 +324,71 @@
                 
                 <!-- Daily Metrics Dashboard Cards -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Roster</div>
-                        <div id="dailyStatTotal" class="text-3xl font-black text-white">0</div>
-                        <div class="text-xs text-slate-500 mt-1">Active site workforce</div>
+                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" data-i18n="statTotalRoster">Total Roster</div>
+                        <div id="dailyStatTotal" class="text-3xl font-black text-slate-900 dark:text-white">0</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500 mt-1" data-i18n="activeWorkforce">Active site workforce</div>
                     </div>
-                    <div class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
+                    <div class="bg-white dark:bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
                         <div class="absolute -right-2 -bottom-2 text-emerald-500/10"><i data-lucide="user-check" class="w-20 h-20"></i></div>
-                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Signed In Today</div>
-                        <div id="dailyStatCheckedIn" class="text-3xl font-black text-emerald-400">0</div>
-                        <div class="text-xs text-emerald-500/80 mt-1">Checked in for shift</div>
+                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1" data-i18n="statSignedInToday">Signed In Today</div>
+                        <div id="dailyStatCheckedIn" class="text-3xl font-black text-emerald-600 dark:text-emerald-400">0</div>
+                        <div class="text-xs text-emerald-500/80 mt-1" data-i18n="checkedInForShift">Checked in for shift</div>
                     </div>
-                    <div class="bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
+                    <div class="bg-white dark:bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
                         <div class="absolute -right-2 -bottom-2 text-amber-500/10"><i data-lucide="user-x" class="w-20 h-20"></i></div>
-                        <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Not Yet Signed In</div>
-                        <div id="dailyStatMissing" class="text-3xl font-black text-amber-400">0</div>
-                        <div class="text-xs text-amber-500/80 mt-1">Pending attendance</div>
+                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1" data-i18n="statNotYetSigned">Not Yet Signed In</div>
+                        <div id="dailyStatMissing" class="text-3xl font-black text-amber-600 dark:text-amber-400">0</div>
+                        <div class="text-xs text-amber-500/80 mt-1" data-i18n="pendingAttendance">Pending attendance</div>
                     </div>
-                    <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Turnout Rate</div>
-                        <div id="dailyStatPercent" class="text-3xl font-black text-cyan-400">0%</div>
-                        <div class="text-xs text-slate-500 mt-1">Daily attendance rate</div>
+                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" data-i18n="statTurnoutRate">Turnout Rate</div>
+                        <div id="dailyStatPercent" class="text-3xl font-black text-cyan-600 dark:text-cyan-400">0%</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500 mt-1" data-i18n="dailyAttendanceRate">Daily attendance rate</div>
                     </div>
                 </div>
 
                 <!-- Sub-Navigation for Daily Admin (Logs vs Roster Management) -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
                     <div class="flex items-center gap-2">
                         <button id="dailyAdminSubLogsBtn" onclick="switchDailyAdminSubTab('logs')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
-                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Signed-In Log
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> <span data-i18n="signedInLog">Signed-In Log</span>
                         </button>
-                        <button id="dailyAdminSubRosterBtn" onclick="switchDailyAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                            <i data-lucide="users" class="w-4 h-4"></i> Add/Manage Personnel
+                        <button id="dailyAdminSubRosterBtn" onclick="switchDailyAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                            <i data-lucide="users" class="w-4 h-4"></i> <span data-i18n="managePersonnel">Add/Manage Personnel</span>
                         </button>
                     </div>
 
                     <div id="dailyLogsControls" class="flex items-center gap-3">
                         <div class="flex items-center gap-2">
-                            <label class="text-xs font-bold text-slate-300 uppercase">Date:</label>
-                            <input type="date" id="logDateFilter" onchange="renderDailyLogTable()" class="bg-slate-900 border border-slate-700 text-white text-sm font-mono rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500">
-                            <button onclick="setTodayDateFilter()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Today</button>
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase" data-i18n="dateLabel">Date:</label>
+                            <input type="date" id="logDateFilter" onchange="renderDailyLogTable()" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm font-mono rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500">
+                            <button onclick="setTodayDateFilter()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white text-xs font-bold px-3 py-1.5 rounded-xl transition" data-i18n="todayBtn">Today</button>
                         </div>
-                        <button onclick="printDailyLogReport()" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                            <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Report
+                        <button onclick="printDailyLogReport()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="printer" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i> <span data-i18n="printReport">Print Report</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Daily Signed-In Table Sub-View -->
-                <div id="dailyAdminLogsContainer" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl flex-1 flex flex-col">
-                    <div class="bg-slate-950 px-6 py-3 border-b border-slate-700 flex justify-between items-center">
-                        <h3 class="font-bold text-white text-sm">Signed-In Personnel for <span id="activeLogDateTitle" class="text-amber-400">---</span> (<span id="dailyLogCount">0</span>)</h3>
+                <div id="dailyAdminLogsContainer" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl overflow-hidden shadow-xl flex-1 flex flex-col">
+                    <div class="bg-slate-100 dark:bg-slate-950 px-6 py-3 border-b border-slate-300 dark:border-slate-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-sm"><span data-i18n="signedInFor">Signed-In Personnel for</span> <span id="activeLogDateTitle" class="text-amber-600 dark:text-amber-400">---</span> (<span id="dailyLogCount">0</span>)</h3>
                     </div>
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-950/60 text-slate-400 text-xs uppercase font-bold border-b border-slate-800">
+                                <tr class="bg-slate-200 dark:bg-slate-950/60 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-300 dark:border-slate-800">
                                     <th class="p-3.5">#</th>
-                                    <th class="p-3.5">Full Name</th>
-                                    <th class="p-3.5">Station</th>
-                                    <th class="p-3.5">Exact Timestamp</th>
-                                    <th class="p-3.5">Signature</th>
-                                    <th class="p-3.5 text-right">Action</th>
+                                    <th class="p-3.5" data-i18n="thFullName">Full Name</th>
+                                    <th class="p-3.5" data-i18n="thStation">Station</th>
+                                    <th class="p-3.5" data-i18n="thTimestamp">Exact Timestamp</th>
+                                    <th class="p-3.5" data-i18n="thSignature">Signature</th>
+                                    <th class="p-3.5 text-right" data-i18n="thAction">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="dailyLogTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
+                            <tbody id="dailyLogTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm"></tbody>
                         </table>
                     </div>
                 </div>
@@ -386,41 +396,41 @@
                 <!-- Daily Roster Management Sub-View -->
                 <div id="dailyAdminRosterContainer" class="hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
-                            <h3 class="font-bold text-white text-base flex items-center gap-2">
-                                <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> Add Individual Person
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-700 space-y-4">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                                <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> <span data-i18n="addPersonTitle">Add Individual Person</span>
                             </h3>
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1">Full Name</label>
-                                <input type="text" id="dailyAddNameInput" placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500">
+                                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1" data-i18n="thFullName">Full Name</label>
+                                <input type="text" id="dailyAddNameInput" placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500">
                             </div>
-                            <button onclick="addSinglePersonnelFromDaily()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">
+                            <button onclick="addSinglePersonnelFromDaily()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition" data-i18n="addToRoster">
                                 Add to Master Roster
                             </button>
                         </div>
 
-                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
-                            <h3 class="font-bold text-white text-base flex items-center gap-2">
-                                <i data-lucide="file-text" class="text-emerald-500 w-5 h-5"></i> Bulk Import Roster Names
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-700 space-y-4">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                                <i data-lucide="file-text" class="text-emerald-500 w-5 h-5"></i> <span data-i18n="bulkImportTitle">Bulk Import Roster Names</span>
                             </h3>
-                            <p class="text-xs text-slate-400">Paste names (one per line).</p>
-                            <textarea id="dailyBulkImportInput" rows="3" placeholder="John Doe&#10;Jane Smith" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-mono focus:outline-none focus:border-emerald-500"></textarea>
-                            <button onclick="bulkImportPersonnelFromDaily()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">
+                            <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="pasteNamesInstruction">Paste names (one per line).</p>
+                            <textarea id="dailyBulkImportInput" rows="3" placeholder="John Doe&#10;Jane Smith" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-3 text-sm font-mono focus:outline-none focus:border-emerald-500"></textarea>
+                            <button onclick="bulkImportPersonnelFromDaily()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition" data-i18n="bulkImportBtn">
                                 Bulk Import Names
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3">
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-700 space-y-3">
                         <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <h3 class="font-bold text-white text-base">Master Roster Database (<span id="dailyRosterTotalCount">0</span>)</h3>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base"><span data-i18n="masterRosterTitle">Master Roster Database</span> (<span id="dailyRosterTotalCount">0</span>)</h3>
                             <div class="relative w-full sm:w-64">
                                 <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                <input type="text" id="dailyRosterSearchInput" oninput="renderDailyRosterManagerList()" placeholder="Search master roster..." 
-                                    class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                                <input type="text" id="dailyRosterSearchInput" oninput="renderDailyRosterManagerList()" placeholder="Search master roster..." data-i18n-ph="searchMasterRosterPh"
+                                    class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500">
                             </div>
                         </div>
-                        <div class="max-h-96 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-xl" id="dailyMasterRosterList"></div>
+                        <div class="max-h-96 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl" id="dailyMasterRosterList"></div>
                     </div>
                 </div>
             </div>
@@ -429,92 +439,92 @@
         <!-- SYSTEM 2: EMERGENCY MUSTER SYSTEM -->
         <div id="musterModeWrapper" class="hidden flex-1 flex flex-col space-y-6">
             
-            <div class="flex justify-between items-center bg-slate-800/80 p-2 rounded-2xl border border-slate-700">
+            <div class="flex justify-between items-center bg-slate-200 dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-300 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                     <button id="musterTabCheckBtn" onclick="switchMusterSubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition">
-                        <i data-lucide="pen-tool" class="w-4 h-4"></i> Muster Check-In
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> <span data-i18n="musterCheckInTab">Muster Check-In</span>
                     </button>
-                    <button id="musterTabAdminBtn" onclick="requestMusterAdminAccess()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                        <i data-lucide="shield-lock" class="w-4 h-4"></i> Muster Control Dashboard
+                    <button id="musterTabAdminBtn" onclick="requestMusterAdminAccess()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                        <i data-lucide="shield-lock" class="w-4 h-4"></i> <span data-i18n="musterControlDashboard">Muster Control Dashboard</span>
                     </button>
                 </div>
-                <div class="hidden sm:block text-xs font-mono text-red-400 font-bold px-3">
+                <div class="hidden sm:block text-xs font-mono text-red-600 dark:text-red-400 font-bold px-3" data-i18n="emergencyAssemblyStation">
                     EMERGENCY ASSEMBLY STATION
                 </div>
             </div>
 
             <!-- Muster Check-In Form View -->
             <div id="musterCheckInView" class="flex-1 flex flex-col justify-center">
-                <div class="bg-slate-800/90 border-2 border-red-500/50 rounded-2xl shadow-2xl overflow-hidden max-w-3xl mx-auto w-full">
-                    <div class="bg-red-950/40 px-6 py-4 border-b border-red-500/30 flex justify-between items-center">
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800/90 border-2 border-red-500/50 rounded-2xl shadow-2xl overflow-hidden max-w-3xl mx-auto w-full">
+                    <div class="bg-red-100 dark:bg-red-950/40 px-6 py-4 border-b border-red-300 dark:border-red-500/30 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <i data-lucide="shield-alert" class="text-red-500 w-5 h-5 animate-pulse"></i>
-                            Emergency Assembly Point Check-In
+                            <span data-i18n="musterHeader">Emergency Assembly Point Check-In</span>
                         </h2>
-                        <span class="text-xs bg-slate-800 border border-slate-700 text-red-400 px-3 py-1 rounded-full font-mono font-bold">
+                        <span class="text-xs bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-red-600 dark:text-red-400 px-3 py-1 rounded-full font-mono font-bold" data-i18n="liveEvacuationMode">
                             Live Evacuation Mode
                         </span>
                     </div>
 
                     <div class="p-6 sm:p-8 space-y-6">
                         <div>
-                            <label class="block text-sm font-bold text-slate-300 mb-2 flex justify-between items-center">
-                               <span>1. SELECT YOUR NAME FROM MASTER LIST *</span>
-                               <span class="text-xs text-amber-400 font-normal">Type to search quick</span>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex justify-between items-center">
+                               <span data-i18n="selectNameMaster">1. SELECT YOUR NAME FROM MASTER LIST *</span>
+                               <span class="text-xs text-amber-600 dark:text-amber-400 font-normal" data-i18n="typeToSearch">Type to search quick</span>
                             </label>
                             <div class="relative">
                                 <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                                <input type="text" id="musterNameSearchInput" placeholder="Tap here to search name..." 
-                                    class="w-full bg-slate-900 border-2 border-slate-700 focus:border-red-500 text-white font-semibold text-lg rounded-xl pl-12 pr-4 py-3.5 focus:outline-none transition-colors"
+                                <input type="text" id="musterNameSearchInput" placeholder="Tap here to search name..." data-i18n-ph="searchPlaceholder"
+                                    class="w-full bg-slate-100 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 focus:border-red-500 text-slate-900 dark:text-white font-semibold text-lg rounded-xl pl-12 pr-4 py-3.5 focus:outline-none transition-colors"
                                     oninput="filterMusterDropdownList()">
                             </div>
 
-                            <div id="musterDropdownList" class="hidden mt-2 bg-slate-900 border border-slate-700 rounded-xl max-h-56 overflow-y-auto divide-y divide-slate-800 shadow-2xl z-20 relative"></div>
+                            <div id="musterDropdownList" class="hidden mt-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl max-h-56 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800 shadow-2xl z-20 relative"></div>
                             
-                            <div id="musterSelectedPersonCard" class="hidden mt-3 bg-slate-900/90 border-2 border-emerald-500/80 rounded-xl p-3.5 flex items-center justify-between">
+                            <div id="musterSelectedPersonCard" class="hidden mt-3 bg-slate-100 dark:bg-slate-900/90 border-2 border-emerald-500/80 rounded-xl p-3.5 flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
                                         <i data-lucide="user-check" class="w-5 h-5"></i>
                                     </div>
                                     <div>
-                                        <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Selected Individual</p>
-                                        <p id="musterSelectedPersonName" class="text-lg font-extrabold text-white"></p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider" data-i18n="selectedIndividual">Selected Individual</p>
+                                        <p id="musterSelectedPersonName" class="text-lg font-extrabold text-slate-900 dark:text-white"></p>
                                     </div>
                                 </div>
-                                <button onclick="clearMusterSelectedPerson()" class="p-2 text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800 transition">
+                                <button onclick="clearMusterSelectedPerson()" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition">
                                     <i data-lucide="x" class="w-5 h-5"></i>
                                 </button>
                             </div>
 
-                            <div id="musterDuplicateWarning" class="hidden mt-3 p-3.5 bg-amber-500/10 border border-amber-500/40 rounded-xl flex items-center gap-3 text-amber-300 text-sm">
-                                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 shrink-0"></i>
+                            <div id="musterDuplicateWarning" class="hidden mt-3 p-3.5 bg-amber-500/10 border border-amber-500/40 rounded-xl flex items-center gap-3 text-amber-700 dark:text-amber-300 text-sm">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0"></i>
                                 <div>
-                                    <strong>Already Checked In:</strong> <span id="musterDuplicateTimeStr"></span> (<span id="musterDuplicateStationStr"></span>). Submitting will update your timestamp.
+                                    <strong data-i18n="alreadyCheckedInMuster">Already Checked In:</strong> <span id="musterDuplicateTimeStr"></span> (<span id="musterDuplicateStationStr"></span>). <span data-i18n="submittingWillUpdate">Submitting will update your timestamp.</span>
                                 </div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-2">
-                                <label class="block text-sm font-bold text-slate-300">
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300" data-i18n="signBelow">
                                     2. SIGN BELOW WITH FINGER OR STYLUS *
                                 </label>
-                                <button type="button" onclick="clearMusterSignatureCanvas()" class="text-xs font-semibold text-slate-400 hover:text-white bg-slate-700/60 hover:bg-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-                                    <i data-lucide="eraser" class="w-3.5 h-3.5"></i> Clear Signature
+                                <button type="button" onclick="clearMusterSignatureCanvas()" class="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-200 dark:bg-slate-700/60 hover:bg-slate-300 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                                    <i data-lucide="eraser" class="w-3.5 h-3.5"></i> <span data-i18n="clearSignature">Clear Signature</span>
                                 </button>
                             </div>
-                            <div class="relative bg-slate-950 border-2 border-dashed border-slate-700 rounded-xl overflow-hidden focus-within:border-red-500">
+                            <div class="relative bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden focus-within:border-red-500">
                                 <canvas id="musterSignaturePad" class="w-full h-44 sm:h-52 cursor-crosshair block"></canvas>
-                                <div id="musterCanvasPlaceholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-600 font-medium text-sm flex-col gap-1">
+                                <div id="musterCanvasPlaceholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-400 dark:text-slate-600 font-medium text-sm flex-col gap-1">
                                     <i data-lucide="pen-tool" class="w-6 h-6 opacity-40"></i>
-                                    <span>Sign inside this area</span>
+                                    <span data-i18n="signInsideArea">Sign inside this area</span>
                                 </div>
                             </div>
                         </div>
 
                         <button onclick="submitMusterCheckIn()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black text-xl py-4 px-6 rounded-xl shadow-lg shadow-red-600/30 active:scale-[0.99] transition-all flex items-center justify-center gap-3">
                             <i data-lucide="shield-check" class="w-7 h-7"></i>
-                            <span>CONFIRM MUSTER CHECK-IN</span>
+                            <span data-i18n="confirmMusterBtn">CONFIRM MUSTER CHECK-IN</span>
                         </button>
                     </div>
                 </div>
@@ -525,15 +535,15 @@
                             <i data-lucide="check-circle" class="w-12 h-12"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-black text-white">MUSTER CHECK-IN CONFIRMED</h3>
-                            <p class="text-sm text-slate-400 mt-1">Safely accounted for in assembly.</p>
+                            <h3 class="text-2xl font-black text-white" data-i18n="musterConfirmedTitle">MUSTER CHECK-IN CONFIRMED</h3>
+                            <p class="text-sm text-slate-400 mt-1" data-i18n="safelyAccounted">Safely accounted for in assembly.</p>
                         </div>
                         <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-left font-mono text-sm space-y-1.5">
-                            <div class="flex justify-between text-slate-400"><span>Name:</span> <strong id="musterConfirmName" class="text-white">---</strong></div>
-                            <div class="flex justify-between text-slate-400"><span>Station:</span> <strong id="musterConfirmStation" class="text-amber-400">---</strong></div>
-                            <div class="flex justify-between text-slate-400"><span>Time:</span> <strong id="musterConfirmTime" class="text-emerald-400">---</strong></div>
+                            <div class="flex justify-between text-slate-400"><span data-i18n="nameLabel">Name:</span> <strong id="musterConfirmName" class="text-white">---</strong></div>
+                            <div class="flex justify-between text-slate-400"><span data-i18n="thStation">Station:</span> <strong id="musterConfirmStation" class="text-amber-400">---</strong></div>
+                            <div class="flex justify-between text-slate-400"><span data-i18n="dateTimeLabel">Time:</span> <strong id="musterConfirmTime" class="text-emerald-400">---</strong></div>
                         </div>
-                        <button onclick="resetMusterCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">
+                        <button onclick="resetMusterCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition" data-i18n="nextPersonCheckIn">
                             Next Person Check-In Now
                         </button>
                     </div>
@@ -543,53 +553,53 @@
             <!-- Muster Admin Control Dashboard View -->
             <div id="musterAdminView" class="hidden flex-1 flex flex-col space-y-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Expected On-Site</div>
-                        <div id="statTotal" class="text-3xl font-black text-white">0</div>
-                        <div class="text-xs text-slate-500 mt-1">Signed in today</div>
+                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" data-i18n="statExpectedOnSite">Expected On-Site</div>
+                        <div id="statTotal" class="text-3xl font-black text-slate-900 dark:text-white">0</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500 mt-1" data-i18n="signedInTodaySub">Signed in today</div>
                     </div>
-                    <div class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
+                    <div class="bg-white dark:bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
                         <div class="absolute -right-2 -bottom-2 text-emerald-500/10"><i data-lucide="user-check" class="w-20 h-20"></i></div>
-                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Checked In</div>
-                        <div id="statCheckedIn" class="text-3xl font-black text-emerald-400">0</div>
-                        <div class="text-xs text-emerald-500/80 mt-1">Safely accounted for</div>
+                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1" data-i18n="statCheckedInMuster">Checked In</div>
+                        <div id="statCheckedIn" class="text-3xl font-black text-emerald-600 dark:text-emerald-400">0</div>
+                        <div class="text-xs text-emerald-500/80 mt-1" data-i18n="safelyAccountedSub">Safely accounted for</div>
                     </div>
-                    <div class="bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
+                    <div class="bg-white dark:bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
                         <div class="absolute -right-2 -bottom-2 text-amber-500/10"><i data-lucide="user-x" class="w-20 h-20"></i></div>
-                        <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Missing / Unaccounted</div>
-                        <div id="statMissing" class="text-3xl font-black text-amber-400">0</div>
-                        <div class="text-xs text-amber-500/80 mt-1">Action required</div>
+                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1" data-i18n="statMissingUnaccounted">Missing / Unaccounted</div>
+                        <div id="statMissing" class="text-3xl font-black text-amber-600 dark:text-amber-400">0</div>
+                        <div class="text-xs text-amber-500/80 mt-1" data-i18n="actionRequiredSub">Action required</div>
                     </div>
-                    <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Completion</div>
-                        <div id="statPercent" class="text-3xl font-black text-cyan-400">0%</div>
-                        <div class="text-xs text-slate-500 mt-1">Assembly rate</div>
+                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" data-i18n="statCompletion">Completion</div>
+                        <div id="statPercent" class="text-3xl font-black text-cyan-600 dark:text-cyan-400">0%</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500 mt-1" data-i18n="assemblyRateSub">Assembly rate</div>
                     </div>
                 </div>
 
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden flex-1 flex flex-col">
-                    <div class="bg-slate-950 p-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden flex-1 flex flex-col">
+                    <div class="bg-slate-100 dark:bg-slate-950 p-4 border-b border-slate-300 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
                             <button id="adminTabMissingBtn" onclick="switchAdminSubTab('missing')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
-                                <i data-lucide="alert-circle" class="w-4 h-4"></i> Missing (<span id="badgeMissingCount">0</span>)
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i> <span data-i18n="tabMissing">Missing</span> (<span id="badgeMissingCount">0</span>)
                             </button>
-                            <button id="adminTabCheckedBtn" onclick="switchAdminSubTab('checked')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                                <i data-lucide="check-circle" class="w-4 h-4"></i> Checked In (<span id="badgeCheckedCount">0</span>)
+                            <button id="adminTabCheckedBtn" onclick="switchAdminSubTab('checked')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> <span data-i18n="tabCheckedIn">Checked In</span> (<span id="badgeCheckedCount">0</span>)
                             </button>
-                            <button id="adminTabOutBtn" onclick="switchAdminSubTab('out')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                                <i data-lucide="user-minus" class="w-4 h-4"></i> Not Here / Out (<span id="badgeOutCount">0</span>)
+                            <button id="adminTabOutBtn" onclick="switchAdminSubTab('out')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                                <i data-lucide="user-minus" class="w-4 h-4"></i> <span data-i18n="tabNotHereOut">Not Here / Out</span> (<span id="badgeOutCount">0</span>)
                             </button>
-                            <button id="adminTabRosterBtn" onclick="switchAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
-                                <i data-lucide="settings" class="w-4 h-4"></i> Master Roster
+                            <button id="adminTabRosterBtn" onclick="switchAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                                <i data-lucide="settings" class="w-4 h-4"></i> <span data-i18n="tabMasterRoster">Master Roster</span>
                             </button>
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <button onclick="printMusterReport()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                                <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Print Muster Report
+                            <button onclick="printMusterReport()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                                <i data-lucide="printer" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i> <span data-i18n="printMusterReport">Print Muster Report</span>
                             </button>
-                            <button onclick="confirmResetMusterSession()" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4 text-red-400"></i> Reset Emergency Session
+                            <button onclick="confirmResetMusterSession()" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-700 dark:text-red-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4 text-red-500"></i> <span data-i18n="resetSession">Reset Emergency Session</span>
                             </button>
                         </div>
                     </div>
@@ -599,22 +609,22 @@
                         <div class="flex flex-col sm:flex-row justify-between gap-3">
                             <div class="relative flex-1">
                                 <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                <input type="text" id="missingSearchInput" oninput="renderAdminTables()" placeholder="Filter missing personnel..." 
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <input type="text" id="missingSearchInput" oninput="renderAdminTables()" placeholder="Filter missing personnel..." data-i18n-ph="filterMissingPh"
+                                    class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500">
                             </div>
                         </div>
 
-                        <div class="border border-slate-700 rounded-xl overflow-hidden bg-slate-900/60 flex-1">
+                        <div class="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900/60 flex-1">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
-                                        <tr class="bg-slate-950 text-slate-400 text-xs uppercase font-bold border-b border-slate-800">
+                                        <tr class="bg-slate-200 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-300 dark:border-slate-800">
                                             <th class="p-3.5">#</th>
-                                            <th class="p-3.5">Full Name</th>
-                                            <th class="p-3.5 text-right">Quick Admin Actions</th>
+                                            <th class="p-3.5" data-i18n="thFullName">Full Name</th>
+                                            <th class="p-3.5 text-right" data-i18n="thQuickActions">Quick Admin Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="missingTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
+                                    <tbody id="missingTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -624,24 +634,24 @@
                     <div id="subTabChecked" class="hidden p-4 sm:p-6 flex-1 flex flex-col space-y-4">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="checkedSearchInput" oninput="renderAdminTables()" placeholder="Filter checked-in roster..." 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <input type="text" id="checkedSearchInput" oninput="renderAdminTables()" placeholder="Filter checked-in roster..." data-i18n-ph="filterCheckedPh"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500">
                         </div>
 
-                        <div class="border border-slate-700 rounded-xl overflow-hidden bg-slate-900/60 flex-1">
+                        <div class="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900/60 flex-1">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
-                                        <tr class="bg-slate-950 text-slate-400 text-xs uppercase font-bold border-b border-slate-800">
+                                        <tr class="bg-slate-200 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-300 dark:border-slate-800">
                                             <th class="p-3.5">#</th>
-                                            <th class="p-3.5">Full Name</th>
-                                            <th class="p-3.5">Muster Station</th>
-                                            <th class="p-3.5">Time Stamp</th>
-                                            <th class="p-3.5">Signature</th>
-                                            <th class="p-3.5 text-right">Action</th>
+                                            <th class="p-3.5" data-i18n="thFullName">Full Name</th>
+                                            <th class="p-3.5" data-i18n="thStation">Muster Station</th>
+                                            <th class="p-3.5" data-i18n="thTimestamp">Time Stamp</th>
+                                            <th class="p-3.5" data-i18n="thSignature">Signature</th>
+                                            <th class="p-3.5 text-right" data-i18n="thAction">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="checkedTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
+                                    <tbody id="checkedTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -651,21 +661,21 @@
                     <div id="subTabOut" class="hidden p-4 sm:p-6 flex-1 flex flex-col space-y-4">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="outSearchInput" oninput="renderAdminTables()" placeholder="Filter out-for-day personnel..." 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <input type="text" id="outSearchInput" oninput="renderAdminTables()" placeholder="Filter out-for-day personnel..." data-i18n-ph="filterOutPh"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500">
                         </div>
 
-                        <div class="border border-slate-700 rounded-xl overflow-hidden bg-slate-900/60 flex-1">
+                        <div class="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900/60 flex-1">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
-                                        <tr class="bg-slate-950 text-slate-400 text-xs uppercase font-bold border-b border-slate-800">
+                                        <tr class="bg-slate-200 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-300 dark:border-slate-800">
                                             <th class="p-3.5">#</th>
-                                            <th class="p-3.5">Full Name</th>
-                                            <th class="p-3.5 text-right">Action</th>
+                                            <th class="p-3.5" data-i18n="thFullName">Full Name</th>
+                                            <th class="p-3.5 text-right" data-i18n="thAction">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="outTableBody" class="divide-y divide-slate-800 text-sm"></tbody>
+                                    <tbody id="outTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -674,41 +684,41 @@
                     <!-- Master Roster Sub-Tab -->
                     <div id="subTabRoster" class="hidden p-4 sm:p-6 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
-                                <h3 class="font-bold text-white text-base flex items-center gap-2">
-                                    <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> Add Individual Person
+                            <div class="bg-slate-100 dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-700 space-y-4">
+                                <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                                    <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> <span data-i18n="addPersonTitle">Add Individual Person</span>
                                 </h3>
                                 <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Full Name</label>
-                                    <input type="text" id="addNameInput" placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500">
+                                    <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1" data-i18n="thFullName">Full Name</label>
+                                    <input type="text" id="addNameInput" placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500">
                                 </div>
-                                <button onclick="addSinglePersonnel()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">
+                                <button onclick="addSinglePersonnel()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition" data-i18n="addToRoster">
                                     Add to Master Roster
                                 </button>
                             </div>
 
-                            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
-                                <h3 class="font-bold text-white text-base flex items-center gap-2">
-                                    <i data-lucide="file-text" class="text-emerald-500 w-5 h-5"></i> Bulk Import Roster Names
+                            <div class="bg-slate-100 dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-700 space-y-4">
+                                <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                                    <i data-lucide="file-text" class="text-emerald-500 w-5 h-5"></i> <span data-i18n="bulkImportTitle">Bulk Import Roster Names</span>
                                 </h3>
-                                <p class="text-xs text-slate-400">Paste names (one per line).</p>
-                                <textarea id="bulkImportInput" rows="4" placeholder="John Doe&#10;Jane Smith" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-mono focus:outline-none focus:border-emerald-500"></textarea>
-                                <button onclick="bulkImportPersonnel()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">
+                                <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="pasteNamesInstruction">Paste names (one per line).</p>
+                                <textarea id="bulkImportInput" rows="4" placeholder="John Doe&#10;Jane Smith" class="w-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-3 text-sm font-mono focus:outline-none focus:border-emerald-500"></textarea>
+                                <button onclick="bulkImportPersonnel()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition" data-i18n="bulkImportBtn">
                                     Bulk Import Names
                                 </button>
                             </div>
                         </div>
 
-                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3">
+                        <div class="bg-slate-100 dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-700 space-y-3">
                             <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
-                                <h3 class="font-bold text-white text-base">Master Roster Database (<span id="rosterTotalCount">0</span>)</h3>
+                                <h3 class="font-bold text-slate-900 dark:text-white text-base"><span data-i18n="masterRosterTitle">Master Roster Database</span> (<span id="rosterTotalCount">0</span>)</h3>
                                 <div class="relative w-full sm:w-64">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="masterRosterSearchInput" oninput="renderMasterRosterManagerList()" placeholder="Search master roster..." 
-                                        class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                                    <input type="text" id="masterRosterSearchInput" oninput="renderMasterRosterManagerList()" placeholder="Search master roster..." data-i18n-ph="searchMasterRosterPh"
+                                        class="w-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500">
                                 </div>
                             </div>
-                            <div class="max-h-96 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-xl" id="masterRosterList"></div>
+                            <div class="max-h-96 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl" id="masterRosterList"></div>
                         </div>
                     </div>
                 </div>
@@ -716,15 +726,21 @@
         </div>
     </main>
 
-    <!-- QR CODE MODAL -->
+    <!-- QR CODE MODAL WITH DUAL-MODE LOGIC -->
     <div id="qrModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
             <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto border border-amber-500/30">
                 <i data-lucide="qr-code" class="w-7 h-7"></i>
             </div>
             <div>
-                <h3 class="text-xl font-bold text-white">Employee Sign-In QR Code</h3>
-                <p class="text-xs text-slate-400 mt-1">Scan this code with a phone camera to open the direct sign-in screen (bypasses password & admin menus).</p>
+                <h3 class="text-xl font-bold text-white" data-i18n="qrModalTitle">Employee Mobile Sign-In QR</h3>
+                <p class="text-xs text-slate-400 mt-1" data-i18n="qrModalDesc">Scan with phone camera to sign in on personal mobile device.</p>
+            </div>
+
+            <!-- Mode Selector Switch inside Modal -->
+            <div class="flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs font-bold">
+                <button id="qrTabDaily" onclick="switchQrModalMode('daily')" class="flex-1 py-1.5 rounded-lg transition bg-amber-500 text-slate-950" data-i18n="dailyMode">Daily Sign-In</button>
+                <button id="qrTabMuster" onclick="switchQrModalMode('muster')" class="flex-1 py-1.5 rounded-lg transition text-slate-400 hover:text-white" data-i18n="musterMode">Emergency Muster</button>
             </div>
             
             <div class="bg-white p-4 rounded-2xl inline-block shadow-inner">
@@ -732,14 +748,14 @@
             </div>
 
             <div class="space-y-2 text-left">
-                <label class="block text-xs font-bold text-slate-400 uppercase">Direct Worker Sign-In Link:</label>
+                <label class="block text-xs font-bold text-slate-400 uppercase" data-i18n="directMobileLink">Direct Worker Mobile Link:</label>
                 <div class="flex items-center gap-2">
                     <input type="text" id="qrUrlInput" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none">
-                    <button onclick="copyQrUrl()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition">Copy</button>
+                    <button onclick="copyQrUrl()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition" data-i18n="copyBtn">Copy</button>
                 </div>
             </div>
 
-            <button onclick="closeQrModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">Close</button>
+            <button onclick="closeQrModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition" data-i18n="closeBtn">Close</button>
         </div>
     </div>
 
@@ -750,18 +766,18 @@
                 <i data-lucide="lock" class="w-7 h-7"></i>
             </div>
             <div>
-                <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">0000</code>)</p>
+                <h3 class="text-xl font-bold text-white" data-i18n="adminAuth">Admin Authentication</h3>
+                <p class="text-xs text-slate-400 mt-1"><span data-i18n="enterPin">Enter PIN code</span> (Default: <code class="text-amber-400 font-bold">0000</code>)</p>
             </div>
             
             <input type="password" id="pinInput" maxlength="6" placeholder="****" 
                 class="w-full text-center tracking-widest text-3xl font-mono bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-xl py-3 text-white focus:outline-none">
             
-            <div id="pinError" class="hidden text-xs text-red-400 font-semibold">Incorrect PIN code. Try again.</div>
+            <div id="pinError" class="hidden text-xs text-red-400 font-semibold" data-i18n="incorrectPin">Incorrect PIN code. Try again.</div>
 
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="closePinModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition">Cancel</button>
-                <button onclick="verifyPin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">Unlock</button>
+                <button onclick="closePinModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition" data-i18n="cancelBtn">Cancel</button>
+                <button onclick="verifyPin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition" data-i18n="unlockBtn">Unlock</button>
             </div>
         </div>
     </div>
@@ -823,11 +839,11 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-slate-950 border-t border-slate-800/80 py-3 px-6 text-center text-xs text-slate-500 no-print">
+    <footer class="bg-slate-200 dark:bg-slate-950 border-t border-slate-300 dark:border-slate-800/80 py-3 px-6 text-center text-xs text-slate-600 dark:text-slate-500 no-print">
         <span>Work In Progress // Plateau Excavation // Site Check-In App</span>
     </footer>
 
-    <!-- FIREBASE REALTIME SYNC SCRIPTS -->
+    <!-- FIREBASE REALTIME SYNC & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -864,6 +880,7 @@
         window.currentAppMode = 'daily';
         window.pendingAdminAction = null;
         window.isWorkerOnlyMode = false;
+        window.currentQrType = 'daily';
         
         const APP_STARTUP_PASSWORD = '26006';
         window.adminPin = '2026';
@@ -873,7 +890,253 @@
         let dailyIsDrawing = false, musterIsDrawing = false;
         let dailyHasSignature = false, musterHasSignature = false;
 
-        // 11:59 PM Operational Shift Date Helper (Rolls over at 11:59:59 PM)
+        // BILINGUAL TRANSLATION DICTIONARY (EN/ES)
+        window.currentLang = 'en';
+        const i18n = {
+            en: {
+                restrictedApp: "RESTRICTED SITE APP",
+                enterSitePassword: "Enter site access password to launch app.",
+                incorrectPassword: "Incorrect password. Try again.",
+                unlockApp: "UNLOCK APP",
+                modeDaily: "Daily Sign-In Mode",
+                modeMuster: "Emergency Muster Mode",
+                qrBtn: "Station QR Code",
+                personnelCheckIn: "Personnel Check-In",
+                dailyAdminReports: "Daily Admin & Reports",
+                todayLabel: "Today:",
+                dailySignInHeader: "Daily Job Site Sign-In",
+                dailySignInSteps: "Step 1: Select Name • Step 2: Sign",
+                selectNameMaster: "1. SELECT YOUR NAME FROM MASTER LIST *",
+                typeToSearch: "Type to search quick",
+                searchPlaceholder: "Tap here to search name...",
+                selectedIndividual: "Selected Individual",
+                alreadySignedIn: "Already Signed In Today:",
+                submittingWillUpdate: "Submitting will update your sign-in timestamp.",
+                signBelow: "2. SIGN BELOW WITH FINGER OR STYLUS *",
+                clearSignature: "Clear Signature",
+                signInsideArea: "Sign inside this area",
+                confirmDailyBtn: "CONFIRM DAILY SIGN-IN",
+                signInRecorded: "SIGN-IN RECORDED",
+                syncedToDatabase: "Synced to daily log database.",
+                nameLabel: "Name:",
+                dateTimeLabel: "Date/Time:",
+                nextPersonSignIn: "Next Person Sign-In Now",
+                statTotalRoster: "Total Roster",
+                activeWorkforce: "Active site workforce",
+                statSignedInToday: "Signed In Today",
+                checkedInForShift: "Checked in for shift",
+                statNotYetSigned: "Not Yet Signed In",
+                pendingAttendance: "Pending attendance",
+                statTurnoutRate: "Turnout Rate",
+                dailyAttendanceRate: "Daily attendance rate",
+                signedInLog: "Signed-In Log",
+                managePersonnel: "Add/Manage Personnel",
+                dateLabel: "Date:",
+                todayBtn: "Today",
+                printReport: "Print Report",
+                signedInFor: "Signed-In Personnel for",
+                thFullName: "Full Name",
+                thStation: "Station",
+                thTimestamp: "Exact Timestamp",
+                thSignature: "Signature",
+                thAction: "Action",
+                addPersonTitle: "Add Individual Person",
+                addToRoster: "Add to Master Roster",
+                bulkImportTitle: "Bulk Import Roster Names",
+                pasteNamesInstruction: "Paste names (one per line).",
+                bulkImportBtn: "Bulk Import Names",
+                masterRosterTitle: "Master Roster Database",
+                searchMasterRosterPh: "Search master roster...",
+                musterCheckInTab: "Muster Check-In",
+                musterControlDashboard: "Muster Control Dashboard",
+                emergencyAssemblyStation: "EMERGENCY ASSEMBLY STATION",
+                musterHeader: "Emergency Assembly Point Check-In",
+                liveEvacuationMode: "Live Evacuation Mode",
+                alreadyCheckedInMuster: "Already Checked In:",
+                confirmMusterBtn: "CONFIRM MUSTER CHECK-IN",
+                musterConfirmedTitle: "MUSTER CHECK-IN CONFIRMED",
+                safelyAccounted: "Safely accounted for in assembly.",
+                nextPersonCheckIn: "Next Person Check-In Now",
+                statExpectedOnSite: "Expected On-Site",
+                signedInTodaySub: "Signed in today",
+                statCheckedInMuster: "Checked In",
+                safelyAccountedSub: "Safely accounted for",
+                statMissingUnaccounted: "Missing / Unaccounted",
+                actionRequiredSub: "Action required",
+                statCompletion: "Completion",
+                assemblyRateSub: "Assembly rate",
+                tabMissing: "Missing",
+                tabCheckedIn: "Checked In",
+                tabNotHereOut: "Not Here / Out",
+                tabMasterRoster: "Master Roster",
+                printMusterReport: "Print Muster Report",
+                resetSession: "Reset Emergency Session",
+                filterMissingPh: "Filter missing personnel...",
+                filterCheckedPh: "Filter checked-in roster...",
+                filterOutPh: "Filter out-for-day personnel...",
+                thQuickActions: "Quick Admin Actions",
+                qrModalTitle: "Employee Mobile Sign-In QR",
+                qrModalDesc: "Scan with phone camera to sign in on personal mobile device.",
+                dailyMode: "Daily Sign-In",
+                musterMode: "Emergency Muster",
+                directMobileLink: "Direct Worker Mobile Link:",
+                copyBtn: "Copy",
+                closeBtn: "Close",
+                adminAuth: "Admin Authentication",
+                enterPin: "Enter PIN code",
+                incorrectPin: "Incorrect PIN code. Try again.",
+                cancelBtn: "Cancel",
+                unlockBtn: "Unlock"
+            },
+            es: {
+                restrictedApp: "APLICACIÓN DE SITIO RESTRINGIDO",
+                enterSitePassword: "Ingrese la contraseña de acceso al sitio.",
+                incorrectPassword: "Contraseña incorrecta. Inténtelo de nuevo.",
+                unlockApp: "DESBLOQUEAR APLICACIÓN",
+                modeDaily: "Modo Registro Diario",
+                modeMuster: "Modo Reunión Emergencia",
+                qrBtn: "Código QR de Estación",
+                personnelCheckIn: "Registro de Personal",
+                dailyAdminReports: "Administración y Reportes",
+                todayLabel: "Hoy:",
+                dailySignInHeader: "Registro Diario de Trabajo",
+                dailySignInSteps: "Paso 1: Seleccione Nombre • Paso 2: Firme",
+                selectNameMaster: "1. SELECCIONE SU NOMBRE DE LA LISTA *",
+                typeToSearch: "Escriba para buscar rápido",
+                searchPlaceholder: "Toque aquí para buscar nombre...",
+                selectedIndividual: "Persona Seleccionada",
+                alreadySignedIn: "Ya Registrado Hoy:",
+                submittingWillUpdate: "Al enviar se actualizará su hora de registro.",
+                signBelow: "2. FIRME ABAJO CON EL DEDO O LÁPIZ *",
+                clearSignature: "Borrar Firma",
+                signInsideArea: "Firme dentro de este cuadro",
+                confirmDailyBtn: "CONFIRMAR REGISTRO DIARIO",
+                signInRecorded: "REGISTRO GUARDADO",
+                syncedToDatabase: "Sincronizado con la base de datos.",
+                nameLabel: "Nombre:",
+                dateTimeLabel: "Fecha/Hora:",
+                nextPersonSignIn: "Siguiente Persona Registrarse",
+                statTotalRoster: "Total Personal",
+                activeWorkforce: "Fuerza laboral activa",
+                statSignedInToday: "Registrados Hoy",
+                checkedInForShift: "Registrados en turno",
+                statNotYetSigned: "Pendientes por Registrar",
+                pendingAttendance: "Asistencia pendiente",
+                statTurnoutRate: "Tasa de Asistencia",
+                dailyAttendanceRate: "Porcentaje de asistencia",
+                signedInLog: "Registro de Asistencia",
+                managePersonnel: "Agregar/Administrar Personal",
+                dateLabel: "Fecha:",
+                todayBtn: "Hoy",
+                printReport: "Imprimir Reporte",
+                signedInFor: "Personal Registrado para",
+                thFullName: "Nombre Completo",
+                thStation: "Estación",
+                thTimestamp: "Hora Exacta",
+                thSignature: "Firma",
+                thAction: "Acción",
+                addPersonTitle: "Agregar Persona Individual",
+                addToRoster: "Agregar a la Lista Maestra",
+                bulkImportTitle: "Importación Masiva de Nombres",
+                pasteNamesInstruction: "Pegue nombres (uno por línea).",
+                bulkImportBtn: "Importar Nombres",
+                masterRosterTitle: "Base de Datos de Personal",
+                searchMasterRosterPh: "Buscar en lista maestra...",
+                musterCheckInTab: "Registro de Emergencia",
+                musterControlDashboard: "Panel de Control de Emergencia",
+                emergencyAssemblyStation: "PUNTO DE REUNIÓN DE EMERGENCIA",
+                musterHeader: "Registro de Punto de Reunión de Emergencia",
+                liveEvacuationMode: "Modo Evacuación en Vivo",
+                alreadyCheckedInMuster: "Ya Registrado en Evacuación:",
+                confirmMusterBtn: "CONFIRMAR REGISTRO DE EMERGENCIA",
+                musterConfirmedTitle: "REGISTRO DE EMERGENCIA CONFIRMADO",
+                safelyAccounted: "Contabilizado de forma segura.",
+                nextPersonCheckIn: "Siguiente Persona Registrarse",
+                statExpectedOnSite: "Esperados en Sitio",
+                signedInTodaySub: "Registrados hoy en turno",
+                statCheckedInMuster: "Contabilizados",
+                safelyAccountedSub: "A salvo en punto de reunión",
+                statMissingUnaccounted: "Faltantes / Sin Reportar",
+                actionRequiredSub: "Acción requerida",
+                statCompletion: "Completado",
+                assemblyRateSub: "Porcentaje de reunión",
+                tabMissing: "Faltantes",
+                tabCheckedIn: "Contabilizados",
+                tabNotHereOut: "Ausentes / Fuera",
+                tabMasterRoster: "Lista Maestra",
+                printMusterReport: "Imprimir Reporte Emergencia",
+                resetSession: "Reiniciar Sesión Emergencia",
+                filterMissingPh: "Filtrar personal faltante...",
+                filterCheckedPh: "Filtrar lista contabilizada...",
+                filterOutPh: "Filtrar personal fuera de sitio...",
+                thQuickActions: "Acciones Rápidas Admin",
+                qrModalTitle: "Código QR para Teléfonos",
+                qrModalDesc: "Escanee con la cámara del teléfono para registrarse desde su móvil.",
+                dailyMode: "Registro Diario",
+                musterMode: "Emergencia",
+                directMobileLink: "Enlace Móvil Directo:",
+                copyBtn: "Copiar",
+                closeBtn: "Cerrar",
+                adminAuth: "Autenticación de Admin",
+                enterPin: "Ingrese código PIN",
+                incorrectPin: "PIN incorrecto. Intente de nuevo.",
+                cancelBtn: "Cancelar",
+                unlockBtn: "Desbloquear"
+            }
+        };
+
+        window.toggleLanguage = function() {
+            window.currentLang = window.currentLang === 'en' ? 'es' : 'en';
+            document.getElementById('langBtnText').textContent = window.currentLang === 'en' ? 'ES' : 'EN';
+            applyTranslations();
+        };
+
+        function applyTranslations() {
+            const lang = window.currentLang;
+            const dict = i18n[lang];
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.textContent = dict[key];
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (dict[key]) el.placeholder = dict[key];
+            });
+        }
+
+        // DARK / LIGHT THEME TOGGLE LOGIC
+        window.toggleThemeMode = function() {
+            const html = document.getElementById('htmlRoot');
+            const icon = document.getElementById('themeToggleIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.setAttribute('data-lucide', 'moon');
+                localStorage.setItem('site_checkin_theme', 'light');
+            } else {
+                html.classList.add('dark');
+                icon.setAttribute('data-lucide', 'sun');
+                localStorage.setItem('site_checkin_theme', 'dark');
+            }
+            lucide.createIcons();
+            setTimeout(() => { resizeDailyCanvas(); resizeMusterCanvas(); }, 100);
+        };
+
+        function initSavedTheme() {
+            const savedTheme = localStorage.getItem('site_checkin_theme');
+            const html = document.getElementById('htmlRoot');
+            const icon = document.getElementById('themeToggleIcon');
+            if (savedTheme === 'light') {
+                html.classList.remove('dark');
+                if (icon) icon.setAttribute('data-lucide', 'moon');
+            } else {
+                html.classList.add('dark');
+                if (icon) icon.setAttribute('data-lucide', 'sun');
+            }
+        }
+
+        // 11:59 PM Operational Shift Date Helper
         function getShiftDateStr(dateObj = new Date()) {
             const d = new Date(dateObj.getTime());
             if (d.getHours() === 23 && d.getMinutes() >= 59) {
@@ -910,6 +1173,7 @@
         };
 
         window.addEventListener('DOMContentLoaded', () => {
+            initSavedTheme();
             lucide.createIcons();
             initClock();
             initDailySignatureCanvas();
@@ -917,6 +1181,7 @@
             checkWorkerUrlMode();
             initFirebaseSync();
             initDateDefaults();
+            applyTranslations();
 
             document.getElementById('startupPinInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') verifyStartupPin();
@@ -932,6 +1197,13 @@
                 document.getElementById('startupLockModal').classList.add('hidden');
                 document.getElementById('mainHeaderBar').classList.add('hidden');
                 document.getElementById('dailySubTabHeader').classList.add('hidden');
+
+                const type = urlParams.get('type');
+                if (type === 'muster') {
+                    window.switchAppMode('muster');
+                } else {
+                    window.switchAppMode('daily');
+                }
             }
         }
 
@@ -1031,10 +1303,10 @@
             const statusText = document.getElementById('syncStatusText');
             if (online) {
                 badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
-                statusText.className = "text-emerald-400 font-bold";
+                statusText.className = "text-emerald-600 dark:text-emerald-400 font-bold";
             } else {
                 badge.className = "w-2.5 h-2.5 rounded-full bg-amber-500 inline-block";
-                statusText.className = "text-amber-400 font-bold";
+                statusText.className = "text-amber-600 dark:text-amber-400 font-bold";
             }
             statusText.textContent = text;
         }
@@ -1129,7 +1401,11 @@
         window.changeStation = function(val) { window.currentStation = val; document.getElementById('printStation').textContent = val; };
 
         window.switchAppMode = function(mode) {
-            if (window.isWorkerOnlyMode) return;
+            if (window.isWorkerOnlyMode && mode !== window.currentAppMode) {
+                // If in worker mode, allow switching modes directly
+            } else if (window.isWorkerOnlyMode) {
+                return;
+            }
             window.currentAppMode = mode;
             const dailyWrapper = document.getElementById('dailyModeWrapper');
             const musterWrapper = document.getElementById('musterModeWrapper');
@@ -1141,29 +1417,47 @@
             if (mode === 'daily') {
                 dailyWrapper.classList.remove('hidden');
                 musterWrapper.classList.add('hidden');
-                modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
-                modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
-                headerTitle.textContent = "DAILY SITE SIGN-IN";
-                headerIcon.className = "bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40";
+                if (modeDailyBtn) modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
+                if (modeMusterBtn) modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+                if (headerTitle) headerTitle.textContent = window.currentLang === 'es' ? "REGISTRO DIARIO DEL SITIO" : "DAILY SITE SIGN-IN";
+                if (headerIcon) headerIcon.className = "bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40";
                 setTimeout(resizeDailyCanvas, 50);
             } else {
                 dailyWrapper.classList.add('hidden');
                 musterWrapper.classList.remove('hidden');
-                modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white shadow-md";
-                modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
-                headerTitle.textContent = "EMERGENCY MUSTER CHECK-IN";
-                headerIcon.className = "bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40";
+                if (modeMusterBtn) modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white shadow-md";
+                if (modeDailyBtn) modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+                if (headerTitle) headerTitle.textContent = window.currentLang === 'es' ? "REGISTRO DE EMERGENCIA" : "EMERGENCY MUSTER CHECK-IN";
+                if (headerIcon) headerIcon.className = "bg-red-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40";
                 setTimeout(resizeMusterCanvas, 50);
             }
         };
 
+        // DUAL QR MODAL SYSTEM (DAILY & MUSTER)
         window.openQrModal = function() {
+            window.switchQrModalMode(window.currentAppMode || 'daily');
+            document.getElementById('qrModal').classList.remove('hidden');
+        };
+
+        window.switchQrModalMode = function(type) {
+            window.currentQrType = type;
             const baseUrl = window.location.href.split('?')[0];
-            const workerUrl = `${baseUrl}?mode=worker`;
+            const workerUrl = `${baseUrl}?mode=worker&type=${type}`;
             document.getElementById('qrUrlInput').value = workerUrl;
+
+            const tabDaily = document.getElementById('qrTabDaily');
+            const tabMuster = document.getElementById('qrTabMuster');
+
+            if (type === 'daily') {
+                tabDaily.className = "flex-1 py-1.5 rounded-lg transition bg-amber-500 text-slate-950";
+                tabMuster.className = "flex-1 py-1.5 rounded-lg transition text-slate-400 hover:text-white";
+            } else {
+                tabMuster.className = "flex-1 py-1.5 rounded-lg transition bg-red-600 text-white";
+                tabDaily.className = "flex-1 py-1.5 rounded-lg transition text-slate-400 hover:text-white";
+            }
+
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(workerUrl)}`;
             document.getElementById('qrCodeImage').src = qrApiUrl;
-            document.getElementById('qrModal').classList.remove('hidden');
         };
 
         window.closeQrModal = function() {
@@ -1175,7 +1469,7 @@
             input.select();
             input.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(input.value);
-            alert('Worker sign-in link copied to clipboard!');
+            alert(window.currentLang === 'es' ? '¡Enlace móvil copiado al portapapeles!' : 'Worker mobile link copied to clipboard!');
         };
 
         function initDailySignatureCanvas() {
@@ -1278,12 +1572,12 @@
             if (sub === 'checkin') {
                 checkView.classList.remove('hidden'); logView.classList.add('hidden');
                 btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
-                btnLog.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                btnLog.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
                 setTimeout(resizeDailyCanvas, 50);
             } else {
                 checkView.classList.add('hidden'); logView.classList.remove('hidden');
                 btnLog.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
-                btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
                 window.renderDailyLogTable();
             }
         };
@@ -1298,11 +1592,11 @@
             if (sub === 'logs') {
                 logsContainer.classList.remove('hidden'); rosterContainer.classList.add('hidden'); logsControls.classList.remove('hidden');
                 btnLogs.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
-                btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition";
             } else {
                 logsContainer.classList.add('hidden'); rosterContainer.classList.remove('hidden'); logsControls.classList.add('hidden');
                 btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
-                btnLogs.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                btnLogs.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition";
                 window.renderDailyRosterManagerList();
             }
         };
@@ -1328,14 +1622,14 @@
             const matches = sortedRoster.filter(p => p.name.toLowerCase().includes(input));
             
             if (matches.length === 0) {
-                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel found</div>`;
+                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">${window.currentLang === 'es' ? 'No se encontraron personas' : 'No personnel found'}</div>`;
             } else {
                 listContainer.innerHTML = matches.map(person => {
                     const signedToday = signedTodaySet.has(person.id);
                     return `
-                        <div onclick="selectDailyPerson('${person.id}')" class="p-3 hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
-                            <div class="font-bold text-white text-sm">${escapeHtml(person.name)}</div>
-                            ${signedToday ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-semibold">Signed Today</span>' : '<span class="text-xs text-slate-500">Tap to select &rarr;</span>'}
+                        <div onclick="selectDailyPerson('${person.id}')" class="p-3 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
+                            <div class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(person.name)}</div>
+                            ${signedToday ? `<span class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold">${window.currentLang === 'es' ? 'Registrado Hoy' : 'Signed Today'}</span>` : `<span class="text-xs text-slate-500">${window.currentLang === 'es' ? 'Toque para seleccionar &rarr;' : 'Tap to select &rarr;'}</span>`}
                         </div>
                     `;
                 }).join('');
@@ -1370,8 +1664,8 @@
         };
 
         window.submitDailyCheckIn = async function() {
-            if (!window.dailySelectedPerson) { alert('Please select your name first.'); return; }
-            if (!dailyHasSignature) { alert('Digital signature is required.'); return; }
+            if (!window.dailySelectedPerson) { alert(window.currentLang === 'es' ? 'Por favor seleccione su nombre primero.' : 'Please select your name first.'); return; }
+            if (!dailyHasSignature) { alert(window.currentLang === 'es' ? 'La firma digital es requerida.' : 'Digital signature is required.'); return; }
 
             const signatureImg = dailyCanvas.toDataURL('image/png');
             const now = new Date();
@@ -1451,16 +1745,16 @@
             const tbody = document.getElementById('dailyLogTableBody');
             if (tbody) {
                 if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No sign-ins recorded for ${formatToMMDDYYYY(dateFilter)}.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'No hay registros para esta fecha.' : 'No sign-ins recorded for ' + formatToMMDDYYYY(dateFilter)}</td></tr>`;
                 } else {
                     tbody.innerHTML = filtered.map((r, i) => `
-                        <tr class="hover:bg-slate-800/55 transition">
-                            <td class="p-3.5 text-slate-400 font-mono">${i + 1}</td>
-                            <td class="p-3.5 font-bold text-white">${escapeHtml(r.name)}</td>
-                            <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(r.station)}</td>
-                            <td class="p-3.5 text-amber-400 font-mono text-xs">${r.timestamp}</td>
-                            <td class="p-3.5">${r.signatureImg ? `<img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain" alt="Sig">` : '<span class="text-xs text-slate-500 font-bold">[ADMIN]</span>'}</td>
-                            <td class="p-3.5 text-right"><button onclick="deleteDailyLogRecord('${r.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">Remove</button></td>
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/55 transition">
+                            <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${i + 1}</td>
+                            <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(r.name)}</td>
+                            <td class="p-3.5 text-slate-700 dark:text-slate-300 text-xs">${escapeHtml(r.station)}</td>
+                            <td class="p-3.5 text-amber-600 dark:text-amber-400 font-mono text-xs">${r.timestamp}</td>
+                            <td class="p-3.5">${r.signatureImg ? `<img src="${r.signatureImg}" class="h-8 max-w-[120px] bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded p-1 object-contain" alt="Sig">` : '<span class="text-xs text-slate-500 font-bold">[ADMIN]</span>'}</td>
+                            <td class="p-3.5 text-right"><button onclick="deleteDailyLogRecord('${r.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 p-2 rounded-lg hover:bg-red-500/20 transition">${window.currentLang === 'es' ? 'Eliminar' : 'Remove'}</button></td>
                         </tr>
                     `).join('');
                 }
@@ -1468,7 +1762,7 @@
         };
 
         window.deleteDailyLogRecord = async function(id) {
-            if (confirm('Delete this daily sign-in entry?')) {
+            if (confirm(window.currentLang === 'es' ? '¿Eliminar este registro?' : 'Delete this daily sign-in entry?')) {
                 window.dailyLogRecords = window.dailyLogRecords.filter(r => r.id !== id);
                 window.renderDailyLogTable();
                 window.updateDashboardMetrics();
@@ -1487,7 +1781,7 @@
             const filteredRoster = sortedRoster.filter(p => p.name.toLowerCase().includes(searchQuery));
 
             if (filteredRoster.length === 0) { 
-                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel match search.</div>`; 
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">${window.currentLang === 'es' ? 'No se encontraron personas.' : 'No personnel match search.'}</div>`; 
                 return; 
             }
             
@@ -1497,14 +1791,14 @@
             container.innerHTML = filteredRoster.map(p => {
                 const isSigned = signedTodaySet.has(p.id);
                 return `
-                    <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
-                        <div class="font-bold text-white text-sm">
+                    <div class="p-3 flex justify-between items-center hover:bg-slate-200 dark:hover:bg-slate-800/60 transition">
+                        <div class="font-bold text-slate-900 dark:text-white text-sm">
                             ${escapeHtml(p.name)}
-                            ${isSigned ? '<span class="ml-2 text-xs bg-emerald-500/20 text-emerald-400 font-semibold px-2 py-0.5 rounded-full">Signed In Today</span>' : ''}
+                            ${isSigned ? `<span class="ml-2 text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold px-2 py-0.5 rounded-full">${window.currentLang === 'es' ? 'Registrado Hoy' : 'Signed In Today'}</span>` : ''}
                         </div>
                         <div class="flex items-center gap-2">
-                            ${!isSigned ? `<button onclick="adminManualDailySignIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg font-bold transition">Manual Sign-In</button>` : ''}
-                            <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-500 hover:text-red-400 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            ${!isSigned ? `<button onclick="adminManualDailySignIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg font-bold transition">${window.currentLang === 'es' ? 'Registro Manual' : 'Manual Sign-In'}</button>` : ''}
+                            <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-400 hover:text-red-500 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 `;
@@ -1514,7 +1808,7 @@
 
         window.addSinglePersonnelFromDaily = async function() {
             const name = document.getElementById('dailyAddNameInput').value.trim();
-            if (!name) return alert('Enter name.');
+            if (!name) return alert(window.currentLang === 'es' ? 'Ingrese nombre.' : 'Enter name.');
             await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name });
             document.getElementById('dailyAddNameInput').value = '';
             window.renderDailyRosterManagerList();
@@ -1522,7 +1816,7 @@
 
         window.bulkImportPersonnelFromDaily = async function() {
             const raw = document.getElementById('dailyBulkImportInput').value;
-            if (!raw.trim()) return alert('Paste names.');
+            if (!raw.trim()) return alert(window.currentLang === 'es' ? 'Pegue nombres.' : 'Paste names.');
             const lines = raw.split('\n'); let count = 0;
             for (const line of lines) {
                 const name = line.trim();
@@ -1532,7 +1826,7 @@
                 }
             }
             document.getElementById('dailyBulkImportInput').value = '';
-            alert(`Imported ${count} names.`);
+            alert(`${window.currentLang === 'es' ? 'Se importaron' : 'Imported'} ${count} ${window.currentLang === 'es' ? 'nombres.' : 'names.'}`);
             window.renderDailyRosterManagerList();
         };
 
@@ -1557,12 +1851,12 @@
             if (sub === 'checkin') {
                 checkView.classList.remove('hidden'); adminView.classList.add('hidden');
                 btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition";
-                btnAdmin.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                btnAdmin.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
                 setTimeout(resizeMusterCanvas, 50);
             } else {
                 checkView.classList.add('hidden'); adminView.classList.remove('hidden');
                 btnAdmin.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition";
-                btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+                btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
                 window.renderAdminTables();
             }
         };
@@ -1590,14 +1884,14 @@
             const matches = sortedRoster.filter(p => signedTodaySet.has(p.id) && !outSet.has(p.id) && p.name.toLowerCase().includes(input));
             
             if (matches.length === 0) {
-                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No matching signed-in personnel found (must complete daily sign-in first)</div>`;
+                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">${window.currentLang === 'es' ? 'No se encontraron personas registradas hoy.' : 'No matching signed-in personnel found'}</div>`;
             } else {
                 listContainer.innerHTML = matches.map(person => {
                     const isAlreadyChecked = checkedSet.has(person.id);
                     return `
-                        <div onclick="selectMusterPerson('${person.id}')" class="p-3 hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
-                            <div class="font-bold text-white text-sm">${escapeHtml(person.name)}</div>
-                            ${isAlreadyChecked ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-semibold">Already Accounted</span>' : '<span class="text-xs text-slate-500">Tap to select &rarr;</span>'}
+                        <div onclick="selectMusterPerson('${person.id}')" class="p-3 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
+                            <div class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(person.name)}</div>
+                            ${isAlreadyChecked ? `<span class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold">${window.currentLang === 'es' ? 'Contabilizado' : 'Already Accounted'}</span>` : `<span class="text-xs text-slate-500">${window.currentLang === 'es' ? 'Toque para seleccionar &rarr;' : 'Tap to select &rarr;'}</span>`}
                         </div>
                     `;
                 }).join('');
@@ -1632,8 +1926,8 @@
         };
 
         window.submitMusterCheckIn = async function() {
-            if (!window.musterSelectedPerson) { alert('Please select your name first.'); return; }
-            if (!musterHasSignature) { alert('Digital signature is required.'); return; }
+            if (!window.musterSelectedPerson) { alert(window.currentLang === 'es' ? 'Por favor seleccione su nombre primero.' : 'Please select your name first.'); return; }
+            if (!musterHasSignature) { alert(window.currentLang === 'es' ? 'La firma digital es requerida.' : 'Digital signature is required.'); return; }
 
             const signatureImg = musterCanvas.toDataURL('image/png');
             const now = new Date();
@@ -1747,7 +2041,7 @@
             const btnRoster = document.getElementById('adminTabRosterBtn');
 
             subMissing.classList.add('hidden'); subChecked.classList.add('hidden'); subOut.classList.add('hidden'); subRoster.classList.add('hidden');
-            btnMissing.className = btnChecked.className = btnOut.className = btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition";
+            btnMissing.className = btnChecked.className = btnOut.className = btnRoster.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 transition";
 
             if (subTab === 'missing') {
                 subMissing.classList.remove('hidden');
@@ -1782,15 +2076,15 @@
             const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
             const missingList = sortedRoster.filter(p => signedTodayIds.has(p.id) && !checkedIds.has(p.id) && !outIds.has(p.id) && p.name.toLowerCase().includes(missingSearch));
             if (missingList.length === 0) {
-                missingBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">No missing personnel (all signed-in workers accounted for).</td></tr>`;
+                missingBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'No hay personal faltante.' : 'No missing personnel.'}</td></tr>`;
             } else {
                 missingBody.innerHTML = missingList.map((p, index) => `
-                    <tr class="hover:bg-slate-800/50 transition">
-                        <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
-                        <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)}</td>
+                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                        <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${index + 1}</td>
+                        <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(p.name)}</td>
                         <td class="p-3.5 text-right flex items-center justify-end gap-2">
-                            <button onclick="adminMarkOut('${p.id}')" class="bg-amber-500/20 hover:bg-amber-500 border border-amber-500/40 text-amber-300 hover:text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold transition">Mark Not Here / Out</button>
-                            <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Mark Accounted</button>
+                            <button onclick="adminMarkOut('${p.id}')" class="bg-amber-500/20 hover:bg-amber-500 border border-amber-500/40 text-amber-700 dark:text-amber-300 hover:text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold transition">${window.currentLang === 'es' ? 'Marcar Fuera / Ausente' : 'Mark Not Here / Out'}</button>
+                            <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">${window.currentLang === 'es' ? 'Marcar Contabilizado' : 'Mark Accounted'}</button>
                         </td>
                     </tr>
                 `).join('');
@@ -1800,16 +2094,16 @@
             const checkedBody = document.getElementById('checkedTableBody');
             if (checkedBody) {
                 if (checkedFiltered.length === 0) {
-                    checkedBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No check-ins.</td></tr>`;
+                    checkedBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'Sin registros.' : 'No check-ins.'}</td></tr>`;
                 } else {
                     checkedBody.innerHTML = checkedFiltered.map((c, index) => `
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
-                            <td class="p-3.5 font-bold text-white">${escapeHtml(c.name)}</td>
-                            <td class="p-3.5 text-slate-300 text-xs">${escapeHtml(c.station)}</td>
-                            <td class="p-3.5 text-amber-400 font-mono text-xs">${c.timestamp}</td>
-                            <td class="p-3.5">${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-950 border border-slate-700 rounded p-1 object-contain">` : '<span class="text-xs text-slate-500">Admin</span>'}</td>
-                            <td class="p-3.5 text-right"><button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 p-2 rounded-lg transition">Undo</button></td>
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                            <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${index + 1}</td>
+                            <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(c.name)}</td>
+                            <td class="p-3.5 text-slate-700 dark:text-slate-300 text-xs">${escapeHtml(c.station)}</td>
+                            <td class="p-3.5 text-amber-600 dark:text-amber-400 font-mono text-xs">${c.timestamp}</td>
+                            <td class="p-3.5">${c.signatureImg ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded p-1 object-contain">` : '<span class="text-xs text-slate-500">Admin</span>'}</td>
+                            <td class="p-3.5 text-right"><button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 p-2 rounded-lg transition">${window.currentLang === 'es' ? 'Deshacer' : 'Undo'}</button></td>
                         </tr>
                     `).join('');
                 }
@@ -1819,17 +2113,17 @@
             const outBody = document.getElementById('outTableBody');
             if (outBody) {
                 if (outFiltered.length === 0) {
-                    outBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">No personnel marked out or absent.</td></tr>`;
+                    outBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">${window.currentLang === 'es' ? 'Sin personal ausente.' : 'No personnel marked out or absent.'}</td></tr>`;
                 } else {
                     outBody.innerHTML = outFiltered.map((p, index) => {
                         const isExplicitOut = outIds.has(p.id);
                         return `
-                            <tr class="hover:bg-slate-800/50 transition">
-                                <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
-                                <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)} <span class="text-xs font-normal text-slate-400 ml-2">(${isExplicitOut ? 'Marked Out' : 'Did Not Sign-In Today'})</span></td>
+                            <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                                <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${index + 1}</td>
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(p.name)} <span class="text-xs font-normal text-slate-400 ml-2">(${isExplicitOut ? (window.currentLang === 'es' ? 'Marcado Fuera' : 'Marked Out') : (window.currentLang === 'es' ? 'No se registró hoy' : 'Did Not Sign-In Today')})</span></td>
                                 <td class="p-3.5 text-right flex items-center justify-end gap-2">
-                                    <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Manual Check-In</button>
-                                    ${isExplicitOut ? `<button onclick="removeOutRecord('${p.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">Return Active</button>` : `<button onclick="adminMarkOut('${p.id}')" class="text-xs text-amber-400 hover:text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-lg transition font-bold">Mark Out</button>`}
+                                    <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">${window.currentLang === 'es' ? 'Registro Manual' : 'Manual Check-In'}</button>
+                                    ${isExplicitOut ? `<button onclick="removeOutRecord('${p.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">${window.currentLang === 'es' ? 'Regresar Activo' : 'Return Active'}</button>` : `<button onclick="adminMarkOut('${p.id}')" class="text-xs text-amber-600 hover:text-amber-700 bg-amber-500/10 px-3 py-1.5 rounded-lg transition font-bold">${window.currentLang === 'es' ? 'Marcar Fuera' : 'Mark Out'}</button>`}
                                 </td>
                             </tr>
                         `;
@@ -1868,7 +2162,7 @@
         };
 
         window.removeCheckInRecord = async function(id) { 
-            if (confirm('Remove check-in?')) {
+            if (confirm(window.currentLang === 'es' ? '¿Eliminar registro?' : 'Remove check-in?')) {
                 window.checkedInRecords = window.checkedInRecords.filter(c => c.id !== id);
                 window.updateDashboardMetrics();
                 window.renderAdminTables();
@@ -1891,13 +2185,13 @@
             const filteredRoster = sortedRoster.filter(p => p.name.toLowerCase().includes(searchQuery));
 
             if (filteredRoster.length === 0) { 
-                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel match search.</div>`; 
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">${window.currentLang === 'es' ? 'No hay coincidencia.' : 'No personnel match search.'}</div>`; 
                 return; 
             }
             container.innerHTML = filteredRoster.map(p => `
-                <div class="p-3 flex justify-between items-center hover:bg-slate-800/60 transition">
-                    <div class="font-bold text-white text-sm">${escapeHtml(p.name)}</div>
-                    <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-500 hover:text-red-400 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                <div class="p-3 flex justify-between items-center hover:bg-slate-200 dark:hover:bg-slate-800/60 transition">
+                    <div class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(p.name)}</div>
+                    <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-400 hover:text-red-500 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -1905,14 +2199,14 @@
 
         window.addSinglePersonnel = async function() {
             const name = document.getElementById('addNameInput').value.trim();
-            if (!name) return alert('Enter name.');
+            if (!name) return alert(window.currentLang === 'es' ? 'Ingrese nombre.' : 'Enter name.');
             await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name });
             document.getElementById('addNameInput').value = '';
         };
 
         window.bulkImportPersonnel = async function() {
             const raw = document.getElementById('bulkImportInput').value;
-            if (!raw.trim()) return alert('Paste names.');
+            if (!raw.trim()) return alert(window.currentLang === 'es' ? 'Pegue nombres.' : 'Paste names.');
             const lines = raw.split('\n'); let count = 0;
             for (const line of lines) {
                 const name = line.trim();
@@ -1922,7 +2216,7 @@
                 }
             }
             document.getElementById('bulkImportInput').value = '';
-            alert(`Imported ${count} names.`);
+            alert(`${window.currentLang === 'es' ? 'Se importaron' : 'Imported'} ${count} ${window.currentLang === 'es' ? 'nombres.' : 'names.'}`);
         };
 
         window.deleteRosterItem = async function(id) { await window.dbRemovePerson(id); };
@@ -1983,7 +2277,7 @@
                     <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
                     <td>${escapeHtml(c.station)}</td>
                     <td style="font-family: monospace;">${c.timestamp}</td>
-                    <td style="text-align: center;">${c.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
+                    <td style="text-align: center;">${r.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
                 </tr>
             `).join('');
 
@@ -1991,9 +2285,9 @@
         };
 
         window.confirmResetMusterSession = async function() {
-            if (confirm('RESET LIVE MUSTER SESSION?\n\nThis will clear all check-ins across ALL connected iPads while keeping the master roster intact.')) {
+            if (confirm(window.currentLang === 'es' ? '¿REINICIAR SESIÓN DE EMERGENCIA?\n\nEsto borrará todos los registros de emergencia en todos los iPads.' : 'RESET LIVE MUSTER SESSION?\n\nThis will clear all check-ins across ALL connected iPads while keeping the master roster intact.')) {
                 await window.dbResetAllMusterSessions();
-                alert('Muster session reset.');
+                alert(window.currentLang === 'es' ? 'Sesión de emergencia reiniciada.' : 'Muster session reset.');
             }
         };
 
