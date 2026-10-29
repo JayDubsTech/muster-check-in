@@ -138,7 +138,7 @@
         </div>
     </div>
 
-    <!-- Top Navigation Header Bar -->
+    <!-- Top Navigation Header Bar (Desktop/Station iPad Admin) -->
     <header id="mainHeaderBar" class="bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <!-- Branding & Title -->
@@ -204,11 +204,11 @@
         </div>
     </header>
 
-    <!-- WORKER MOBILE HEADER (Shown only when scanned via QR code) -->
+    <!-- WORKER MOBILE HEADER (Shown ONLY when scanned via QR code) -->
     <div id="workerHeaderBar" class="hidden bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 px-4 py-3 shadow-md flex justify-between items-center no-print">
         <div class="flex items-center gap-2">
             <div id="workerHeaderIcon" class="bg-amber-600 text-slate-950 p-2 rounded-lg">
-                <i data-lucide="smartphone" class="w-5 h-5"></i>
+                <i id="workerHeaderLucideIcon" data-lucide="smartphone" class="w-5 h-5"></i>
             </div>
             <div>
                 <h2 id="workerHeaderTitle" class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider" data-i18n="workerPortalTitle">Mobile Worker Portal</h2>
@@ -217,7 +217,7 @@
         </div>
         <div class="flex items-center gap-2">
             <!-- Worker Dark/Light Toggle -->
-            <button onclick="toggleThemeMode()" class="bg-slate-300 dark:bg-slate-900 border border-slate-400 dark:border-slate-700 p-2 rounded-xl text-slate-800 dark:text-amber-400 transition">
+            <button onclick="toggleThemeMode()" class="bg-slate-300 dark:bg-slate-900 border border-slate-400 dark:border-slate-700 p-2 rounded-xl text-slate-800 dark:text-amber-400 transition" title="Toggle Light/Dark Mode">
                 <i id="workerThemeToggleIcon" data-lucide="sun" class="w-4 h-4"></i>
             </button>
             <!-- Worker Language Toggle -->
@@ -1114,9 +1114,10 @@
 
         window.toggleLanguage = function() {
             window.currentLang = window.currentLang === 'en' ? 'es' : 'en';
-            document.getElementById('langBtnText').textContent = window.currentLang === 'en' ? 'ES' : 'EN';
+            const toggleText = window.currentLang === 'en' ? 'ES' : 'EN';
+            document.getElementById('langBtnText').textContent = toggleText;
             const workerBtnTxt = document.getElementById('workerLangBtnText');
-            if (workerBtnTxt) workerBtnTxt.textContent = window.currentLang === 'en' ? 'ES' : 'EN';
+            if (workerBtnTxt) workerBtnTxt.textContent = toggleText;
             applyTranslations();
         };
 
@@ -1165,7 +1166,7 @@
             if (savedTheme === 'light') {
                 html.classList.remove('dark');
                 if (icon) icon.setAttribute('data-lucide', 'moon');
-                if (workerIcon) workerIcon.setAttribute('data-lucide', 'moon');
+                if (workerIcon) icon.setAttribute('data-lucide', 'moon');
             } else {
                 html.classList.add('dark');
                 if (icon) icon.setAttribute('data-lucide', 'sun');
@@ -1182,7 +1183,6 @@
             return d.toISOString().substring(0, 10);
         }
 
-        // Helper to format YYYY-MM-DD or full timestamps into MM/DD/YYYY
         function formatToMMDDYYYY(dateInput) {
             if (!dateInput) return '';
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
@@ -1238,14 +1238,26 @@
                 const type = urlParams.get('type');
                 if (type === 'muster') {
                     window.switchAppMode('muster');
-                    // Hide muster sub-tabs so worker only sees the clean check-in form
+                    // Hide muster sub-tabs so worker ONLY sees the clean check-in form view
                     const subHeader = document.getElementById('musterSubTabHeader');
                     if (subHeader) subHeader.classList.add('hidden');
+                    // Ensure admin view is hidden and check-in view is active
+                    document.getElementById('musterCheckInView').classList.remove('hidden');
+                    document.getElementById('musterAdminView').classList.add('hidden');
+                    
+                    // Style worker header icon for emergency muster
+                    const wIconBg = document.getElementById('workerHeaderIcon');
+                    if (wIconBg) wIconBg.className = "bg-red-600 text-white p-2 rounded-lg";
+                    const wLucide = document.getElementById('workerHeaderLucideIcon');
+                    if (wLucide) wLucide.setAttribute('data-lucide', 'shield-alert');
                 } else {
                     window.switchAppMode('daily');
                     const dailySub = document.getElementById('dailySubTabHeader');
                     if (dailySub) dailySub.classList.add('hidden');
+                    document.getElementById('dailyCheckInView').classList.remove('hidden');
+                    document.getElementById('dailyLogView').classList.add('hidden');
                 }
+                lucide.createIcons();
             }
         }
 
@@ -1445,9 +1457,8 @@
         window.changeStation = function(val) { window.currentStation = val; document.getElementById('printStation').textContent = val; };
 
         window.switchAppMode = function(mode) {
-            if (window.isWorkerOnlyMode && mode !== window.currentAppMode) {
-                // If in worker mode, allow switching modes directly
-            } else if (window.isWorkerOnlyMode) {
+            if (window.isWorkerOnlyMode) {
+                // In worker mode, lock to the type dictated by URL
                 return;
             }
             window.currentAppMode = mode;
@@ -1887,6 +1898,7 @@
 
         // MUSTER SUB-TABS & ACTIONS
         window.switchMusterSubTab = function(sub) {
+            if (window.isWorkerOnlyMode && sub === 'admin') return;
             const checkView = document.getElementById('musterCheckInView');
             const adminView = document.getElementById('musterAdminView');
             const btnCheck = document.getElementById('musterTabCheckBtn');
@@ -1906,6 +1918,7 @@
         };
 
         window.requestMusterAdminAccess = function() {
+            if (window.isWorkerOnlyMode) return;
             if (window.isAdminAuthenticated) {
                 window.switchMusterSubTab('admin');
             } else {
