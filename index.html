@@ -32,7 +32,7 @@
     <!-- Custom styling & font setup -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Touch safety optimizations for iPad */
+        /* Touch safety optimizations for iPad / mobile */
         * {
             touch-action: manipulation;
             user-select: none;
@@ -203,6 +203,29 @@
             </div>
         </div>
     </header>
+
+    <!-- WORKER MOBILE HEADER (Shown only when scanned via QR code) -->
+    <div id="workerHeaderBar" class="hidden bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 px-4 py-3 shadow-md flex justify-between items-center no-print">
+        <div class="flex items-center gap-2">
+            <div id="workerHeaderIcon" class="bg-amber-600 text-slate-950 p-2 rounded-lg">
+                <i data-lucide="smartphone" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h2 id="workerHeaderTitle" class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider" data-i18n="workerPortalTitle">Mobile Worker Portal</h2>
+                <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold" data-i18n="workerPortalSub">Plateau Excavation Field Check-In</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Worker Dark/Light Toggle -->
+            <button onclick="toggleThemeMode()" class="bg-slate-300 dark:bg-slate-900 border border-slate-400 dark:border-slate-700 p-2 rounded-xl text-slate-800 dark:text-amber-400 transition">
+                <i id="workerThemeToggleIcon" data-lucide="sun" class="w-4 h-4"></i>
+            </button>
+            <!-- Worker Language Toggle -->
+            <button onclick="toggleLanguage()" class="bg-slate-300 dark:bg-slate-900 border border-slate-400 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-black text-slate-800 dark:text-amber-400 transition">
+                <span id="workerLangBtnText">ES</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col no-print">
@@ -439,7 +462,7 @@
         <!-- SYSTEM 2: EMERGENCY MUSTER SYSTEM -->
         <div id="musterModeWrapper" class="hidden flex-1 flex flex-col space-y-6">
             
-            <div class="flex justify-between items-center bg-slate-200 dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-300 dark:border-slate-700">
+            <div id="musterSubTabHeader" class="flex justify-between items-center bg-slate-200 dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-300 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                     <button id="musterTabCheckBtn" onclick="switchMusterSubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition">
                         <i data-lucide="pen-tool" class="w-4 h-4"></i> <span data-i18n="musterCheckInTab">Muster Check-In</span>
@@ -986,7 +1009,9 @@
                 enterPin: "Enter PIN code",
                 incorrectPin: "Incorrect PIN code. Try again.",
                 cancelBtn: "Cancel",
-                unlockBtn: "Unlock"
+                unlockBtn: "Unlock",
+                workerPortalTitle: "Mobile Worker Portal",
+                workerPortalSub: "Plateau Excavation Field Check-In"
             },
             es: {
                 restrictedApp: "APLICACIÓN DE SITIO RESTRINGIDO",
@@ -1081,13 +1106,17 @@
                 enterPin: "Ingrese código PIN",
                 incorrectPin: "PIN incorrecto. Intente de nuevo.",
                 cancelBtn: "Cancelar",
-                unlockBtn: "Desbloquear"
+                unlockBtn: "Desbloquear",
+                workerPortalTitle: "Portal Móvil de Trabajador",
+                workerPortalSub: "Registro de Campo Plateau Excavation"
             }
         };
 
         window.toggleLanguage = function() {
             window.currentLang = window.currentLang === 'en' ? 'es' : 'en';
             document.getElementById('langBtnText').textContent = window.currentLang === 'en' ? 'ES' : 'EN';
+            const workerBtnTxt = document.getElementById('workerLangBtnText');
+            if (workerBtnTxt) workerBtnTxt.textContent = window.currentLang === 'en' ? 'ES' : 'EN';
             applyTranslations();
         };
 
@@ -1110,13 +1139,17 @@
         window.toggleThemeMode = function() {
             const html = document.getElementById('htmlRoot');
             const icon = document.getElementById('themeToggleIcon');
+            const workerIcon = document.getElementById('workerThemeToggleIcon');
+            
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                icon.setAttribute('data-lucide', 'moon');
+                if (icon) icon.setAttribute('data-lucide', 'moon');
+                if (workerIcon) workerIcon.setAttribute('data-lucide', 'moon');
                 localStorage.setItem('site_checkin_theme', 'light');
             } else {
                 html.classList.add('dark');
-                icon.setAttribute('data-lucide', 'sun');
+                if (icon) icon.setAttribute('data-lucide', 'sun');
+                if (workerIcon) workerIcon.setAttribute('data-lucide', 'sun');
                 localStorage.setItem('site_checkin_theme', 'dark');
             }
             lucide.createIcons();
@@ -1127,12 +1160,16 @@
             const savedTheme = localStorage.getItem('site_checkin_theme');
             const html = document.getElementById('htmlRoot');
             const icon = document.getElementById('themeToggleIcon');
+            const workerIcon = document.getElementById('workerThemeToggleIcon');
+
             if (savedTheme === 'light') {
                 html.classList.remove('dark');
                 if (icon) icon.setAttribute('data-lucide', 'moon');
+                if (workerIcon) workerIcon.setAttribute('data-lucide', 'moon');
             } else {
                 html.classList.add('dark');
                 if (icon) icon.setAttribute('data-lucide', 'sun');
+                if (workerIcon) workerIcon.setAttribute('data-lucide', 'sun');
             }
         }
 
@@ -1196,13 +1233,18 @@
                 window.isWorkerOnlyMode = true;
                 document.getElementById('startupLockModal').classList.add('hidden');
                 document.getElementById('mainHeaderBar').classList.add('hidden');
-                document.getElementById('dailySubTabHeader').classList.add('hidden');
+                document.getElementById('workerHeaderBar').classList.remove('hidden');
 
                 const type = urlParams.get('type');
                 if (type === 'muster') {
                     window.switchAppMode('muster');
+                    // Hide muster sub-tabs so worker only sees the clean check-in form
+                    const subHeader = document.getElementById('musterSubTabHeader');
+                    if (subHeader) subHeader.classList.add('hidden');
                 } else {
                     window.switchAppMode('daily');
+                    const dailySub = document.getElementById('dailySubTabHeader');
+                    if (dailySub) dailySub.classList.add('hidden');
                 }
             }
         }
@@ -1301,14 +1343,16 @@
         function updateSyncBadge(online, text) {
             const badge = document.getElementById('syncStatusBadge');
             const statusText = document.getElementById('syncStatusText');
-            if (online) {
-                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
-                statusText.className = "text-emerald-600 dark:text-emerald-400 font-bold";
-            } else {
-                badge.className = "w-2.5 h-2.5 rounded-full bg-amber-500 inline-block";
-                statusText.className = "text-amber-600 dark:text-amber-400 font-bold";
+            if (badge && statusText) {
+                if (online) {
+                    badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
+                    statusText.className = "text-emerald-600 dark:text-emerald-400 font-bold";
+                } else {
+                    badge.className = "w-2.5 h-2.5 rounded-full bg-amber-500 inline-block";
+                    statusText.className = "text-amber-600 dark:text-amber-400 font-bold";
+                }
+                statusText.textContent = text;
             }
-            statusText.textContent = text;
         }
 
         window.dbSaveMusterCheckIn = async function(record) {
@@ -2277,7 +2321,7 @@
                     <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
                     <td>${escapeHtml(c.station)}</td>
                     <td style="font-family: monospace;">${c.timestamp}</td>
-                    <td style="text-align: center;">${r.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
+                    <td style="text-align: center;">${c.signatureImg ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[ADMIN]</span>'}</td>
                 </tr>
             `).join('');
 
