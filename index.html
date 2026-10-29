@@ -740,7 +740,7 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
-                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">0000</code>)</p>
+                <p class="text-xs text-slate-400 mt-1">Enter PIN code (Default: <code class="text-amber-400 font-bold">2026</code>)</p>
             </div>
             
             <input type="password" id="pinInput" maxlength="6" placeholder="****" 
@@ -1634,7 +1634,7 @@
             const badgeChecked = document.getElementById('badgeCheckedCount');
             if (badgeChecked) badgeChecked.textContent = checked;
             const badgeOut = document.getElementById('badgeOutCount');
-            if (badgeOut) badgeOut.textContent = window.outRecords.length;
+            if (badgeOut) badgeOut.textContent = window.outRecords.length + (window.masterRoster.length - signedTodayIds.size);
             const rosterTotal = document.getElementById('rosterTotalCount');
             if (rosterTotal) rosterTotal.textContent = window.masterRoster.length;
             
@@ -1727,11 +1727,13 @@
                 } else {
                     outBody.innerHTML = outFiltered.map((p, index) => {
                         const isExplicitOut = outIds.has(p.id);
+                        const isCheckedIn = checkedIds.has(p.id);
                         return `
                             <tr class="hover:bg-slate-800/50 transition">
                                 <td class="p-3.5 text-slate-400 font-mono">${index + 1}</td>
                                 <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)} <span class="text-xs font-normal text-slate-400 ml-2">(${isExplicitOut ? 'Marked Out' : 'Did Not Sign-In Today'})</span></td>
-                                <td class="p-3.5 text-right">
+                                <td class="p-3.5 text-right flex items-center justify-end gap-2">
+                                    <button onclick="adminManualCheckIn('${p.id}')" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Manual Check-In</button>
                                     ${isExplicitOut ? `<button onclick="removeOutRecord('${p.id}')" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition font-bold">Return Active</button>` : `<button onclick="adminMarkOut('${p.id}')" class="text-xs text-amber-400 hover:text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-lg transition font-bold">Mark Out</button>`}
                                 </td>
                             </tr>
