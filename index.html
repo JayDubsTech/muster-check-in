@@ -140,14 +140,14 @@
 
     <!-- Top Navigation Header Bar -->
     <header id="mainHeaderBar" class="bg-slate-950 border-b border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
             <!-- Branding & Title -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 shrink-0">
                 <div id="headerBrandIcon" class="bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40">
                     <i data-lucide="clipboard-check" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 id="headerTitleText" class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                    <h1 id="headerTitleText" class="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
                         DAILY SITE SIGN-IN
                     </h1>
                     <p class="text-xs text-amber-400 font-medium flex items-center gap-1.5">
@@ -157,34 +157,37 @@
                 </div>
             </div>
 
-            <!-- Mode Switcher (Separate Systems) -->
-            <div id="modeSwitcherContainer" class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-                <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
-                    <i data-lucide="calendar-check" class="w-4 h-4"></i> Daily Sign-In Mode
-                </button>
-                <button onclick="switchAppMode('muster')" id="modeMusterBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
-                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Emergency Muster Mode
-                </button>
-            </div>
-
-            <!-- Station Location Selector, QR Code Button & Time -->
-            <div id="stationNavControls" class="flex items-center flex-wrap gap-3">
-                <button onclick="openQrModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
-                    <i data-lucide="qr-code" class="w-4 h-4"></i> Station QR Code
-                </button>
-
-                <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
-                    <select id="stationSelect" onchange="changeStation(this.value)" class="bg-transparent text-xs font-bold text-white focus:outline-none">
-                        <option value="Station #1 - Main Office" class="bg-slate-900">Station #1 - Main Office</option>
-                        <option value="Station #2 - NE Pad 1" class="bg-slate-900">Station #2 - NE Pad 1</option>
-                        <option value="Station #3 - NE Pad 2" class="bg-slate-900">Station #3 - NE Pad 2</option>
-                        <option value="Station #4 - Admin" class="bg-slate-900">Station #4 - Admin</option>
-                    </select>
+            <!-- Right-side controls container to guarantee single-row alignment -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- Mode Switcher (Separate Systems) -->
+                <div id="modeSwitcherContainer" class="flex items-center gap-1 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+                    <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
+                        <i data-lucide="calendar-check" class="w-4 h-4"></i> Daily Sign-In Mode
+                    </button>
+                    <button onclick="switchAppMode('muster')" id="modeMusterBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i> Emergency Muster Mode
+                    </button>
                 </div>
 
-                <div class="hidden md:block text-right bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">
-                    <div id="liveClock" class="text-base font-mono font-bold text-amber-400">00:00:00 AM</div>
+                <!-- Station Location Selector, QR Code Button & Time -->
+                <div id="stationNavControls" class="flex items-center gap-2">
+                    <button onclick="openQrModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+                        <i data-lucide="qr-code" class="w-4 h-4"></i> Station QR Code
+                    </button>
+
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i>
+                        <select id="stationSelect" onchange="changeStation(this.value)" class="bg-transparent text-xs font-bold text-white focus:outline-none">
+                            <option value="Station #1 - Main Office" class="bg-slate-900">Station #1 - Main Office</option>
+                            <option value="Station #2 - NE Pad 1" class="bg-slate-900">Station #2 - NE Pad 1</option>
+                            <option value="Station #3 - NE Pad 2" class="bg-slate-900">Station #3 - NE Pad 2</option>
+                            <option value="Station #4 - Admin" class="bg-slate-900">Station #4 - Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="hidden lg:block text-right bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                        <div id="liveClock" class="text-sm font-mono font-bold text-amber-400">00:00:00 AM</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1114,18 +1117,18 @@
             if (mode === 'daily') {
                 dailyWrapper.classList.remove('hidden');
                 musterWrapper.classList.add('hidden');
-                modeDailyBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
-                modeMusterBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
+                modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
+                modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
                 headerTitle.textContent = "DAILY SITE SIGN-IN";
                 headerIcon.className = "bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40";
                 setTimeout(resizeDailyCanvas, 50);
             } else {
                 dailyWrapper.classList.add('hidden');
                 musterWrapper.classList.remove('hidden');
-                modeMusterBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white shadow-md";
-                modeDailyBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
+                modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white shadow-md";
+                modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white";
                 headerTitle.textContent = "EMERGENCY MUSTER CHECK-IN";
-                headerIcon.className = "bg-red-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 animate-pulse";
+                headerIcon.className = "bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40";
                 setTimeout(resizeMusterCanvas, 50);
             }
         };
