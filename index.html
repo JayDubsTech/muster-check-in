@@ -29,8 +29,6 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- HTML5 QR Code Library for Camera Badge Scanning -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <!-- Custom styling & font setup -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -60,13 +58,6 @@
         ::-webkit-scrollbar-thumb {
             background: #475569;
             border-radius: 4px;
-        }
-
-        #dailyQrReader video, #musterQrReader video {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            border-radius: 1rem;
         }
 
         @media print {
@@ -218,10 +209,7 @@
             <div id="dailySubTabHeader" class="flex justify-between items-center bg-slate-200 dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-300 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                     <button id="dailyTabCheckBtn" onclick="switchDailySubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
-                        <i data-lucide="pen-tool" class="w-4 h-4"></i> <span>1 & 2. Name & Sign / Nombre y Firma</span>
-                    </button>
-                    <button id="dailyTabScannerBtn" onclick="switchDailySubTab('scanner')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition">
-                        <i data-lucide="qr-code" class="w-4 h-4"></i> <span>3. Scan Badge / Escanear Carné</span>
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> <span>Name & Sign / Nombre y Firma</span>
                     </button>
                     <button id="dailyTabLogBtn" onclick="requestDailyAdminAccess()" class="admin-only-control px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition">
                         <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> <span>Admin & Reports / Admin y Reportes</span>
@@ -320,24 +308,6 @@
                         <button onclick="resetDailyCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">
                             Next Person Sign-In Now / Siguiente Persona
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: DAILY BADGE CAMERA QR SCANNER VIEW -->
-            <div id="dailyScannerView" class="hidden flex-1 flex flex-col justify-center">
-                <div class="bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto w-full p-6 text-center space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-                            <i data-lucide="qr-code" class="text-amber-500 w-5 h-5"></i>
-                            <span>3. SCAN BADGE QR CODE / ESCANEAR CARNÉ</span>
-                        </h3>
-                    </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Point phone camera at the QR code on the back of your employee badge.</p>
-
-                    <!-- Camera Scanner Container -->
-                    <div class="relative bg-slate-950 border-2 border-dashed border-amber-500 rounded-2xl overflow-hidden min-h-[250px] flex items-center justify-center">
-                        <div id="dailyQrReader" class="w-full h-full"></div>
                     </div>
                 </div>
             </div>
@@ -462,9 +432,6 @@
                     <button id="musterTabCheckBtn" onclick="switchMusterSubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition">
                         <i data-lucide="pen-tool" class="w-4 h-4"></i> <span>Muster Check-In / Registro Emergencia</span>
                     </button>
-                    <button id="musterTabScannerBtn" onclick="switchMusterSubTab('scanner')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition">
-                        <i data-lucide="qr-code" class="w-4 h-4"></i> <span>Scan Badge / Escanear Carné</span>
-                    </button>
                     <button id="musterTabAdminBtn" onclick="requestMusterAdminAccess()" class="admin-only-control px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition">
                         <i data-lucide="shield-lock" class="w-4 h-4"></i> <span>Muster Dashboard / Panel de Control</span>
                     </button>
@@ -562,24 +529,6 @@
                         <button onclick="resetMusterCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">
                             Next Person Check-In Now / Siguiente Persona
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MUSTER BADGE CAMERA SCANNER VIEW -->
-            <div id="musterScannerView" class="hidden flex-1 flex flex-col justify-center">
-                <div class="bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto w-full p-6 text-center space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-                            <i data-lucide="qr-code" class="text-red-500 w-5 h-5"></i>
-                            <span>MUSTER BADGE SCANNER / ESCÁNER DE EMERGENCIA</span>
-                        </h3>
-                    </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Point phone camera at the QR code on the back of employee badge.</p>
-
-                    <!-- Camera Scanner Container -->
-                    <div class="relative bg-slate-950 border-2 border-dashed border-red-500 rounded-2xl overflow-hidden min-h-[250px] flex items-center justify-center">
-                        <div id="musterQrReader" class="w-full h-full"></div>
                     </div>
                 </div>
             </div>
@@ -863,7 +812,6 @@
         let dailyCanvas, musterCanvas, dailyCtx, musterCtx;
         let dailyIsDrawing = false, musterIsDrawing = false;
         let dailyHasSignature = false, musterHasSignature = false;
-        let dailyHtml5QrCode = null, musterHtml5QrCode = null;
 
         window.toggleThemeMode = function() {
             const html = document.getElementById('htmlRoot');
@@ -944,7 +892,6 @@
                     document.getElementById('musterSubTabHeader').classList.add('hidden');
                     document.getElementById('musterCheckInView').classList.remove('hidden');
                     document.getElementById('musterAdminView').classList.add('hidden');
-                    document.getElementById('musterScannerView').classList.add('hidden');
                     document.getElementById('musterModeWrapper').classList.remove('hidden');
                     document.getElementById('dailyModeWrapper').classList.add('hidden');
                 } else {
@@ -952,7 +899,6 @@
                     document.getElementById('dailySubTabHeader').classList.add('hidden');
                     document.getElementById('dailyCheckInView').classList.remove('hidden');
                     document.getElementById('dailyLogView').classList.add('hidden');
-                    document.getElementById('dailyScannerView').classList.add('hidden');
                     document.getElementById('dailyModeWrapper').classList.remove('hidden');
                     document.getElementById('musterModeWrapper').classList.add('hidden');
                 }
@@ -1054,7 +1000,21 @@
             window.updateDashboardMetrics();
             window.renderAdminTables();
             window.renderDailyLogTable();
+            window.renderDailyRosterManagerList();
             if (auth.currentUser) await setDoc(doc(db, ...ROSTER_COLLECTION_PATH, person.id), person);
+        };
+
+        window.dbUpdatePerson = async function(person) {
+            const index = window.masterRoster.findIndex(p => p.id === person.id);
+            if (index !== -1) {
+                window.masterRoster[index] = person;
+                sortRosterAlphabetically(window.masterRoster);
+                window.updateDashboardMetrics();
+                window.renderAdminTables();
+                window.renderDailyLogTable();
+                window.renderDailyRosterManagerList();
+                if (auth.currentUser) await setDoc(doc(db, ...ROSTER_COLLECTION_PATH, person.id), person);
+            }
         };
 
         window.dbRemovePerson = async function(id) {
@@ -1062,6 +1022,7 @@
             window.updateDashboardMetrics();
             window.renderAdminTables();
             window.renderDailyLogTable();
+            window.renderDailyRosterManagerList();
             if (auth.currentUser) {
                 await deleteDoc(doc(db, ...ROSTER_COLLECTION_PATH, id));
             }
@@ -1080,7 +1041,6 @@
         window.switchAppMode = function(mode) {
             if (window.isWorkerOnlyMode) return;
             window.currentAppMode = mode;
-            stopAllCameraScanners();
             const dailyWrapper = document.getElementById('dailyModeWrapper');
             const musterWrapper = document.getElementById('musterModeWrapper');
             const modeDailyBtn = document.getElementById('modeDailyBtn');
@@ -1237,150 +1197,50 @@
 
         window.switchDailySubTab = function(sub) {
             if (window.isWorkerOnlyMode && sub === 'log') return;
-            stopAllCameraScanners();
             const checkView = document.getElementById('dailyCheckInView');
-            const scannerView = document.getElementById('dailyScannerView');
             const logView = document.getElementById('dailyLogView');
             const btnCheck = document.getElementById('dailyTabCheckBtn');
-            const btnScanner = document.getElementById('dailyTabScannerBtn');
             const btnLog = document.getElementById('dailyTabLogBtn');
 
             checkView.classList.add('hidden');
-            scannerView.classList.add('hidden');
             logView.classList.add('hidden');
 
-            btnCheck.className = btnScanner.className = btnLog.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
+            btnCheck.className = btnLog.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
 
             if (sub === 'checkin') {
                 checkView.classList.remove('hidden');
                 btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
                 setTimeout(resizeDailyCanvas, 50);
-            } else if (sub === 'scanner') {
-                scannerView.classList.remove('hidden');
-                btnScanner.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
-                startCameraScanner('dailyQrReader', handleDailyBadgeScanned);
             } else {
                 logView.classList.remove('hidden');
                 btnLog.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition";
                 window.renderDailyLogTable();
+                window.renderDailyRosterManagerList();
             }
         };
 
         window.switchMusterSubTab = function(sub) {
             if (window.isWorkerOnlyMode && sub === 'admin') return;
-            stopAllCameraScanners();
             const checkView = document.getElementById('musterCheckInView');
-            const scannerView = document.getElementById('musterScannerView');
             const adminView = document.getElementById('musterAdminView');
             const btnCheck = document.getElementById('musterTabCheckBtn');
-            const btnScanner = document.getElementById('musterTabScannerBtn');
             const btnAdmin = document.getElementById('musterTabAdminBtn');
 
             checkView.classList.add('hidden');
-            scannerView.classList.add('hidden');
             adminView.classList.add('hidden');
 
-            btnCheck.className = btnScanner.className = btnAdmin.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
+            btnCheck.className = btnAdmin.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-800 flex items-center gap-2 transition";
 
             if (sub === 'checkin') {
                 checkView.classList.remove('hidden');
                 btnCheck.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition";
                 setTimeout(resizeMusterCanvas, 50);
-            } else if (sub === 'scanner') {
-                scannerView.classList.remove('hidden');
-                btnScanner.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition";
-                startCameraScanner('musterQrReader', handleMusterBadgeScanned);
             } else {
                 adminView.classList.remove('hidden');
                 btnAdmin.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition";
                 window.renderAdminTables();
             }
         };
-
-        function startCameraScanner(elementId, successCallback) {
-            stopAllCameraScanners();
-            const html5QrCode = new Html5Qrcode(elementId);
-            if (elementId === 'dailyQrReader') dailyHtml5QrCode = html5QrCode;
-            else musterHtml5QrCode = html5QrCode;
-
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 220, height: 220 } },
-                (decodedText) => {
-                    successCallback(decodedText);
-                },
-                (errorMessage) => {}
-            ).catch(err => {
-                console.log("Camera access error:", err);
-            });
-        }
-
-        function stopAllCameraScanners() {
-            if (dailyHtml5QrCode) {
-                dailyHtml5QrCode.stop().catch(() => {}).then(() => { dailyHtml5QrCode = null; });
-            }
-            if (musterHtml5QrCode) {
-                musterHtml5QrCode.stop().catch(() => {}).then(() => { musterHtml5QrCode = null; });
-            }
-        }
-
-        async function handleDailyBadgeScanned(codeText) {
-            const code = codeText.trim();
-            const person = window.masterRoster.find(p => 
-                (p.badgeId && p.badgeId.toLowerCase() === code.toLowerCase()) || 
-                p.id.toLowerCase() === code.toLowerCase() || 
-                p.name.toLowerCase() === code.toLowerCase()
-            );
-
-            if (!person) {
-                alert(`Badge ID "${code}" not found in master roster.`);
-                return;
-            }
-
-            const now = new Date();
-            const dateStr = getShiftDateStr(now);
-            const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
-            
-            const recordId = `${person.id}_${dateStr}`;
-            const record = { id: recordId, personId: person.id, name: person.name, dateStr: dateStr, timestamp: timestamp, signatureImg: '[Badge Verified]' };
-
-            window.dailyLogRecords = window.dailyLogRecords.filter(r => r.id !== recordId);
-            window.dailyLogRecords.push(record);
-            await window.dbSaveDailyLog(record);
-
-            document.getElementById('dailyConfirmName').textContent = person.name;
-            document.getElementById('dailyConfirmTime').textContent = timestamp;
-            document.getElementById('dailySuccessOverlay').classList.remove('hidden');
-        }
-
-        async function handleMusterBadgeScanned(codeText) {
-            const code = codeText.trim();
-            const person = window.masterRoster.find(p => 
-                (p.badgeId && p.badgeId.toLowerCase() === code.toLowerCase()) || 
-                p.id.toLowerCase() === code.toLowerCase() || 
-                p.name.toLowerCase() === code.toLowerCase()
-            );
-
-            if (!person) {
-                alert(`Badge ID "${code}" not found in master roster.`);
-                return;
-            }
-
-            const now = new Date();
-            const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
-
-            const record = { id: person.id, name: person.name, timestamp: timestamp, signatureImg: '[Badge Verified]' };
-
-            window.checkedInRecords = window.checkedInRecords.filter(c => c.id !== record.id);
-            window.checkedInRecords.push(record);
-            window.updateDashboardMetrics();
-            window.renderAdminTables();
-            await window.dbSaveMusterCheckIn(record);
-
-            document.getElementById('musterConfirmName').textContent = person.name;
-            document.getElementById('musterConfirmTime').textContent = timestamp;
-            document.getElementById('musterSuccessOverlay').classList.remove('hidden');
-        }
 
         window.requestDailyAdminAccess = function() {
             if (window.isWorkerOnlyMode) return;
@@ -1407,18 +1267,26 @@
             const listContainer = document.getElementById('dailyDropdownList');
             if (!input) { listContainer.classList.add('hidden'); return; }
 
+            const todayDateStr = getShiftDateStr();
+            const signedTodaySet = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
             const matches = sortedRoster.filter(p => p.name.toLowerCase().includes(input));
             
             if (matches.length === 0) {
                 listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel found / No se encontraron personas</div>`;
             } else {
-                listContainer.innerHTML = matches.map(person => `
-                    <div onclick="selectDailyPerson('${person.id}')" class="p-3 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
-                        <div class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(person.name)}</div>
-                        <span class="text-xs text-slate-500">Tap to select &rarr;</span>
-                    </div>
-                `).join('');
+                listContainer.innerHTML = matches.map(person => {
+                    const alreadySigned = signedTodaySet.has(person.id);
+                    return `
+                        <div onclick="selectDailyPerson('${person.id}')" class="p-3 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
+                            <div class="font-bold text-slate-900 dark:text-white text-sm">
+                                ${escapeHtml(person.name)}
+                                ${alreadySigned ? `<span class="ml-2 text-xs text-emerald-500 font-semibold">[Signed Today / Registrado Hoy]</span>` : ''}
+                            </div>
+                            <span class="text-xs text-slate-500">Tap to select &rarr;</span>
+                        </div>
+                    `;
+                }).join('');
             }
             listContainer.classList.remove('hidden');
         };
@@ -1430,11 +1298,22 @@
             document.getElementById('dailyNameSearchInput').value = '';
             document.getElementById('dailySelectedPersonName').textContent = window.dailySelectedPerson.name;
             document.getElementById('dailySelectedPersonCard').classList.remove('hidden');
+
+            const todayDateStr = getShiftDateStr();
+            const existing = window.dailyLogRecords.find(r => r.personId === window.dailySelectedPerson.id && r.dateStr === todayDateStr);
+            const warningEl = document.getElementById('dailyDuplicateWarning');
+            if (existing) {
+                document.getElementById('dailyDuplicateTimeStr').textContent = existing.timestamp;
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
         };
 
         window.clearDailySelectedPerson = function() {
             window.dailySelectedPerson = null;
             document.getElementById('dailySelectedPersonCard').classList.add('hidden');
+            document.getElementById('dailyDuplicateWarning').classList.add('hidden');
             document.getElementById('dailyNameSearchInput').value = '';
         };
 
@@ -1542,7 +1421,10 @@
                         <span class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(p.name)}</span>
                         ${p.badgeId ? `<span class="ml-2 text-xs font-mono text-slate-400">[${escapeHtml(p.badgeId)}]</span>` : ''}
                     </div>
-                    <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-400 hover:text-red-500 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="editRosterItem('${p.id}')" class="text-xs text-amber-500 hover:text-amber-600 bg-amber-500/10 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit / Editar</button>
+                        <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-400 hover:text-red-500 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -1555,6 +1437,23 @@
             await window.dbAddPerson({ id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), name: name, badgeId: badge });
             document.getElementById('dailyAddNameInput').value = '';
             document.getElementById('dailyAddBadgeInput').value = '';
+            window.renderDailyRosterManagerList();
+        };
+
+        window.editRosterItem = async function(id) {
+            const p = window.masterRoster.find(x => x.id === id);
+            if (!p) return;
+            const newName = prompt("Edit full name / Editar nombre:", p.name);
+            if (newName === null) return;
+            const trimmedName = newName.trim();
+            if (!trimmedName) return alert("Name cannot be empty.");
+
+            const newBadge = prompt("Edit badge ID / Editar código de carné (optional):", p.badgeId || "");
+            if (newBadge === null) return;
+
+            p.name = trimmedName;
+            p.badgeId = newBadge.trim();
+            await window.dbUpdatePerson(p);
             window.renderDailyRosterManagerList();
         };
 
@@ -1581,6 +1480,59 @@
             }
         };
 
+        window.filterMusterDropdownList = function() {
+            const input = document.getElementById('musterNameSearchInput').value.toLowerCase().trim();
+            const listContainer = document.getElementById('musterDropdownList');
+            if (!input) { listContainer.classList.add('hidden'); return; }
+
+            const checkedSet = new Set(window.checkedInRecords.map(c => c.id));
+            const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
+            const matches = sortedRoster.filter(p => p.name.toLowerCase().includes(input));
+            
+            if (matches.length === 0) {
+                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel found / No se encontraron personas</div>`;
+            } else {
+                listContainer.innerHTML = matches.map(person => {
+                    const alreadyChecked = checkedSet.has(person.id);
+                    return `
+                        <div onclick="selectMusterPerson('${person.id}')" class="p-3 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
+                            <div class="font-bold text-slate-900 dark:text-white text-sm">
+                                ${escapeHtml(person.name)}
+                                ${alreadyChecked ? `<span class="ml-2 text-xs text-emerald-500 font-semibold">[Already Accounted / Ya Contabilizado]</span>` : ''}
+                            </div>
+                            <span class="text-xs text-slate-500">Tap to select &rarr;</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            listContainer.classList.remove('hidden');
+        };
+
+        window.selectMusterPerson = function(id) {
+            window.musterSelectedPerson = window.masterRoster.find(p => p.id === id);
+            if (!window.musterSelectedPerson) return;
+            document.getElementById('musterDropdownList').classList.add('hidden');
+            document.getElementById('musterNameSearchInput').value = '';
+            document.getElementById('musterSelectedPersonName').textContent = window.musterSelectedPerson.name;
+            document.getElementById('musterSelectedPersonCard').classList.remove('hidden');
+
+            const existing = window.checkedInRecords.find(c => c.id === window.musterSelectedPerson.id);
+            const warningEl = document.getElementById('musterDuplicateWarning');
+            if (existing) {
+                document.getElementById('musterDuplicateTimeStr').textContent = existing.timestamp;
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+        };
+
+        window.clearMusterSelectedPerson = function() {
+            window.musterSelectedPerson = null;
+            document.getElementById('musterSelectedPersonCard').classList.add('hidden');
+            document.getElementById('musterDuplicateWarning').classList.add('hidden');
+            document.getElementById('musterNameSearchInput').value = '';
+        };
+
         window.submitMusterCheckIn = async function() {
             if (!window.musterSelectedPerson) { alert('Please select your name / Por favor seleccione su nombre.'); return; }
             if (!musterHasSignature) { alert('Digital signature is required / Firma requerida.'); return; }
@@ -1600,42 +1552,6 @@
             document.getElementById('musterConfirmName').textContent = window.musterSelectedPerson.name;
             document.getElementById('musterConfirmTime').textContent = timestamp;
             document.getElementById('musterSuccessOverlay').classList.remove('hidden');
-        };
-
-        window.filterMusterDropdownList = function() {
-            const input = document.getElementById('musterNameSearchInput').value.toLowerCase().trim();
-            const listContainer = document.getElementById('musterDropdownList');
-            if (!input) { listContainer.classList.add('hidden'); return; }
-
-            const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
-            const matches = sortedRoster.filter(p => p.name.toLowerCase().includes(input));
-            
-            if (matches.length === 0) {
-                listContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No personnel found / No se encontraron personas</div>`;
-            } else {
-                listContainer.innerHTML = matches.map(person => `
-                    <div onclick="selectMusterPerson('${person.id}')" class="p-3 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer flex justify-between items-center transition">
-                        <div class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(person.name)}</div>
-                        <span class="text-xs text-slate-500">Tap to select &rarr;</span>
-                    </div>
-                `).join('');
-            }
-            listContainer.classList.remove('hidden');
-        };
-
-        window.selectMusterPerson = function(id) {
-            window.musterSelectedPerson = window.masterRoster.find(p => p.id === id);
-            if (!window.musterSelectedPerson) return;
-            document.getElementById('musterDropdownList').classList.add('hidden');
-            document.getElementById('musterNameSearchInput').value = '';
-            document.getElementById('musterSelectedPersonName').textContent = window.musterSelectedPerson.name;
-            document.getElementById('musterSelectedPersonCard').classList.remove('hidden');
-        };
-
-        window.clearMusterSelectedPerson = function() {
-            window.musterSelectedPerson = null;
-            document.getElementById('musterSelectedPersonCard').classList.add('hidden');
-            document.getElementById('musterNameSearchInput').value = '';
         };
 
         window.resetMusterCheckInForm = function() {
@@ -1673,7 +1589,6 @@
             const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
             const outIds = new Set(window.outRecords.map(o => o.id));
 
-            // Muster attendance is auto-counted from personnel who signed in today
             const totalExpected = window.masterRoster.filter(p => signedTodayIds.has(p.id) && !outIds.has(p.id)).length;
             const checked = window.checkedInRecords.length;
             const missing = Math.max(0, totalExpected - checked);
@@ -1752,7 +1667,7 @@
                             <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono">${index + 1}</td>
                             <td class="p-3.5 font-bold text-slate-900 dark:text-white">${escapeHtml(c.name)}</td>
                             <td class="p-3.5 text-amber-600 dark:text-amber-400 font-mono text-xs">${c.timestamp}</td>
-                            <td class="p-3.5">${c.signatureImg && c.signatureImg.startsWith('data:') ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded p-1 object-contain">` : `<span class="text-xs font-bold text-emerald-500">${c.signatureImg || '[Badge Verified]'}</span>`}</td>
+                            <td class="p-3.5">${c.signatureImg && c.signatureImg.startsWith('data:') ? `<img src="${c.signatureImg}" class="h-8 max-w-[120px] bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded p-1 object-contain">` : `<span class="text-xs font-bold text-emerald-500">${c.signatureImg || '[Verified]'}</span>`}</td>
                             <td class="p-3.5 text-right"><button onclick="removeCheckInRecord('${c.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 p-2 rounded-lg transition">Undo</button></td>
                         </tr>
                     `).join('');
@@ -1817,7 +1732,7 @@
                         <td style="text-align: center; font-weight: bold;">${i + 1}</td>
                         <td style="font-weight: 700;">${escapeHtml(r.name)}</td>
                         <td style="font-family: monospace;">${r.timestamp}</td>
-                        <td style="text-align: center;">${r.signatureImg && r.signatureImg.startsWith('data:') ? `<img src="${r.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Badge Verified]</span>'}</td>
+                        <td style="text-align: center;">${r.signatureImg && r.signatureImg.startsWith('data:') ? `<img src="${r.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Verified]</span>'}</td>
                     </tr>
                 `).join('');
             }
@@ -1838,7 +1753,7 @@
                     <td style="text-align: center; font-weight: bold;">${i + 1}</td>
                     <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
                     <td style="font-family: monospace;">${c.timestamp}</td>
-                    <td style="text-align: center;">${c.signatureImg && c.signatureImg.startsWith('data:') ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Badge Verified]</span>'}</td>
+                    <td style="text-align: center;">${c.signatureImg && c.signatureImg.startsWith('data:') ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Verified]</span>'}</td>
                 </tr>
             `).join('');
 
