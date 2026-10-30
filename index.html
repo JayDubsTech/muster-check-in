@@ -944,6 +944,8 @@
                     document.getElementById('musterSubTabHeader').classList.add('hidden');
                     document.getElementById('musterCheckInView').classList.remove('hidden');
                     document.getElementById('musterAdminView').classList.add('hidden');
+                    document.getElementById('musterScannerView').classList.add('hidden');
+                    document.getElementById('musterModeWrapper').classList.remove('hidden');
                     document.getElementById('dailyModeWrapper').classList.add('hidden');
                 } else {
                     window.switchAppMode('daily');
@@ -951,6 +953,7 @@
                     document.getElementById('dailyCheckInView').classList.remove('hidden');
                     document.getElementById('dailyLogView').classList.add('hidden');
                     document.getElementById('dailyScannerView').classList.add('hidden');
+                    document.getElementById('dailyModeWrapper').classList.remove('hidden');
                     document.getElementById('musterModeWrapper').classList.add('hidden');
                 }
                 lucide.createIcons();
