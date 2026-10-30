@@ -994,6 +994,16 @@
             window.renderAdminTables();
         };
 
+        window.dbDeleteDailyLog = async function(recordId) {
+            window.dailyLogRecords = window.dailyLogRecords.filter(r => r.id !== recordId);
+            window.renderDailyLogTable();
+            window.updateDashboardMetrics();
+            window.renderAdminTables();
+            if (auth.currentUser) {
+                await deleteDoc(doc(db, ...DAILY_LOGS_PATH, recordId)).catch(() => {});
+            }
+        };
+
         window.dbAddPerson = async function(person) {
             window.masterRoster.push(person);
             sortRosterAlphabetically(window.masterRoster);
@@ -1375,6 +1385,12 @@
                         </tr>
                     `).join('');
                 }
+            }
+        };
+
+        window.deleteDailyLogRecord = async function(recordId) {
+            if (confirm("Remove this sign-in record? / ¿Eliminar este registro de asistencia?")) {
+                await window.dbDeleteDailyLog(recordId);
             }
         };
 
