@@ -1759,7 +1759,7 @@
                 document.getElementById('printReportTitle').textContent = "DAILY MASTER ROSTER REPORT";
                 document.getElementById('printReportSectionTitle').textContent = `ALL REGISTERED SITE PERSONNEL (${dateStr})`;
                 document.getElementById('printReportRecordCount').textContent = sortedRoster.length;
-                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 300px;">Full Name</th><th style="width: 150px;">Badge ID</th><th style="text-align: center;">Today's Sign-In Status</th>`;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 300px;">Full Name</th><th style="text-align: center;">Today's Sign-In Status</th>`;
 
                 tbody.innerHTML = sortedRoster.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No personnel in master roster.</td></tr>` : sortedRoster.map((p, i) => {
                     const isSigned = signedIds.has(p.id);
@@ -1895,7 +1895,7 @@
                 document.getElementById('printReportTitle').textContent = "CRITICAL EMERGENCY MISSING PERSONNEL REPORT";
                 document.getElementById('printReportSectionTitle').textContent = `MISSING / UNACCOUNTED PERSONNEL (${dateStr})`;
                 document.getElementById('printReportRecordCount').textContent = missingList.length;
-                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 320px;">Full Name</th><th style="width: 150px;">Badge ID</th><th style="text-align: center;">Critical Status</th>`;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 320px;">Full Name</th><th style="text-align: center;">Critical Status</th>`;
 
                 tbody.innerHTML = missingList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">100% ACCOUNTED FOR! ALL EXPECTED PERSONNEL ARE SAFE.</td></tr>` : missingList.map((p, i) => `
                     <tr>
