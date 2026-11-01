@@ -315,21 +315,34 @@
             <!-- Daily Admin & Reports View -->
             <div id="dailyLogView" class="hidden flex-1 flex flex-col space-y-6">
                 
+                <!-- CLICKABLE METRIC CARDS FOR DAILY MODE -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Roster / Total</div>
+                    <div onclick="printDailyMetricReport('total')" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 hover:border-amber-500 dark:hover:border-amber-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Total Roster / Total</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-amber-500"></i>
+                        </div>
                         <div id="dailyStatTotal" class="text-3xl font-black text-slate-900 dark:text-white">0</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
-                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">Signed In / Registrados</div>
+                    <div onclick="printDailyMetricReport('signed')" class="bg-white dark:bg-slate-800 border border-emerald-500/30 hover:border-emerald-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Signed In / Registrados</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-emerald-500"></i>
+                        </div>
                         <div id="dailyStatCheckedIn" class="text-3xl font-black text-emerald-600 dark:text-emerald-400">0</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
-                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">Not Signed In / Pendientes</div>
+                    <div onclick="printDailyMetricReport('missing')" class="bg-white dark:bg-slate-800 border border-amber-500/30 hover:border-amber-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Not Signed In / Pendientes</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-amber-500"></i>
+                        </div>
                         <div id="dailyStatMissing" class="text-3xl font-black text-amber-600 dark:text-amber-400">0</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Turnout / Tasa</div>
+                    <div onclick="printDailyMetricReport('turnout')" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 hover:border-cyan-500 dark:hover:border-cyan-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Turnout / Tasa</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-cyan-500"></i>
+                        </div>
                         <div id="dailyStatPercent" class="text-3xl font-black text-cyan-600 dark:text-cyan-400">0%</div>
                     </div>
                 </div>
@@ -350,7 +363,7 @@
                             <input type="date" id="logDateFilter" onchange="renderDailyLogTable()" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm font-mono rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500">
                             <button onclick="setTodayDateFilter()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Today / Hoy</button>
                         </div>
-                        <button onclick="printDailyLogReport()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                        <button onclick="printDailyMetricReport('signed')" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
                             <i data-lucide="printer" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i> <span>Print / Imprimir</span>
                         </button>
                     </div>
@@ -535,21 +548,35 @@
 
             <!-- Muster Admin Control Dashboard View -->
             <div id="musterAdminView" class="hidden flex-1 flex flex-col space-y-6">
+                
+                <!-- CLICKABLE METRIC CARDS FOR MUSTER MODE -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Expected On-Site / Esperados</div>
+                    <div onclick="printMusterMetricReport('total')" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 hover:border-red-500 dark:hover:border-red-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Expected On-Site / Esperados</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-red-500"></i>
+                        </div>
                         <div id="statTotal" class="text-3xl font-black text-slate-900 dark:text-white">0</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
-                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">Checked In / A Salvo</div>
+                    <div onclick="printMusterMetricReport('checked')" class="bg-white dark:bg-slate-800 border border-emerald-500/30 hover:border-emerald-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Checked In / A Salvo</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-emerald-500"></i>
+                        </div>
                         <div id="statCheckedIn" class="text-3xl font-black text-emerald-600 dark:text-emerald-400">0</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-md relative overflow-hidden">
-                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">Missing / Faltantes</div>
+                    <div onclick="printMusterMetricReport('missing')" class="bg-white dark:bg-slate-800 border border-amber-500/30 hover:border-amber-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Missing / Faltantes</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-amber-500"></i>
+                        </div>
                         <div id="statMissing" class="text-3xl font-black text-amber-600 dark:text-amber-400">0</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-2xl p-4 shadow-md">
-                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Completion / Completado</div>
+                    <div onclick="printMusterMetricReport('turnout')" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 hover:border-cyan-500 dark:hover:border-cyan-500 rounded-2xl p-4 shadow-md cursor-pointer transition transform hover:scale-[1.02] active:scale-95 group">
+                        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex justify-between items-center">
+                            <span>Completion / Completado</span>
+                            <i data-lucide="printer" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-cyan-500"></i>
+                        </div>
                         <div id="statPercent" class="text-3xl font-black text-cyan-600 dark:text-cyan-400">0%</div>
                     </div>
                 </div>
@@ -569,7 +596,7 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <button onclick="printMusterReport()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <button onclick="printMusterMetricReport('turnout')" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
                                 <i data-lucide="printer" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i> <span>Print Muster / Imprimir</span>
                             </button>
                             <button onclick="confirmResetMusterSession()" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-700 dark:text-red-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
@@ -708,58 +735,42 @@
         </div>
     </div>
 
-    <!-- HIGH DENSITY PRINT REPORT VIEW -->
+    <!-- DYNAMIC HIGH DENSITY PRINT REPORT VIEW -->
     <div class="hidden print-only p-2 text-black">
         <div class="border-b border-black pb-2 mb-3 flex justify-between items-center">
             <div>
-                <h1 id="printReportTitle" class="text-lg font-black tracking-tight uppercase">DAILY SITE SIGN-IN REPORT</h1>
+                <h1 id="printReportTitle" class="text-lg font-black tracking-tight uppercase">SITE REPORT</h1>
                 <p class="text-xs font-semibold">Generated: <span id="printTimestamp"></span></p>
             </div>
             <div class="text-right">
                 <div class="text-xs font-bold">Plateau Excavation</div>
-                <div class="text-[9px] text-gray-600 uppercase tracking-wide">Job Site Sign-In Log</div>
+                <div id="printReportSubtitle" class="text-[9px] text-gray-600 uppercase tracking-wide">Job Site Log</div>
             </div>
         </div>
 
-        <div id="printDailySection">
-            <div class="flex justify-between items-center mb-1.5 border-b border-black/30 pb-1">
-                <h2 class="text-xs font-bold uppercase tracking-wide">SIGNED-IN PERSONNEL LOG (<span id="printDailyDateTitle"></span>)</h2>
-                <div class="text-xs font-bold">TOTAL SIGNED IN: <span id="printDailyTotalCount">0</span></div>
-            </div>
-            <table class="print-compact-table">
-                <thead>
-                    <tr>
-                        <th style="width: 28px; text-align: center;">#</th>
-                        <th style="width: 250px;">Full Name</th>
-                        <th style="width: 150px;">Timestamp</th>
-                        <th style="text-align: center;">Signature / Status</th>
-                    </tr>
-                </thead>
-                <tbody id="printDailyBody"></tbody>
-            </table>
+        <div id="printSummaryMetricsHeader" class="hidden flex justify-between items-center mb-2 border border-black px-2 py-1 bg-gray-100 font-bold text-[10px]">
+            <div>ROSTER / EXPECTED: <span id="printTotalStat">0</span></div>
+            <div>SIGNED IN / ACCOUNTED: <span id="printSignedStat">0</span></div>
+            <div>NOT SIGNED IN / MISSING: <span id="printMissingStat">0</span></div>
+            <div>TURNOUT RATE: <span id="printPercentStat">0%</span></div>
         </div>
 
-        <div id="printMusterSection" class="hidden">
-            <div class="flex justify-between items-center mb-2 border border-black px-2 py-1 bg-gray-100 font-bold text-[10px]">
-                <div>EXPECTED ON-SITE: <span id="printTotal">0</span></div>
-                <div>CHECKED IN: <span id="printChecked">0</span></div>
-                <div>NOT HERE / OUT: <span id="printOut">0</span></div>
-                <div class="text-red-700">MISSING: <span id="printMissing">0</span></div>
-            </div>
-
-            <h2 class="text-xs font-bold mb-1 uppercase tracking-wide">EMERGENCY MUSTER CHECKED-IN LOG</h2>
-            <table class="print-compact-table">
-                <thead>
-                    <tr>
-                        <th style="width: 28px; text-align: center;">#</th>
-                        <th style="width: 250px;">Full Name</th>
-                        <th style="width: 150px;">Timestamp</th>
-                        <th style="text-align: center;">Signature / Status</th>
-                    </tr>
-                </thead>
-                <tbody id="printCheckedBody"></tbody>
-            </table>
+        <div class="flex justify-between items-center mb-1.5 border-b border-black/30 pb-1">
+            <h2 id="printReportSectionTitle" class="text-xs font-bold uppercase tracking-wide">PERSONNEL REPORT</h2>
+            <div class="text-xs font-bold">COUNT: <span id="printReportRecordCount">0</span></div>
         </div>
+
+        <table class="print-compact-table">
+            <thead>
+                <tr id="printTableHeaderRow">
+                    <th style="width: 28px; text-align: center;">#</th>
+                    <th style="width: 250px;">Full Name</th>
+                    <th style="width: 150px;">Timestamp</th>
+                    <th style="text-align: center;">Signature / Status</th>
+                </tr>
+            </thead>
+            <tbody id="printDynamicTableBody"></tbody>
+        </table>
     </div>
 
     <!-- Footer -->
@@ -1728,22 +1739,47 @@
             }
         };
 
-        window.printDailyLogReport = function() {
+        // PRINT REPORT FOR DAILY METRIC CARDS CLICK
+        window.printDailyMetricReport = function(category) {
             const dateFilter = document.getElementById('logDateFilter').value;
-            const filtered = sortRosterAlphabetically([...window.dailyLogRecords.filter(r => r.dateStr === dateFilter)]);
+            const dateStr = formatToMMDDYYYY(dateFilter);
+            const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
+            const signedList = sortRosterAlphabetically([...window.dailyLogRecords.filter(r => r.dateStr === dateFilter)]);
+            const signedIds = new Set(signedList.map(r => r.personId));
+            const missingList = sortedRoster.filter(p => !signedIds.has(p.id));
 
-            document.getElementById('printReportTitle').textContent = "DAILY SITE SIGN-IN REPORT";
-            document.getElementById('printTimestamp').textContent = formatToMMDDYYYY(dateFilter);
-            document.getElementById('printDailySection').classList.remove('hidden');
-            document.getElementById('printMusterSection').classList.add('hidden');
-            document.getElementById('printDailyDateTitle').textContent = formatToMMDDYYYY(dateFilter);
-            document.getElementById('printDailyTotalCount').textContent = filtered.length;
+            document.getElementById('printTimestamp').textContent = dateStr;
+            document.getElementById('printReportSubtitle').textContent = "Daily Sign-In Module Log";
+            document.getElementById('printSummaryMetricsHeader').classList.add('hidden');
 
-            const body = document.getElementById('printDailyBody');
-            if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="4" style="padding: 8px; text-align: center;">No sign-ins for this date.</td></tr>`;
-            } else {
-                body.innerHTML = filtered.map((r, i) => `
+            const tbody = document.getElementById('printDynamicTableBody');
+            const headerRow = document.getElementById('printTableHeaderRow');
+
+            if (category === 'total') {
+                document.getElementById('printReportTitle').textContent = "DAILY MASTER ROSTER REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `ALL REGISTERED SITE PERSONNEL (${dateStr})`;
+                document.getElementById('printReportRecordCount').textContent = sortedRoster.length;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 300px;">Full Name</th><th style="width: 150px;">Badge ID</th><th style="text-align: center;">Today's Sign-In Status</th>`;
+
+                tbody.innerHTML = sortedRoster.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No personnel in master roster.</td></tr>` : sortedRoster.map((p, i) => {
+                    const isSigned = signedIds.has(p.id);
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                            <td style="font-weight: 700;">${escapeHtml(p.name)}</td>
+                            <td style="font-family: monospace;">${p.badgeId || '---'}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${isSigned ? '#059669' : '#D97706'};">${isSigned ? 'SIGNED IN' : 'NOT SIGNED IN'}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } else if (category === 'signed') {
+                document.getElementById('printReportTitle').textContent = "DAILY SIGNED-IN PERSONNEL REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `COMPLETED SIGN-INS FOR ${dateStr}`;
+                document.getElementById('printReportRecordCount').textContent = signedList.length;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 250px;">Full Name</th><th style="width: 150px;">Exact Timestamp</th><th style="text-align: center;">Signature</th>`;
+
+                tbody.innerHTML = signedList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No sign-ins recorded for this date.</td></tr>` : signedList.map((r, i) => `
                     <tr>
                         <td style="text-align: center; font-weight: bold;">${i + 1}</td>
                         <td style="font-weight: 700;">${escapeHtml(r.name)}</td>
@@ -1751,27 +1787,155 @@
                         <td style="text-align: center;">${r.signatureImg && r.signatureImg.startsWith('data:') ? `<img src="${r.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Verified]</span>'}</td>
                     </tr>
                 `).join('');
+
+            } else if (category === 'missing') {
+                document.getElementById('printReportTitle').textContent = "DAILY PENDING SIGN-IN REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `PERSONNEL NOT SIGNED IN ON ${dateStr}`;
+                document.getElementById('printReportRecordCount').textContent = missingList.length;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 320px;">Full Name</th><th style="width: 150px;">Badge ID</th><th style="text-align: center;">Status</th>`;
+
+                tbody.innerHTML = missingList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">All personnel signed in for this date!</td></tr>` : missingList.map((p, i) => `
+                    <tr>
+                        <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                        <td style="font-weight: 700;">${escapeHtml(p.name)}</td>
+                        <td style="font-family: monospace;">${p.badgeId || '---'}</td>
+                        <td style="text-align: center; font-weight: bold; color: #D97706;">PENDING / FALTANTE</td>
+                    </tr>
+                `).join('');
+
+            } else if (category === 'turnout') {
+                const totalCount = sortedRoster.length;
+                const signedCount = signedList.length;
+                const missingCount = missingList.length;
+                const pct = totalCount > 0 ? Math.round((signedCount / totalCount) * 100) : 0;
+
+                document.getElementById('printReportTitle').textContent = "DAILY TURNOUT SUMMARY REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `DAILY ATTENDANCE LOG (${dateStr})`;
+                document.getElementById('printReportRecordCount').textContent = `${signedCount} of ${totalCount}`;
+                
+                document.getElementById('printTotalStat').textContent = totalCount;
+                document.getElementById('printSignedStat').textContent = signedCount;
+                document.getElementById('printMissingStat').textContent = missingCount;
+                document.getElementById('printPercentStat').textContent = `${pct}%`;
+                document.getElementById('printSummaryMetricsHeader').classList.remove('hidden');
+
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 250px;">Full Name</th><th style="width: 150px;">Timestamp</th><th style="text-align: center;">Status / Signature</th>`;
+
+                tbody.innerHTML = sortedRoster.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No personnel records.</td></tr>` : sortedRoster.map((p, i) => {
+                    const record = signedList.find(r => r.personId === p.id);
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                            <td style="font-weight: 700;">${escapeHtml(p.name)}</td>
+                            <td style="font-family: monospace;">${record ? record.timestamp : '---'}</td>
+                            <td style="text-align: center;">${record ? (record.signatureImg && record.signatureImg.startsWith('data:') ? `<img src="${record.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold; color: #059669;">[Signed]</span>') : '<span style="font-weight: bold; color: #DC2626;">[Not Signed In]</span>'}</td>
+                        </tr>
+                    `;
+                }).join('');
             }
+
             window.print();
         };
 
-        window.printMusterReport = function() {
-            const sortedChecked = sortRosterAlphabetically([...window.checkedInRecords]);
+        // PRINT REPORT FOR MUSTER METRIC CARDS CLICK
+        window.printMusterMetricReport = function(category) {
+            const dateStr = formatToMMDDYYYY(new Date());
+            const todayDateStr = getShiftDateStr();
+            const signedTodayIds = new Set(window.dailyLogRecords.filter(r => r.dateStr === todayDateStr).map(r => r.personId));
+            const outIds = new Set(window.outRecords.map(o => o.id));
+            const checkedSet = new Set(window.checkedInRecords.map(c => c.id));
 
-            document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER LIVE SUMMARY REPORT";
-            document.getElementById('printTimestamp').textContent = formatToMMDDYYYY(new Date());
-            document.getElementById('printDailySection').classList.add('hidden');
-            document.getElementById('printMusterSection').classList.remove('hidden');
+            const sortedRoster = sortRosterAlphabetically([...window.masterRoster]);
+            const expectedList = sortedRoster.filter(p => signedTodayIds.has(p.id) && !outIds.has(p.id));
+            const checkedList = sortRosterAlphabetically([...window.checkedInRecords]);
+            const missingList = expectedList.filter(p => !checkedSet.has(p.id));
 
-            const checkedBody = document.getElementById('printCheckedBody');
-            checkedBody.innerHTML = sortedChecked.length === 0 ? `<tr><td colspan="4" style="padding: 8px; text-align: center;">None checked in.</td></tr>` : sortedChecked.map((c, i) => `
-                <tr>
-                    <td style="text-align: center; font-weight: bold;">${i + 1}</td>
-                    <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
-                    <td style="font-family: monospace;">${c.timestamp}</td>
-                    <td style="text-align: center;">${c.signatureImg && c.signatureImg.startsWith('data:') ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Verified]</span>'}</td>
-                </tr>
-            `).join('');
+            document.getElementById('printTimestamp').textContent = dateStr;
+            document.getElementById('printReportSubtitle').textContent = "Emergency Muster Assembly Station Log";
+            document.getElementById('printSummaryMetricsHeader').classList.add('hidden');
+
+            const tbody = document.getElementById('printDynamicTableBody');
+            const headerRow = document.getElementById('printTableHeaderRow');
+
+            if (category === 'total') {
+                document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER EXPECTED PERSONNEL REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `EXPECTED ON-SITE WORKFORCE (${dateStr})`;
+                document.getElementById('printReportRecordCount').textContent = expectedList.length;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 300px;">Full Name</th><th style="width: 150px;">Daily Sign-In Time</th><th style="text-align: center;">Muster Status</th>`;
+
+                tbody.innerHTML = expectedList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No personnel expected on-site today.</td></tr>` : expectedList.map((p, i) => {
+                    const isChecked = checkedSet.has(p.id);
+                    const dailyLog = window.dailyLogRecords.find(r => r.personId === p.id && r.dateStr === todayDateStr);
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                            <td style="font-weight: 700;">${escapeHtml(p.name)}</td>
+                            <td style="font-family: monospace;">${dailyLog ? dailyLog.timestamp : 'Signed Today'}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${isChecked ? '#059669' : '#DC2626'};">${isChecked ? 'ACCOUNTED FOR' : 'MISSING'}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } else if (category === 'checked') {
+                document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER ACCOUNTED PERSONNEL REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `ACCOUNTED FOR AT MUSTER POINT (${dateStr})`;
+                document.getElementById('printReportRecordCount').textContent = checkedList.length;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 250px;">Full Name</th><th style="width: 150px;">Muster Check-In Time</th><th style="text-align: center;">Signature</th>`;
+
+                tbody.innerHTML = checkedList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No personnel checked in to muster station yet.</td></tr>` : checkedList.map((c, i) => `
+                    <tr>
+                        <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                        <td style="font-weight: 700;">${escapeHtml(c.name)}</td>
+                        <td style="font-family: monospace;">${c.timestamp}</td>
+                        <td style="text-align: center;">${c.signatureImg && c.signatureImg.startsWith('data:') ? `<img src="${c.signatureImg}" class="print-sig-img">` : '<span style="font-weight: bold;">[Verified]</span>'}</td>
+                    </tr>
+                `).join('');
+
+            } else if (category === 'missing') {
+                document.getElementById('printReportTitle').textContent = "CRITICAL EMERGENCY MISSING PERSONNEL REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `MISSING / UNACCOUNTED PERSONNEL (${dateStr})`;
+                document.getElementById('printReportRecordCount').textContent = missingList.length;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 320px;">Full Name</th><th style="width: 150px;">Badge ID</th><th style="text-align: center;">Critical Status</th>`;
+
+                tbody.innerHTML = missingList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">100% ACCOUNTED FOR! ALL EXPECTED PERSONNEL ARE SAFE.</td></tr>` : missingList.map((p, i) => `
+                    <tr>
+                        <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                        <td style="font-weight: 700; color: #DC2626;">${escapeHtml(p.name)}</td>
+                        <td style="font-family: monospace;">${p.badgeId || '---'}</td>
+                        <td style="text-align: center; font-weight: bold; color: #DC2626;">UNACCOUNTED FOR / FALTANTE</td>
+                    </tr>
+                `).join('');
+
+            } else if (category === 'turnout') {
+                const totalCount = expectedList.length;
+                const checkedCount = checkedList.length;
+                const missingCount = missingList.length;
+                const pct = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
+
+                document.getElementById('printReportTitle').textContent = "EMERGENCY MUSTER LIVE SUMMARY REPORT";
+                document.getElementById('printReportSectionTitle').textContent = `MUSTER ACCOUNTABILITY LOG (${dateStr})`;
+                document.getElementById('printReportRecordCount').textContent = `${checkedCount} of ${totalCount}`;
+                
+                document.getElementById('printTotalStat').textContent = totalCount;
+                document.getElementById('printSignedStat').textContent = checkedCount;
+                document.getElementById('printMissingStat').textContent = missingCount;
+                document.getElementById('printPercentStat').textContent = `${pct}%`;
+                document.getElementById('printSummaryMetricsHeader').classList.remove('hidden');
+
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 250px;">Full Name</th><th style="width: 150px;">Check-In Time</th><th style="text-align: center;">Accountability Status</th>`;
+
+                tbody.innerHTML = expectedList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No expected personnel.</td></tr>` : expectedList.map((p, i) => {
+                    const record = checkedList.find(c => c.id === p.id);
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                            <td style="font-weight: 700;">${escapeHtml(p.name)}</td>
+                            <td style="font-family: monospace;">${record ? record.timestamp : '---'}</td>
+                            <td style="text-align: center;">${record ? '<span style="font-weight: bold; color: #059669;">[ACCOUNTED FOR]</span>' : '<span style="font-weight: bold; color: #DC2626;">[MISSING]</span>'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
 
             window.print();
         };
