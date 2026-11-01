@@ -1792,7 +1792,7 @@
                 document.getElementById('printReportTitle').textContent = "DAILY PENDING SIGN-IN REPORT";
                 document.getElementById('printReportSectionTitle').textContent = `PERSONNEL NOT SIGNED IN ON ${dateStr}`;
                 document.getElementById('printReportRecordCount').textContent = missingList.length;
-                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 320px;">Full Name</th><th style="width: 150px;">Badge ID</th><th style="text-align: center;">Status</th>`;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 320px;">Full Name</th><th style="text-align: center;">Status</th>`;
 
                 tbody.innerHTML = missingList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">All personnel signed in for this date!</td></tr>` : missingList.map((p, i) => `
                     <tr>
