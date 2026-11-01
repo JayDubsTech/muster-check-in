@@ -735,18 +735,9 @@
     <div class="hidden print-only p-2 text-black">
         <div class="border-b border-black pb-2 mb-3 flex justify-between items-center">
             <div>
-                <!-- PLATEAU LOGO ADDED HERE -->
-                <div style="margin-bottom: 4px;">
-                    <svg style="height: 26px; width: auto; display: block;" viewBox="0 0 320 65" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Left Block & Amber Stripe graphic matching user logo -->
-                        <g fill="#000000">
-                            <rect x="0" y="0" width="18" height="20"></rect>
-                            <rect x="0" y="45" width="18" height="20"></rect>
-                        </g>
-                        <rect x="0" y="22" width="18" height="21" fill="#E8B331"></rect>
-                        <!-- P-L-A-T-E-A-U Text Path / Outlines -->
-                        <path fill="#000000" d="M38.3 12.3h10.9c4.2 0 7.3 1 9.4 3.1 2.1 2.1 3.2 5 3.2 8.7 0 3.7-1.1 6.6-3.2 8.7-2.1 2.1-5.2 3.1-9.4 3.1H45.7v13.5H38.3V12.3zm7.4 15h3.2c1.9 0 3.3-.4 4.3-1.3 1-.9 1.4-2.2 1.4-4s-.4-3-1.4-3.9c-1-.9-2.4-1.3-4.3-1.3h-3.2v10.5zM71.7 12.3h7.4v41h-7.4v-41zM93.3 12.3h8.3l11 41h-7.8l-2.1-8.5H92.2l-2.1 8.5h-7.7l10.9-41zm7 26.6l-3-12.8-3 12.8h6zM124.9 12.3h7.4l14.4 27.6V12.3h7.2v41h-7.3L132.1 25.4v27.9h-7.2v-41zM167.3 12.3h22.9v6.5h-15.5v10.6h14.4v6.5h-14.4v11h15.9v6.5h-23.3v-41.1zM214.3 12.3h7.4l14.4 27.6V12.3h7.2v41h-7.3L221.5 25.4v27.9h-7.2v-41zM260.6 12.3h7.4v34.5h14.5v6.5h-21.9v-41z"/>
-                    </svg>
+                <!-- CLEAN TRANSPARENT LOGO FROM REPO -->
+                <div style="margin-bottom: 6px;">
+                    <img src="assets/logo-transparent-background.png" alt="Plateau Excavation Logo" style="height: 28px; width: auto; display: block;">
                 </div>
                 <h1 id="printReportTitle" class="text-lg font-black tracking-tight uppercase">SITE REPORT</h1>
                 <p class="text-xs font-semibold">Generated: <span id="printTimestamp"></span></p>
@@ -1922,7 +1913,7 @@
                 document.getElementById('printPercentStat').textContent = `${pct}%`;
                 document.getElementById('printSummaryMetricsHeader').classList.remove('hidden');
 
-                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 250px;">Full Name</th><th style="width: 150px;">Check-In Time</th><th style="text-align: center;">AccountabilityStatus</th>`;
+                headerRow.innerHTML = `<th style="width: 28px; text-align: center;">#</th><th style="width: 250px;">Full Name</th><th style="width: 150px;">Check-In Time</th><th style="text-align: center;">Accountability Status</th>`;
 
                 tbody.innerHTML = expectedList.length === 0 ? `<tr><td colspan="4" style="padding:8px; text-align:center;">No expected personnel.</td></tr>` : expectedList.map((p, i) => {
                     const record = checkedList.find(c => c.id === p.id);
