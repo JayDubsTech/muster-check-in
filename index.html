@@ -76,7 +76,7 @@
                 color: black !important; 
                 margin: 0 !important;
                 padding: 0 !important;
-                font-size: 9px !important;
+                font-size: 8.5px !important;
                 line-height: 1.15 !important;
             }
             .print-compact-table {
@@ -87,7 +87,7 @@
             .print-compact-table td {
                 padding: 2px 4px !important;
                 border: 1px solid #000 !important;
-                font-size: 8.5px !important;
+                font-size: 8px !important;
                 line-height: 1.1 !important;
             }
             .print-compact-table th {
@@ -96,11 +96,14 @@
                 text-transform: uppercase !important;
             }
             .print-sig-img {
-                height: 18px !important;
-                max-width: 110px !important;
+                height: 16px !important;
+                max-width: 100px !important;
                 object-fit: contain !important;
                 display: block !important;
                 margin: 0 auto !important;
+            }
+            .page-break-before {
+                page-break-before: always;
             }
             table { 
                 page-break-inside: auto; 
@@ -139,7 +142,6 @@
     <!-- Top Navigation Header Bar (Desktop/Admin View) -->
     <header id="mainHeaderBar" class="bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 shadow-xl px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-            <!-- Branding & Title -->
             <div class="flex items-center gap-3 shrink-0">
                 <div id="headerBrandIcon" class="bg-amber-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40">
                     <i data-lucide="clipboard-check" class="w-7 h-7"></i>
@@ -155,7 +157,6 @@
                 </div>
             </div>
 
-            <!-- Controls -->
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
                 <div id="modeSwitcherContainer" class="flex items-center gap-1 bg-slate-300 dark:bg-slate-900 p-1.5 rounded-xl border border-slate-400 dark:border-slate-800">
                     <button onclick="switchAppMode('daily')" id="modeDailyBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
@@ -183,7 +184,7 @@
         </div>
     </header>
 
-    <!-- WORKER MOBILE HEADER (Only shown on QR scan mobile mode) -->
+    <!-- WORKER MOBILE HEADER -->
     <div id="workerHeaderBar" class="hidden bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 px-4 py-3 shadow-md flex justify-between items-center no-print">
         <div class="flex items-center gap-2">
             <div id="workerHeaderIcon" class="bg-amber-600 text-slate-950 p-2 rounded-lg">
@@ -731,46 +732,212 @@
         </div>
     </div>
 
-    <!-- DYNAMIC HIGH DENSITY PRINT REPORT VIEW -->
+    <!-- DYNAMIC HIGH DENSITY PRINT REPORT BATCH (4 DOCUMENTS) -->
     <div class="hidden print-only p-2 text-black">
-        <div class="border-b border-black pb-2 mb-3 flex justify-between items-center">
-            <div>
-                <!-- CLEAN TRANSPARENT LOGO FROM REPO -->
-                <div style="margin-bottom: 6px;">
-                    <img src="assets/logo-transparent-background.png" alt="Plateau Excavation Logo" style="height: 28px; width: auto; display: block;">
+        
+        <!-- ================= PAGE 1: DAILY SIGNED-IN REPORT ================= -->
+        <div>
+            <div class="border-b border-black pb-2 mb-3 flex justify-between items-center">
+                <div>
+                    <div style="margin-bottom: 6px;">
+                        <img src="assets/logo-transparent-background.png" alt="Plateau Excavation Logo" style="height: 28px; width: auto; display: block;">
+                    </div>
+                    <h1 id="printReportTitle" class="text-lg font-black tracking-tight uppercase">SITE REPORT</h1>
+                    <p class="text-xs font-semibold">Generated: <span id="printTimestamp"></span></p>
                 </div>
-                <h1 id="printReportTitle" class="text-lg font-black tracking-tight uppercase">SITE REPORT</h1>
-                <p class="text-xs font-semibold">Generated: <span id="printTimestamp"></span></p>
+                <div class="text-right">
+                    <div class="text-xs font-bold">Plateau Excavation</div>
+                    <div id="printReportSubtitle" class="text-[9px] text-gray-600 uppercase tracking-wide">Job Site Log</div>
+                </div>
             </div>
-            <div class="text-right">
-                <div class="text-xs font-bold">Plateau Excavation</div>
-                <div id="printReportSubtitle" class="text-[9px] text-gray-600 uppercase tracking-wide">Job Site Log</div>
+
+            <div id="printSummaryMetricsHeader" class="hidden flex justify-between items-center mb-2 border border-black px-2 py-1 bg-gray-100 font-bold text-[10px]">
+                <div>ROSTER / EXPECTED: <span id="printTotalStat">0</span></div>
+                <div>SIGNED IN / ACCOUNTED: <span id="printSignedStat">0</span></div>
+                <div>NOT SIGNED IN / MISSING: <span id="printMissingStat">0</span></div>
+                <div>TURNOUT RATE: <span id="printPercentStat">0%</span></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-1.5 border-b border-black/30 pb-1">
+                <h2 id="printReportSectionTitle" class="text-xs font-bold uppercase tracking-wide">PERSONNEL REPORT</h2>
+                <div class="text-xs font-bold">COUNT: <span id="printReportRecordCount">0</span></div>
+            </div>
+
+            <table class="print-compact-table mb-4">
+                <thead>
+                    <tr id="printTableHeaderRow">
+                        <th style="width: 28px; text-align: center;">#</th>
+                        <th style="width: 250px;">Full Name</th>
+                        <th style="width: 150px;">Timestamp</th>
+                        <th style="text-align: center;">Signature / Status</th>
+                    </tr>
+                </thead>
+                <tbody id="printDynamicTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ================= PAGE 2: JOB HAZARD ANALYSIS (JHA) ================= -->
+        <div class="page-break-before pt-2">
+            <div class="border-b-2 border-black pb-2 mb-3 flex justify-between items-center">
+                <div>
+                    <img src="assets/logo-transparent-background.png" alt="Plateau Logo" style="height: 26px; width: auto; display: block; margin-bottom: 4px;">
+                    <h2 class="text-base font-black tracking-tight uppercase">JOB HAZARD ANALYSIS (JHA)</h2>
+                </div>
+                <div class="text-right font-mono text-[10px]">
+                    <div><strong>Job Name:</strong> PROJECT NOVA</div>
+                    <div><strong>Job Number:</strong> 26006</div>
+                    <div><strong>Date:</strong> <span id="printJhaDate">---</span></div>
+                </div>
+            </div>
+
+            <div class="mb-2 text-[9px] bg-slate-100 p-1 border border-black font-semibold">
+                <strong>Description of Work:</strong> Cut / Fill & Site Operations
+            </div>
+
+            <table class="print-compact-table mb-3" style="font-size: 7.5px !important;">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Hazard / Risk</th>
+                        <th style="width: 160px;">Potential Injury / Cause</th>
+                        <th>Abatements & Required Controls</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="font-weight: bold;">Head Injury</td><td>Impact, falling/flying objects</td><td>Personnel must always wear hard hat and never work under suspended loads.</td></tr>
+                    <tr><td style="font-weight: bold;">Eye / Face Injury</td><td>Flying or falling foreign objects</td><td>Wear eye/face protection during cutting, grinding, chipping, and scraping.</td></tr>
+                    <tr><td style="font-weight: bold;">Hand Injury</td><td>Cuts, punctures, pinching</td><td>Wear gloves or appropriate hand protection when handling material or tools.</td></tr>
+                    <tr><td style="font-weight: bold;">Back Injury</td><td>Improper lifting or heavy loads</td><td>Lift items while bending at knees; get help for large or heavy items.</td></tr>
+                    <tr><td style="font-weight: bold;">Foot Injury</td><td>Falling objects, uneven ground</td><td>Wear work boots with good soles and ankle support.</td></tr>
+                    <tr><td style="font-weight: bold;">General Body Injury</td><td>Operations, environment, traffic</td><td>Proper PPE required: work boots, long pants, high-vis vest, 4" sleeve minimum.</td></tr>
+                    <tr><td style="font-weight: bold;">Slip / Trip / Falls</td><td>Lack of traction, poor housekeeping</td><td>Keep work areas clean and clear of obstructions. Stack storage neatly.</td></tr>
+                    <tr><td style="font-weight: bold;">Struck By / Caught In</td><td>Moving equipment, vehicles</td><td>Stay alert, wear high-vis vests, stay clear of pinch points and equipment swing radiuses.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="border border-black p-2 space-y-2 text-[9px]">
+                <div><strong>Required / Necessary PPE:</strong> Hard hats, glasses, gloves, high-vis vest, proper pants and shirts, work boots.</div>
+                <div class="grid grid-cols-1 gap-2 pt-2 border-t border-black">
+                    <div class="flex items-end justify-between gap-2">
+                        <span style="font-weight: bold; width: 130px; shrink-0;">Safety Mgr. Signatures:</span>
+                        <div class="flex-1 border-b border-black pb-0.5 flex items-center justify-around gap-2" style="min-height: 22px;">
+                            <span class="font-bold text-[9px]">Jason Warren</span>
+                            <span class="font-bold text-[9px]">Robert Garza</span>
+                            <span class="font-bold text-[9px]">Luis Rodrigues</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end justify-between gap-2">
+                        <span style="font-weight: bold; width: 130px; shrink-0;">Supervisor Signature:</span>
+                        <div class="flex-1 border-b border-black pb-0.5 px-2" style="min-height: 22px;">
+                            <span class="font-bold text-[9px]">Alejandro Deleon</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="printSummaryMetricsHeader" class="hidden flex justify-between items-center mb-2 border border-black px-2 py-1 bg-gray-100 font-bold text-[10px]">
-            <div>ROSTER / EXPECTED: <span id="printTotalStat">0</span></div>
-            <div>SIGNED IN / ACCOUNTED: <span id="printSignedStat">0</span></div>
-            <div>NOT SIGNED IN / MISSING: <span id="printMissingStat">0</span></div>
-            <div>TURNOUT RATE: <span id="printPercentStat">0%</span></div>
+        <!-- ================= PAGE 3: KIMES & STONE (K & S) PTP ================= -->
+        <div class="page-break-before pt-2">
+            <div class="border-b-2 border-black pb-2 mb-2 flex justify-between items-center">
+                <div>
+                    <img src="assets/logo-transparent-background.png" alt="Plateau Logo" style="height: 26px; width: auto; display: block; margin-bottom: 4px;">
+                    <h2 class="text-base font-black tracking-tight uppercase">DAILY HUDDLE / PRE-TASK PLAN (K & S)</h2>
+                </div>
+                <div class="text-right font-mono text-[10px]">
+                    <div><strong>Trade Partner:</strong> Kimes & Stone[span_3](start_span)[span_3](end_span)</div>
+                    <div><strong>Activity:</strong> Soil Cement[span_4](start_span)[span_4](end_span)</div>
+                    <div><strong>Date:</strong> <span class="printJhaDateSpan">---</span></div>
+                </div>
+            </div>
+            <div class="border border-black p-2 text-[9px] space-y-2">
+                <div><strong>Project Nova</strong> | <strong>Work Description:</strong> Soil Cement Mixing & Stabilization[span_5](start_span)[span_5](end_span)</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[span_6](start_span)[span_6](end_span)</div>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li><strong>Mobile Equipment[span_7](start_span)[span_7](end_span):</strong> Certified Operators[span_8](start_span)[span_8](end_span), Spotters Present[span_9](start_span)[span_9](end_span), Designated Travel Path[span_10](start_span)[span_10](end_span), Backup Alarms[span_11](start_span)[span_11](end_span).</li>
+                    <li><strong>Surface Penetration[span_12](start_span)[span_12](end_span):</strong> Competent Person[span_13](start_span)[span_13](end_span), Spoil Piles Back[span_14](start_span)[span_14](end_span), Utilities Marked[span_15](start_span)[span_15](end_span).</li>
+                </ul>
+                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[span_16](start_span)[span_16](end_span)</div>
+                <table class="print-compact-table">
+                    <thead><tr><th>What Are We Doing Today?[span_17](start_span)[span_17](end_span)</th><th>Tools Needed[span_18](start_span)[span_18](end_span)</th><th>Hazards[span_19](start_span)[span_19](end_span)</th><th>Controls[span_20](start_span)[span_20](end_span)</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>Soil Cement Placement[span_21](start_span)[span_21](end_span)</td>
+                            <td>Compactor, Motor Grader, Dozer, Mixers[span_22](start_span)[span_22](end_span)</td>
+                            <td>Crush By / Struck By, Slips & Trips[span_23](start_span)[span_23](end_span)</td>
+                            <td>Working backup alarms, wearing all PPE, keep work areas clean and clear[span_24](start_span)[span_24](end_span).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="flex justify-between items-center mb-1.5 border-b border-black/30 pb-1">
-            <h2 id="printReportSectionTitle" class="text-xs font-bold uppercase tracking-wide">PERSONNEL REPORT</h2>
-            <div class="text-xs font-bold">COUNT: <span id="printReportRecordCount">0</span></div>
+        <!-- ================= PAGE 4: PIPE CREW PTP ================= -->
+        <div class="page-break-before pt-2">
+            <div class="border-b-2 border-black pb-2 mb-2 flex justify-between items-center">
+                <div>
+                    <img src="assets/logo-transparent-background.png" alt="Plateau Logo" style="height: 26px; width: auto; display: block; margin-bottom: 4px;">
+                    <h2 class="text-base font-black tracking-tight uppercase">DAILY HUDDLE / PRE-TASK PLAN (PIPE CREW)</h2>
+                </div>
+                <div class="text-right font-mono text-[10px]">
+                    <div><strong>Trade Partner:</strong> Plateau (Pipe Crew)[span_25](start_span)[span_25](end_span)</div>
+                    <div><strong>Activity:</strong> Storm Drainage[span_26](start_span)[span_26](end_span)</div>
+                    <div><strong>Date:</strong> <span class="printJhaDateSpan">---</span></div>
+                </div>
+            </div>
+            <div class="border border-black p-2 text-[9px] space-y-2">
+                <div><strong>Project Nova</strong> | <strong>Work Description:</strong> Installing Storm Drainage[span_27](start_span)[span_27](end_span)</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[span_28](start_span)[span_28](end_span)</div>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li><strong>Mobile Equipment & Hoisting/Rigging[span_29](start_span)[span_29](end_span):</strong> Certified Operators, Certified Rig/Sig, Spotters Present, Slope/Benching, Barricades[span_30](start_span)[span_30](end_span).</li>
+                </ul>
+                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[span_31](start_span)[span_31](end_span)</div>
+                <table class="print-compact-table">
+                    <thead><tr><th>What Are We Doing Today?[span_32](start_span)[span_32](end_span)</th><th>Tools Needed[span_33](start_span)[span_33](end_span)</th><th>Hazards[span_34](start_span)[span_34](end_span)</th><th>Controls[span_35](start_span)[span_35](end_span)</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>Installing Storm Pipe[span_36](start_span)[span_36](end_span)</td>
+                            <td>Excavator, Shovels, Rigging, Laser, Ladder[span_37](start_span)[span_37](end_span)</td>
+                            <td>Struck by, Caught Between, Cave-in, Soft tissue[span_38](start_span)[span_38](end_span)</td>
+                            <td>Constant communication with operator, keep hands clear during rigging, proper lifting techniques[span_39](start_span)[span_39](end_span).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <table class="print-compact-table">
-            <thead>
-                <tr id="printTableHeaderRow">
-                    <th style="width: 28px; text-align: center;">#</th>
-                    <th style="width: 250px;">Full Name</th>
-                    <th style="width: 150px;">Timestamp</th>
-                    <th style="text-align: center;">Signature / Status</th>
-                </tr>
-            </thead>
-            <tbody id="printDynamicTableBody"></tbody>
-        </table>
+        <!-- ================= PAGE 5: PLATEAU CUT & FILL PTP ================= -->
+        <div class="page-break-before pt-2">
+            <div class="border-b-2 border-black pb-2 mb-2 flex justify-between items-center">
+                <div>
+                    <img src="assets/logo-transparent-background.png" alt="Plateau Logo" style="height: 26px; width: auto; display: block; margin-bottom: 4px;">
+                    <h2 class="text-base font-black tracking-tight uppercase">DAILY HUDDLE / PRE-TASK PLAN (CUT & FILL)</h2>
+                </div>
+                <div class="text-right font-mono text-[10px]">
+                    <div><strong>Trade Partner:</strong> Plateau[span_40](start_span)[span_40](end_span)</div>
+                    <div><strong>Activity:</strong> Cut & Fill[span_41](start_span)[span_41](end_span)</div>
+                    <div><strong>Date:</strong> <span class="printJhaDateSpan">---</span></div>
+                </div>
+            </div>
+            <div class="border border-black p-2 text-[9px] space-y-2">
+                <div><strong>Project Nova</strong> | <strong>Work Description:</strong> Cut / Fill Earthmoving Operations[span_42](start_span)[span_42](end_span)</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[span_43](start_span)[span_43](end_span)</div>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li><strong>Mobile Equipment[span_44](start_span)[span_44](end_span):</strong> Certified Operators, Spotters, Designated Travel Paths, Backup Alarms[span_45](start_span)[span_45](end_span).</li>
+                </ul>
+                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[span_46](start_span)[span_46](end_span)</div>
+                <table class="print-compact-table">
+                    <thead><tr><th>What Are We Doing Today?[span_47](start_span)[span_47](end_span)</th><th>Tools Needed[span_48](start_span)[span_48](end_span)</th><th>Hazards[span_49](start_span)[span_49](end_span)</th><th>Controls[span_50](start_span)[span_50](end_span)</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>Cut & Fill[span_51](start_span)[span_51](end_span)</td>
+                            <td>Excavator, Compactor, Dump Truck, Motor Grader, Scraper, Dozer[span_52](start_span)[span_52](end_span)</td>
+                            <td>Crush By / Struck By, Slips & Trips[span_53](start_span)[span_53](end_span)</td>
+                            <td>Working backup alarms, wearing all PPE, keep work areas free of obstructions[span_54](start_span)[span_54](end_span).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <!-- Footer -->
@@ -1743,6 +1910,8 @@
             const missingList = sortedRoster.filter(p => !signedIds.has(p.id));
 
             document.getElementById('printTimestamp').textContent = dateStr;
+            document.getElementById('printJhaDate').textContent = dateStr;
+            document.querySelectorAll('.printJhaDateSpan').forEach(el => el.textContent = dateStr);
             document.getElementById('printReportSubtitle').textContent = "Daily Sign-In Module Log";
             document.getElementById('printSummaryMetricsHeader').classList.add('hidden');
 
@@ -1843,6 +2012,8 @@
             const missingList = expectedList.filter(p => !checkedSet.has(p.id));
 
             document.getElementById('printTimestamp').textContent = dateStr;
+            document.getElementById('printJhaDate').textContent = dateStr;
+            document.querySelectorAll('.printJhaDateSpan').forEach(el => el.textContent = dateStr);
             document.getElementById('printReportSubtitle').textContent = "Emergency Muster Assembly Station Log";
             document.getElementById('printSummaryMetricsHeader').classList.add('hidden');
 
