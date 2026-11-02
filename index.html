@@ -293,7 +293,7 @@
                     </div>
                 </div>
 
-                <div id="dailySuccessOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 no-print">
+                <div id="dailySuccessOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 no-print">
                     <div class="bg-slate-900 border-2 border-emerald-500 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl space-y-5">
                         <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/40">
                             <i data-lucide="check-circle" class="w-12 h-12"></i>
@@ -306,9 +306,9 @@
                             <div class="flex justify-between text-slate-400"><span>Name / Nombre:</span> <strong id="dailyConfirmName" class="text-white">---</strong></div>
                             <div class="flex justify-between text-slate-400"><span>Date/Time / Fecha:</span> <strong id="dailyConfirmTime" class="text-emerald-400">---</strong></div>
                         </div>
-                        <button onclick="resetDailyCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">
-                            Next Person Sign-In Now / Siguiente Persona
-                        </button>
+                        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 font-medium">
+                            🔒 Session Locked & Synced.<br>You can now safely close this browser tab.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -523,7 +523,7 @@
                     </div>
                 </div>
 
-                <div id="musterSuccessOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 no-print">
+                <div id="musterSuccessOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 no-print">
                     <div class="bg-slate-900 border-2 border-emerald-500 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl space-y-5">
                         <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/40">
                             <i data-lucide="check-circle" class="w-12 h-12"></i>
@@ -536,9 +536,9 @@
                             <div class="flex justify-between text-slate-400"><span>Name / Nombre:</span> <strong id="musterConfirmName" class="text-white">---</strong></div>
                             <div class="flex justify-between text-slate-400"><span>Time / Hora:</span> <strong id="musterConfirmTime" class="text-emerald-400">---</strong></div>
                         </div>
-                        <button onclick="resetMusterCheckInForm()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition">
-                            Next Person Check-In Now / Siguiente Persona
-                        </button>
+                        <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-300 font-medium">
+                            🔒 Emergency Station Locked.<br>You can now safely close this browser tab.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -732,7 +732,7 @@
         </div>
     </div>
 
-    <!-- DYNAMIC HIGH DENSITY PRINT REPORT BATCH (EMBEDDING EXACT ASSETS FROM GITHUB) -->
+    <!-- DYNAMIC HIGH DENSITY PRINT REPORT BATCH (USING FIREBASE STORAGE SECURE URLs) -->
     <div class="hidden print-only p-2 text-black">
         
         <!-- ================= PAGE 1: DAILY SIGNED-IN REPORT ================= -->
@@ -776,31 +776,31 @@
             </table>
         </div>
 
-        <!-- ================= PAGE 2: JHA SHEET (EMBEDDED DOCUMENT EMBED) ================= -->
+        <!-- ================= PAGE 2: JHA SHEET (FIREBASE STORAGE URL) ================= -->
         <div class="page-break-before pt-2">
             <div style="width:100%; height:100vh; max-height:1050px; border:none;">
-                <iframe src="assets/JHA%20SHEET.docx" style="width:100%; height:100%; border:none;" title="JHA Sheet Document"></iframe>
+                <iframe src="https://firebasestorage.googleapis.com/v0/b/mustercheckin.firebasestorage.app/o/JHA%20SHEET.docx?alt=media" style="width:100%; height:100%; border:none;" title="JHA Sheet Document"></iframe>
             </div>
         </div>
 
-        <!-- ================= PAGE 3: K & S PTP (EMBEDDED PDF EMBED) ================= -->
+        <!-- ================= PAGE 3: K & S PTP (FIREBASE STORAGE URL) ================= -->
         <div class="page-break-before pt-2">
             <div style="width:100%; height:100vh; max-height:1050px; border:none;">
-                <iframe src="assets/K%20%26%20S%20PTP.pdf" style="width:100%; height:100%; border:none;" title="K & S PTP PDF"></iframe>
+                <iframe src="https://firebasestorage.googleapis.com/v0/b/mustercheckin.firebasestorage.app/o/K%20%26%20S%20PTP.pdf?alt=media" style="width:100%; height:100%; border:none;" title="K & S PTP PDF"></iframe>
             </div>
         </div>
 
-        <!-- ================= PAGE 4: PIPE CREW PTP (EMBEDDED PDF EMBED) ================= -->
+        <!-- ================= PAGE 4: PIPE CREW PTP (FIREBASE STORAGE URL) ================= -->
         <div class="page-break-before pt-2">
             <div style="width:100%; height:100vh; max-height:1050px; border:none;">
-                <iframe src="assets/Pipe%20Crew%20PTP.pdf" style="width:100%; height:100%; border:none;" title="Pipe Crew PTP PDF"></iframe>
+                <iframe src="https://firebasestorage.googleapis.com/v0/b/mustercheckin.firebasestorage.app/o/Pipe%20Crew%20PTP.pdf?alt=media" style="width:100%; height:100%; border:none;" title="Pipe Crew PTP PDF"></iframe>
             </div>
         </div>
 
-        <!-- ================= PAGE 5: PLATEAU PTP (EMBEDDED PDF EMBED) ================= -->
+        <!-- ================= PAGE 5: PLATEAU PTP (FIREBASE STORAGE URL) ================= -->
         <div class="page-break-before pt-2">
             <div style="width:100%; height:100vh; max-height:1050px; border:none;">
-                <iframe src="assets/Plateau%20PTP.pdf" style="width:100%; height:100%; border:none;" title="Plateau PTP PDF"></iframe>
+                <iframe src="https://firebasestorage.googleapis.com/v0/b/mustercheckin.firebasestorage.app/o/Plateau%20PTP.pdf?alt=media" style="width:100%; height:100%; border:none;" title="Plateau PTP PDF"></iframe>
             </div>
         </div>
 
@@ -853,6 +853,8 @@
         window.adminPin = '2026';
         window.isAdminAuthenticated = false;
 
+        let unsubRoster = null, unsubMuster = null, unsubOut = null, unsubDaily = null;
+
         let dailyCanvas, musterCanvas, dailyCtx, musterCtx;
         let dailyIsDrawing = false, musterIsDrawing = false;
         let dailyHasSignature = false, musterHasSignature = false;
@@ -883,7 +885,6 @@
             return d.toISOString().substring(0, 10);
         }
 
-        // Strict helper to convert any date string or timestamp into MM/DD/YYYY format
         function formatToMMDDYYYY(dateInput) {
             if (!dateInput) return '';
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
@@ -982,7 +983,7 @@
 
                 updateSyncBadge(true, "Live Synced Across Devices");
 
-                onSnapshot(collection(db, ...ROSTER_COLLECTION_PATH), (snapshot) => {
+                unsubRoster = onSnapshot(collection(db, ...ROSTER_COLLECTION_PATH), (snapshot) => {
                     const rosterData = [];
                     snapshot.forEach(doc => { rosterData.push({ id: doc.id, ...doc.data() }); });
                     window.masterRoster = sortRosterAlphabetically(rosterData);
@@ -991,7 +992,7 @@
                     window.renderDailyLogTable();
                 });
 
-                onSnapshot(collection(db, ...MUSTER_CHECKINS_PATH), (snapshot) => {
+                unsubMuster = onSnapshot(collection(db, ...MUSTER_CHECKINS_PATH), (snapshot) => {
                     const checkinData = [];
                     snapshot.forEach(doc => { checkinData.push({ id: doc.id, ...doc.data() }); });
                     window.checkedInRecords = checkinData;
@@ -999,7 +1000,7 @@
                     window.renderAdminTables();
                 });
 
-                onSnapshot(collection(db, ...OUT_COLLECTION_PATH), (snapshot) => {
+                unsubOut = onSnapshot(collection(db, ...OUT_COLLECTION_PATH), (snapshot) => {
                     const outData = [];
                     snapshot.forEach(doc => { outData.push({ id: doc.id, ...doc.data() }); });
                     window.outRecords = outData;
@@ -1007,7 +1008,7 @@
                     window.renderAdminTables();
                 });
 
-                onSnapshot(collection(db, ...DAILY_LOGS_PATH), (snapshot) => {
+                unsubDaily = onSnapshot(collection(db, ...DAILY_LOGS_PATH), (snapshot) => {
                     const dailyData = [];
                     snapshot.forEach(doc => { dailyData.push({ id: doc.id, ...doc.data() }); });
                     window.dailyLogRecords = dailyData;
@@ -1019,6 +1020,14 @@
             } catch (err) {
                 updateSyncBadge(false, "Offline / Local Mode");
             }
+        }
+
+        function stopWorkerListeners() {
+            if (unsubRoster) { unsubRoster(); unsubRoster = null; }
+            if (unsubMuster) { unsubMuster(); unsubMuster = null; }
+            if (unsubOut) { unsubOut(); unsubOut = null; }
+            if (unsubDaily) { unsubDaily(); unsubDaily = null; }
+            updateSyncBadge(false, "Check-In Completed & Locked");
         }
 
         function sortRosterAlphabetically(roster) {
@@ -1406,6 +1415,11 @@
             document.getElementById('dailyConfirmName').textContent = window.dailySelectedPerson.name;
             document.getElementById('dailyConfirmTime').textContent = timestamp;
             document.getElementById('dailySuccessOverlay').classList.remove('hidden');
+
+            // Lock screen and stop background listeners for this worker tab
+            if (window.isWorkerOnlyMode) {
+                stopWorkerListeners();
+            }
         };
 
         window.resetDailyCheckInForm = function() {
@@ -1622,6 +1636,11 @@
             document.getElementById('musterConfirmName').textContent = window.musterSelectedPerson.name;
             document.getElementById('musterConfirmTime').textContent = timestamp;
             document.getElementById('musterSuccessOverlay').classList.remove('hidden');
+
+            // Lock screen and stop background listeners for this worker tab
+            if (window.isWorkerOnlyMode) {
+                stopWorkerListeners();
+            }
         };
 
         window.resetMusterCheckInForm = function() {
