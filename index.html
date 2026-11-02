@@ -732,7 +732,7 @@
         </div>
     </div>
 
-    <!-- DYNAMIC HIGH DENSITY PRINT REPORT BATCH (4 DOCUMENTS) -->
+    <!-- DYNAMIC HIGH DENSITY PRINT REPORT BATCH (5 DOCUMENTS: ATTENDANCE, BLANK JHA, & 3 PTPs) -->
     <div class="hidden print-only p-2 text-black">
         
         <!-- ================= PAGE 1: DAILY SIGNED-IN REPORT ================= -->
@@ -776,7 +776,7 @@
             </table>
         </div>
 
-        <!-- ================= PAGE 2: JOB HAZARD ANALYSIS (JHA) ================= -->
+        <!-- ================= PAGE 2: JOB HAZARD ANALYSIS (JHA - COMPLETELY BLANK FOR MANUAL ENTRY) ================= -->
         <div class="page-break-before pt-2">
             <div class="border-b-2 border-black pb-2 mb-3 flex justify-between items-center">
                 <div>
@@ -784,52 +784,46 @@
                     <h2 class="text-base font-black tracking-tight uppercase">JOB HAZARD ANALYSIS (JHA)</h2>
                 </div>
                 <div class="text-right font-mono text-[10px]">
-                    <div><strong>Job Name:</strong> PROJECT NOVA</div>
-                    <div><strong>Job Number:</strong> 26006</div>
+                    <div><strong>Job Name:</strong> ________________________</div>
+                    <div><strong>Job Number:</strong> _________</div>
                     <div><strong>Date:</strong> <span id="printJhaDate">---</span></div>
                 </div>
             </div>
 
-            <div class="mb-2 text-[9px] bg-slate-100 p-1 border border-black font-semibold">
-                <strong>Description of Work:</strong> Cut / Fill & Site Operations
+            <div class="mb-2 text-[9px] bg-slate-100 p-1.5 border border-black font-semibold">
+                <strong>Description of Work:</strong> __________________________________________________________________________________
             </div>
 
-            <table class="print-compact-table mb-3" style="font-size: 7.5px !important;">
+            <table class="print-compact-table mb-3" style="font-size: 7.5px !important; height: 320px;">
                 <thead>
                     <tr>
-                        <th style="width: 100px;">Hazard / Risk</th>
-                        <th style="width: 160px;">Potential Injury / Cause</th>
+                        <th style="width: 120px;">Hazard / Risk</th>
+                        <th style="width: 180px;">Potential Injury / Cause</th>
                         <th>Abatements & Required Controls</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td style="font-weight: bold;">Head Injury</td><td>Impact, falling/flying objects</td><td>Personnel must always wear hard hat and never work under suspended loads.</td></tr>
-                    <tr><td style="font-weight: bold;">Eye / Face Injury</td><td>Flying or falling foreign objects</td><td>Wear eye/face protection during cutting, grinding, chipping, and scraping.</td></tr>
-                    <tr><td style="font-weight: bold;">Hand Injury</td><td>Cuts, punctures, pinching</td><td>Wear gloves or appropriate hand protection when handling material or tools.</td></tr>
-                    <tr><td style="font-weight: bold;">Back Injury</td><td>Improper lifting or heavy loads</td><td>Lift items while bending at knees; get help for large or heavy items.</td></tr>
-                    <tr><td style="font-weight: bold;">Foot Injury</td><td>Falling objects, uneven ground</td><td>Wear work boots with good soles and ankle support.</td></tr>
-                    <tr><td style="font-weight: bold;">General Body Injury</td><td>Operations, environment, traffic</td><td>Proper PPE required: work boots, long pants, high-vis vest, 4" sleeve minimum.</td></tr>
-                    <tr><td style="font-weight: bold;">Slip / Trip / Falls</td><td>Lack of traction, poor housekeeping</td><td>Keep work areas clean and clear of obstructions. Stack storage neatly.</td></tr>
-                    <tr><td style="font-weight: bold;">Struck By / Caught In</td><td>Moving equipment, vehicles</td><td>Stay alert, wear high-vis vests, stay clear of pinch points and equipment swing radiuses.</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr style="height: 35px;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
                 </tbody>
             </table>
 
             <div class="border border-black p-2 space-y-2 text-[9px]">
-                <div><strong>Required / Necessary PPE:</strong> Hard hats, glasses, gloves, high-vis vest, proper pants and shirts, work boots.</div>
+                <div><strong>Required / Necessary PPE:</strong> [ &nbsp; ] Hard Hats &nbsp; [ &nbsp; ] Safety Glasses &nbsp; [ &nbsp; ] Gloves &nbsp; [ &nbsp; ] High-Vis Vest &nbsp; [ &nbsp; ] Work Boots &nbsp; [ &nbsp; ] Hearing Protection</div>
                 <div class="grid grid-cols-1 gap-2 pt-2 border-t border-black">
                     <div class="flex items-end justify-between gap-2">
                         <span style="font-weight: bold; width: 130px; shrink-0;">Safety Mgr. Signatures:</span>
-                        <div class="flex-1 border-b border-black pb-0.5 flex items-center justify-around gap-2" style="min-height: 22px;">
-                            <span class="font-bold text-[9px]">Jason Warren</span>
-                            <span class="font-bold text-[9px]">Robert Garza</span>
-                            <span class="font-bold text-[9px]">Luis Rodrigues</span>
-                        </div>
+                        <div class="flex-1 border-b border-black pb-0.5" style="min-height: 22px;"></div>
                     </div>
                     <div class="flex items-end justify-between gap-2">
                         <span style="font-weight: bold; width: 130px; shrink-0;">Supervisor Signature:</span>
-                        <div class="flex-1 border-b border-black pb-0.5 px-2" style="min-height: 22px;">
-                            <span class="font-bold text-[9px]">Alejandro Deleon</span>
-                        </div>
+                        <div class="flex-1 border-b border-black pb-0.5" style="min-height: 22px;"></div>
                     </div>
                 </div>
             </div>
@@ -843,27 +837,27 @@
                     <h2 class="text-base font-black tracking-tight uppercase">DAILY HUDDLE / PRE-TASK PLAN (K & S)</h2>
                 </div>
                 <div class="text-right font-mono text-[10px]">
-                    <div><strong>Trade Partner:</strong> Kimes & Stone[span_3](start_span)[span_3](end_span)</div>
-                    <div><strong>Activity:</strong> Soil Cement[span_4](start_span)[span_4](end_span)</div>
+                    <div><strong>Trade Partner:</strong> Kimes & Stone[cite: 11]</div>
+                    <div><strong>Activity:</strong> Soil Cement[cite: 11]</div>
                     <div><strong>Date:</strong> <span class="printJhaDateSpan">---</span></div>
                 </div>
             </div>
             <div class="border border-black p-2 text-[9px] space-y-2">
-                <div><strong>Project Nova</strong> | <strong>Work Description:</strong> Soil Cement Mixing & Stabilization[span_5](start_span)[span_5](end_span)</div>
-                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[span_6](start_span)[span_6](end_span)</div>
+                <div><strong>Project:</strong> ________________________ | <strong>Work Description:</strong> Soil Cement Mixing & Stabilization[cite: 11]</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[cite: 11]</div>
                 <ul class="list-disc pl-4 space-y-1">
-                    <li><strong>Mobile Equipment[span_7](start_span)[span_7](end_span):</strong> Certified Operators[span_8](start_span)[span_8](end_span), Spotters Present[span_9](start_span)[span_9](end_span), Designated Travel Path[span_10](start_span)[span_10](end_span), Backup Alarms[span_11](start_span)[span_11](end_span).</li>
-                    <li><strong>Surface Penetration[span_12](start_span)[span_12](end_span):</strong> Competent Person[span_13](start_span)[span_13](end_span), Spoil Piles Back[span_14](start_span)[span_14](end_span), Utilities Marked[span_15](start_span)[span_15](end_span).</li>
+                    <li><strong>Mobile Equipment[cite: 11]:</strong> Certified Operators[cite: 11], Spotters Present[cite: 11], Designated Travel Path[cite: 11], Backup Alarms[cite: 11].</li>
+                    <li><strong>Surface Penetration[cite: 11]:</strong> Competent Person[cite: 11], Spoil Piles Back[cite: 11], Utilities Marked[cite: 11].</li>
                 </ul>
-                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[span_16](start_span)[span_16](end_span)</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[cite: 11]</div>
                 <table class="print-compact-table">
-                    <thead><tr><th>What Are We Doing Today?[span_17](start_span)[span_17](end_span)</th><th>Tools Needed[span_18](start_span)[span_18](end_span)</th><th>Hazards[span_19](start_span)[span_19](end_span)</th><th>Controls[span_20](start_span)[span_20](end_span)</th></tr></thead>
+                    <thead><tr><th>What Are We Doing Today?[cite: 11]</th><th>Tools Needed[cite: 11]</th><th>Hazards[cite: 11]</th><th>Controls[cite: 11]</th></tr></thead>
                     <tbody>
                         <tr>
-                            <td>Soil Cement Placement[span_21](start_span)[span_21](end_span)</td>
-                            <td>Compactor, Motor Grader, Dozer, Mixers[span_22](start_span)[span_22](end_span)</td>
-                            <td>Crush By / Struck By, Slips & Trips[span_23](start_span)[span_23](end_span)</td>
-                            <td>Working backup alarms, wearing all PPE, keep work areas clean and clear[span_24](start_span)[span_24](end_span).</td>
+                            <td>Soil Cement Placement[cite: 11]</td>
+                            <td>Compactor, Motor Grader, Dozer, Mixers[cite: 11]</td>
+                            <td>Crush By / Struck By, Slips & Trips[cite: 11]</td>
+                            <td>Working backup alarms, wearing all PPE, keep work areas clean and clear[cite: 11].</td>
                         </tr>
                     </tbody>
                 </table>
@@ -878,26 +872,26 @@
                     <h2 class="text-base font-black tracking-tight uppercase">DAILY HUDDLE / PRE-TASK PLAN (PIPE CREW)</h2>
                 </div>
                 <div class="text-right font-mono text-[10px]">
-                    <div><strong>Trade Partner:</strong> Plateau (Pipe Crew)[span_25](start_span)[span_25](end_span)</div>
-                    <div><strong>Activity:</strong> Storm Drainage[span_26](start_span)[span_26](end_span)</div>
+                    <div><strong>Trade Partner:</strong> Plateau (Pipe Crew)[cite: 12]</div>
+                    <div><strong>Activity:</strong> Storm Drainage[cite: 12]</div>
                     <div><strong>Date:</strong> <span class="printJhaDateSpan">---</span></div>
                 </div>
             </div>
             <div class="border border-black p-2 text-[9px] space-y-2">
-                <div><strong>Project Nova</strong> | <strong>Work Description:</strong> Installing Storm Drainage[span_27](start_span)[span_27](end_span)</div>
-                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[span_28](start_span)[span_28](end_span)</div>
+                <div><strong>Project:</strong> ________________________ | <strong>Work Description:</strong> Installing Storm Drainage[cite: 12]</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[cite: 12]</div>
                 <ul class="list-disc pl-4 space-y-1">
-                    <li><strong>Mobile Equipment & Hoisting/Rigging[span_29](start_span)[span_29](end_span):</strong> Certified Operators, Certified Rig/Sig, Spotters Present, Slope/Benching, Barricades[span_30](start_span)[span_30](end_span).</li>
+                    <li><strong>Mobile Equipment & Hoisting/Rigging[cite: 12]:</strong> Certified Operators, Certified Rig/Sig, Spotters Present, Slope/Benching, Barricades[cite: 12].</li>
                 </ul>
-                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[span_31](start_span)[span_31](end_span)</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[cite: 12]</div>
                 <table class="print-compact-table">
-                    <thead><tr><th>What Are We Doing Today?[span_32](start_span)[span_32](end_span)</th><th>Tools Needed[span_33](start_span)[span_33](end_span)</th><th>Hazards[span_34](start_span)[span_34](end_span)</th><th>Controls[span_35](start_span)[span_35](end_span)</th></tr></thead>
+                    <thead><tr><th>What Are We Doing Today?[cite: 12]</th><th>Tools Needed[cite: 12]</th><th>Hazards[cite: 12]</th><th>Controls[cite: 12]</th></tr></thead>
                     <tbody>
                         <tr>
-                            <td>Installing Storm Pipe[span_36](start_span)[span_36](end_span)</td>
-                            <td>Excavator, Shovels, Rigging, Laser, Ladder[span_37](start_span)[span_37](end_span)</td>
-                            <td>Struck by, Caught Between, Cave-in, Soft tissue[span_38](start_span)[span_38](end_span)</td>
-                            <td>Constant communication with operator, keep hands clear during rigging, proper lifting techniques[span_39](start_span)[span_39](end_span).</td>
+                            <td>Installing Storm Pipe[cite: 12]</td>
+                            <td>Excavator, Shovels, Rigging, Laser, Ladder[cite: 12]</td>
+                            <td>Struck by, Caught Between, Cave-in, Soft tissue[cite: 12]</td>
+                            <td>Constant communication with operator, keep hands clear during rigging, proper lifting techniques[cite: 12].</td>
                         </tr>
                     </tbody>
                 </table>
@@ -912,26 +906,26 @@
                     <h2 class="text-base font-black tracking-tight uppercase">DAILY HUDDLE / PRE-TASK PLAN (CUT & FILL)</h2>
                 </div>
                 <div class="text-right font-mono text-[10px]">
-                    <div><strong>Trade Partner:</strong> Plateau[span_40](start_span)[span_40](end_span)</div>
-                    <div><strong>Activity:</strong> Cut & Fill[span_41](start_span)[span_41](end_span)</div>
+                    <div><strong>Trade Partner:</strong> Plateau[cite: 13]</div>
+                    <div><strong>Activity:</strong> Cut & Fill[cite: 13]</div>
                     <div><strong>Date:</strong> <span class="printJhaDateSpan">---</span></div>
                 </div>
             </div>
             <div class="border border-black p-2 text-[9px] space-y-2">
-                <div><strong>Project Nova</strong> | <strong>Work Description:</strong> Cut / Fill Earthmoving Operations[span_42](start_span)[span_42](end_span)</div>
-                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[span_43](start_span)[span_43](end_span)</div>
+                <div><strong>Project:</strong> ________________________ | <strong>Work Description:</strong> Cut / Fill Earthmoving Operations[cite: 13]</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 1 & 2: HIGH RISK ACTIVITIES & CONSIDERATIONS IDENTIFIED[cite: 13]</div>
                 <ul class="list-disc pl-4 space-y-1">
-                    <li><strong>Mobile Equipment[span_44](start_span)[span_44](end_span):</strong> Certified Operators, Spotters, Designated Travel Paths, Backup Alarms[span_45](start_span)[span_45](end_span).</li>
+                    <li><strong>Mobile Equipment[cite: 13]:</strong> Certified Operators, Spotters, Designated Travel Paths, Backup Alarms[cite: 13].</li>
                 </ul>
-                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[span_46](start_span)[span_46](end_span)</div>
+                <div class="bg-gray-100 p-1 font-bold">STEP 4: WORK PLAN & CONTROLS[cite: 13]</div>
                 <table class="print-compact-table">
-                    <thead><tr><th>What Are We Doing Today?[span_47](start_span)[span_47](end_span)</th><th>Tools Needed[span_48](start_span)[span_48](end_span)</th><th>Hazards[span_49](start_span)[span_49](end_span)</th><th>Controls[span_50](start_span)[span_50](end_span)</th></tr></thead>
+                    <thead><tr><th>What Are We Doing Today?[cite: 13]</th><th>Tools Needed[cite: 13]</th><th>Hazards[cite: 13]</th><th>Controls[cite: 13]</th></tr></thead>
                     <tbody>
                         <tr>
-                            <td>Cut & Fill[span_51](start_span)[span_51](end_span)</td>
-                            <td>Excavator, Compactor, Dump Truck, Motor Grader, Scraper, Dozer[span_52](start_span)[span_52](end_span)</td>
-                            <td>Crush By / Struck By, Slips & Trips[span_53](start_span)[span_53](end_span)</td>
-                            <td>Working backup alarms, wearing all PPE, keep work areas free of obstructions[span_54](start_span)[span_54](end_span).</td>
+                            <td>Cut & Fill[cite: 13]</td>
+                            <td>Excavator, Compactor, Dump Truck, Motor Grader, Scraper, Dozer[cite: 13]</td>
+                            <td>Crush By / Struck By, Slips & Trips[cite: 13]</td>
+                            <td>Working backup alarms, wearing all PPE, keep work areas free of obstructions[cite: 13].</td>
                         </tr>
                     </tbody>
                 </table>
