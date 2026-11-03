@@ -29,7 +29,6 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Custom styling & font setup -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -65,7 +64,7 @@
                 size: letter portrait;
                 margin: 0.3in;
             }
-            .no-print, header, main, footer, #startupLockModal, #successOverlay, #dailySuccessOverlay, #musterSuccessOverlay, #qrModal { 
+            .no-print, header, main, footer, #startupLockModal, #dailySuccessOverlay, #musterSuccessOverlay, #qrModal { 
                 display: none !important; 
             }
             .print-only { 
@@ -114,7 +113,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
 
-    <!-- INITIAL USER ACCOUNT LOGIN GATEWAY (Replaces generic 26006 lock) -->
+    <!-- USER EMAIL & PASSWORD LOGIN GATEWAY (NO PINs) -->
     <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
             <div class="w-16 h-16 bg-amber-600/10 text-amber-500 rounded-full flex items-center justify-center mx-auto border border-amber-500/30 animate-pulse">
@@ -122,35 +121,34 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-white">SITE LOGIN <span class="text-xs font-normal text-slate-400 block">INICIO DE SESIÓN DEL SITIO</span></h3>
-                <p class="text-xs text-slate-400 mt-1">Enter your account PIN or Credentials / Ingrese sus credenciales</p>
+                <p class="text-xs text-slate-400 mt-1">Enter your email and password / Ingrese sus credenciales</p>
             </div>
             
             <div class="space-y-3 text-left">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">User Identifier / Email <span class="text-[10px] text-slate-500 block font-normal">(Optional if using PIN)</span></label>
-                    <input type="text" id="loginUserInput" placeholder="user@plateauexcavation.com" 
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Email Address / Correo Electrónico *</label>
+                    <input type="email" id="loginEmailInput" placeholder="username@plateauexcavation.com" 
                         class="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1">Access PIN / Password *</label>
-                    <!-- Clean input: No default pin pre-filled -->
-                    <input type="password" id="startupPinInput" maxlength="12" placeholder="Enter PIN / Contraseña" 
-                        class="w-full text-center tracking-widest text-2xl font-mono bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-xl py-2.5 text-white focus:outline-none">
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Password / Contraseña *</label>
+                    <input type="password" id="loginPasswordInput" placeholder="••••••••" 
+                        class="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none">
                 </div>
             </div>
             
-            <div id="startupPinError" class="hidden text-xs text-red-400 font-semibold bg-red-500/10 p-2.5 rounded-xl border border-red-500/30">
-                Invalid credentials or PIN code / Credenciales o PIN incorrecto
+            <div id="loginError" class="hidden text-xs text-red-400 font-semibold bg-red-500/10 p-2.5 rounded-xl border border-red-500/30">
+                Invalid email or password / Credenciales incorrectas
             </div>
 
-            <button onclick="verifyStartupPin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20">
+            <button onclick="handleUserLogin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20">
                 LOG IN TO APP / INICIAR SESIÓN
             </button>
         </div>
     </div>
 
-    <!-- Top Navigation Header Bar (Desktop View) -->
+    <!-- Top Navigation Header Bar -->
     <header id="mainHeaderBar" class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm px-4 py-3 sm:px-6 no-print">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div class="flex items-center gap-3 shrink-0">
@@ -169,11 +167,11 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-                <!-- User Active Role Indicator Badge -->
-                <div id="activeRoleBadge" class="hidden items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <!-- User Profile & Role Indicator Badge -->
+                <div id="activeUserBadge" class="hidden items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
                     <i data-lucide="user-check" class="w-4 h-4 text-emerald-500"></i>
-                    <span id="activeRoleLabel">Superintendent</span>
-                    <button onclick="lockAppToLogin()" class="ml-1 text-slate-400 hover:text-red-500 p-0.5" title="Switch User / Logout">
+                    <span id="activeUserLabel">---</span>
+                    <button onclick="handleUserLogout()" class="ml-1 text-slate-400 hover:text-red-500 p-0.5" title="Logout">
                         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
@@ -184,6 +182,10 @@
                     </button>
                     <button onclick="switchAppMode('muster')" id="modeMusterBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
                         <i data-lucide="shield-alert" class="w-4 h-4"></i> <span>Muster Mode / Emergencia</span>
+                    </button>
+                    <!-- Admin Panel Button - EXCLUSIVELY VISIBLE TO MAIN ADMIN ACCOUNT -->
+                    <button onclick="switchAppMode('userAdmin')" id="modeUserAdminBtn" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold transition items-center gap-1.5 bg-purple-600 text-white shadow-md">
+                        <i data-lucide="users" class="w-4 h-4"></i> <span>User Admin / Panel Admin</span>
                     </button>
                 </div>
 
@@ -204,7 +206,7 @@
         </div>
     </header>
 
-    <!-- WORKER MOBILE HEADER (Shown only in ?mode=worker scanned QR sessions) -->
+    <!-- WORKER MOBILE HEADER (Unchanged for QR scans) -->
     <div id="workerHeaderBar" class="hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-3 shadow-md flex justify-between items-center no-print">
         <div class="flex items-center gap-2">
             <div id="workerHeaderIcon" class="bg-amber-500 text-slate-950 p-2 rounded-lg">
@@ -222,7 +224,7 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Dynamic Content Wrapper -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col no-print">
 
         <!-- SYSTEM 1: DAILY SIGN-IN SYSTEM -->
@@ -232,8 +234,7 @@
                     <button id="dailyTabCheckBtn" onclick="switchDailySubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition shadow-sm">
                         <i data-lucide="pen-tool" class="w-4 h-4"></i> <span>Name & Sign / Nombre y Firma</span>
                     </button>
-                    <!-- Controlled by Safety Manager Role: Hidden for Superintendents -->
-                    <button id="dailyTabLogBtn" onclick="switchDailySubTab('log')" class="admin-only-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                    <button id="dailyTabLogBtn" onclick="switchDailySubTab('log')" class="perm-dailyReports px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
                         <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> <span>Admin & Reports / Admin y Reportes</span>
                     </button>
                 </div>
@@ -328,7 +329,6 @@
                             <div class="flex justify-between text-slate-400"><span>Date/Time / Fecha:</span> <strong id="dailyConfirmTime" class="text-emerald-400">---</strong></div>
                         </div>
                         
-                        <!-- Dynamic Confirmation: Shown depending on Worker Mode vs Standard Mode -->
                         <div id="dailyWorkerSuccessNote" class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 font-medium">
                             🔒 Session Locked & Synced / Sesión bloqueada y sincronizada.<br>You can now safely close this browser tab / Ya puede cerrar esta pestaña de forma segura.
                         </div>
@@ -418,7 +418,7 @@
 
                 <!-- Daily Roster Management Sub-View -->
                 <div id="dailyAdminRosterContainer" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 perm-rosterEdit">
                         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 shadow-sm">
                             <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
                                 <i data-lucide="user-plus" class="text-amber-500 w-5 h-5"></i> <span>Add Individual Person / Agregar Persona</span>
@@ -461,14 +461,12 @@
 
         <!-- SYSTEM 2: EMERGENCY MUSTER SYSTEM -->
         <div id="musterModeWrapper" class="hidden flex-1 flex flex-col space-y-6">
-            
             <div id="musterSubTabHeader" class="flex justify-between items-center bg-white dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div class="flex items-center gap-2">
                     <button id="musterTabCheckBtn" onclick="switchMusterSubTab('checkin')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-red-600 text-white flex items-center gap-2 transition">
                         <i data-lucide="pen-tool" class="w-4 h-4"></i> <span>Muster Check-In / Registro Emergencia</span>
                     </button>
-                    <!-- Controlled by Safety Manager Role: Hidden for Superintendents -->
-                    <button id="musterTabAdminBtn" onclick="switchMusterSubTab('admin')" class="admin-only-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                    <button id="musterTabAdminBtn" onclick="switchMusterSubTab('admin')" class="perm-musterAdmin px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
                         <i data-lucide="shield-lock" class="w-4 h-4"></i> <span>Muster Dashboard / Panel de Control</span>
                     </button>
                 </div>
@@ -477,7 +475,7 @@
                 </div>
             </div>
 
-            <!-- Muster Check-In Form View -->
+            <!-- Muster Check-In View -->
             <div id="musterCheckInView" class="flex-1 flex flex-col justify-center">
                 <div class="bg-white dark:bg-slate-800 border-2 border-red-500/50 rounded-2xl shadow-xl overflow-hidden max-w-3xl mx-auto w-full">
                     <div class="bg-red-50 dark:bg-red-950/40 px-6 py-4 border-b border-red-200 dark:border-red-500/30 flex justify-between items-center">
@@ -700,6 +698,91 @@
                 </div>
             </div>
         </div>
+
+        <!-- SYSTEM 3: EXCLUSIVE USER ACCOUNT MANAGEMENT ADMIN PANEL -->
+        <div id="userAdminModeWrapper" class="hidden flex-1 flex flex-col space-y-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-purple-500"></i>
+                            <span>User Account & Module Access Control <span class="text-xs font-normal text-slate-400 block sm:inline">/ Administrador de Usuarios</span></span>
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage credentials and grant/deny specific app module permissions.</p>
+                    </div>
+                    <span class="bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-bold px-3 py-1.5 rounded-xl">
+                        Exclusive Admin Portal
+                    </span>
+                </div>
+
+                <!-- Create User Account Box -->
+                <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                        <i data-lucide="user-plus" class="w-5 h-5 text-purple-500"></i> <span>Create New App User Account / Crear Cuenta de Usuario</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Full Name / Nombre Completo</label>
+                            <input type="text" id="newAccName" placeholder="John Superintendent" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Email Address / Correo</label>
+                            <input type="email" id="newAccEmail" placeholder="super@plateauexcavation.com" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Password / Contraseña</label>
+                            <input type="password" id="newAccPassword" placeholder="••••••••" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Module Access Permissions / Permisos de Acceso:</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                            <label class="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
+                                <input type="checkbox" id="permDailyReports" checked class="rounded accent-purple-600"> Daily Reports
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
+                                <input type="checkbox" id="permMusterAdmin" checked class="rounded accent-purple-600"> Muster Dashboard
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
+                                <input type="checkbox" id="permRosterEdit" class="rounded accent-purple-600"> Edit Master Roster
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
+                                <input type="checkbox" id="permMusterReset" class="rounded accent-purple-600"> Muster Session Reset
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="createNewUserAccount()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-5 h-5"></i> Create User Account / Crear Usuario
+                    </button>
+                </div>
+
+                <!-- Registered Accounts List & Permissions Control -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Registered App Users (<span id="userAccountCount">0</span>)</h3>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-white dark:bg-slate-900">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-200 dark:border-slate-800">
+                                        <th class="p-3.5">User / Name</th>
+                                        <th class="p-3.5">Email</th>
+                                        <th class="p-3.5 text-center">Daily Reports</th>
+                                        <th class="p-3.5 text-center">Muster Admin</th>
+                                        <th class="p-3.5 text-center">Roster Edit</th>
+                                        <th class="p-3.5 text-center">Muster Reset</th>
+                                        <th class="p-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userAccountsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-xs"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- QR CODES MODAL -->
@@ -798,7 +881,7 @@
             measurementId: "G-835K5PRZP3"
         };
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'muster-point-default-app';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'muster-point-defaultapp';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -809,6 +892,8 @@
         const OUT_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'out_records'];
         const DAILY_LOGS_PATH = ['artifacts', appId, 'public', 'data', 'daily_logs'];
         const USERS_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'app_users'];
+
+        const MAIN_ADMIN_EMAIL = "jwarren@plateauexcavation.com";
 
         window.masterRoster = [];
         window.checkedInRecords = [];
@@ -821,11 +906,7 @@
         window.isWorkerOnlyMode = false;
         window.currentQrType = 'daily';
         
-        // Defined Role PIN Codes
-        const PIN_SUPERINTENDENT = '5050';
-        const PIN_SAFETY_MANAGER = '2026';
-        
-        window.currentUserRole = null; // 'superintendent' | 'safety'
+        window.currentUserAccount = null;
 
         let unsubRoster = null, unsubMuster = null, unsubOut = null, unsubDaily = null;
 
@@ -883,30 +964,18 @@
             return `${mm}/${dd}/${yyyy} ${timeStr}`;
         }
 
-        // INITIAL USER ACCOUNT AUTHENTICATION GATEWAY
-        window.verifyStartupPin = function() {
-            const userVal = document.getElementById('loginUserInput').value.trim().toLowerCase();
-            const pinVal = document.getElementById('startupPinInput').value.trim();
-            const errEl = document.getElementById('startupPinError');
+        // INITIAL USER LOGIN LOGIC
+        window.handleUserLogin = function() {
+            const emailInput = document.getElementById('loginEmailInput').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('loginPasswordInput').value.trim();
+            const errEl = document.getElementById('loginError');
 
-            let roleMatched = null;
+            let matchedUser = window.userAccounts.find(u => u.email.toLowerCase() === emailInput && u.password === passwordInput);
 
-            // 1. Direct PIN Verification
-            if (pinVal === PIN_SUPERINTENDENT) {
-                roleMatched = 'superintendent';
-            } else if (pinVal === PIN_SAFETY_MANAGER) {
-                roleMatched = 'safety';
-            } else if (userVal && window.userAccounts.length > 0) {
-                // 2. Individual Account Verification (Matching stored profile)
-                const matchedUser = window.userAccounts.find(u => u.email.toLowerCase() === userVal || u.username.toLowerCase() === userVal);
-                if (matchedUser && matchedUser.pin === pinVal) {
-                    roleMatched = matchedUser.role;
-                }
-            }
-
-            if (roleMatched) {
+            if (matchedUser) {
                 errEl.classList.add('hidden');
-                applyUserRolePermissions(roleMatched);
+                window.currentUserAccount = matchedUser;
+                applyUserPermissions(matchedUser);
                 document.getElementById('startupLockModal').classList.add('hidden');
                 setTimeout(() => { resizeDailyCanvas(); resizeMusterCanvas(); }, 100);
             } else {
@@ -914,36 +983,133 @@
             }
         };
 
-        window.lockAppToLogin = function() {
-            window.currentUserRole = null;
-            document.getElementById('startupPinInput').value = '';
-            document.getElementById('loginUserInput').value = '';
+        window.handleUserLogout = function() {
+            window.currentUserAccount = null;
+            document.getElementById('loginEmailInput').value = '';
+            document.getElementById('loginPasswordInput').value = '';
             document.getElementById('startupLockModal').classList.remove('hidden');
+            window.switchAppMode('daily');
         };
 
-        function applyUserRolePermissions(role) {
-            window.currentUserRole = role;
-            const badge = document.getElementById('activeRoleBadge');
-            const label = document.getElementById('activeRoleLabel');
-            const adminTabs = document.querySelectorAll('.admin-only-tab');
+        function applyUserPermissions(user) {
+            const badge = document.getElementById('activeUserBadge');
+            const label = document.getElementById('activeUserLabel');
+            const adminBtn = document.getElementById('modeUserAdminBtn');
 
             badge.classList.remove('hidden');
             badge.classList.add('flex');
+            label.textContent = `${user.name} (${user.email === MAIN_ADMIN_EMAIL ? 'Main Admin' : 'User'})`;
 
-            if (role === 'superintendent') {
-                label.textContent = "Superintendent / Superintendente";
-                // Supers can see signatures/checkin boxes, but CANNOT see Admin & Reports tabs or modify rosters
-                adminTabs.forEach(el => el.classList.add('hidden'));
-                
-                // Switch back to signature check-in views if on admin tab
-                window.switchDailySubTab('checkin');
-                window.switchMusterSubTab('checkin');
-            } else if (role === 'safety') {
-                label.textContent = "Safety Manager / Gerente de Seguridad";
-                // Safety managers have full access to everything
-                adminTabs.forEach(el => el.classList.remove('hidden'));
+            // Display or hide exclusive Admin Control Panel button (Only for jwarren@plateauexcavation.com)
+            if (user.email === MAIN_ADMIN_EMAIL) {
+                adminBtn.classList.remove('hidden');
+                adminBtn.classList.add('flex');
+            } else {
+                adminBtn.classList.add('hidden');
             }
+
+            // Apply module permissions across interface elements
+            const toggleElement = (selector, isAllowed) => {
+                document.querySelectorAll(selector).forEach(el => {
+                    if (isAllowed) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                });
+            };
+
+            toggleElement('.perm-dailyReports', user.permissions?.dailyReports);
+            toggleElement('.perm-musterAdmin', user.permissions?.musterAdmin);
+            toggleElement('.perm-rosterEdit', user.permissions?.rosterEdit);
+
+            // Re-render user tables and roster
+            window.renderDailyRosterManagerList();
         }
+
+        // USER MANAGEMENT ADMIN FUNCTIONS
+        window.createNewUserAccount = async function() {
+            if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) return alert('Unauthorized access.');
+
+            const name = document.getElementById('newAccName').value.trim();
+            const email = document.getElementById('newAccEmail').value.trim().toLowerCase();
+            const password = document.getElementById('newAccPassword').value.trim();
+
+            if (!name || !email || !password) return alert('Fill in all fields / Complete todos los campos.');
+
+            const newAcc = {
+                id: 'usr_' + Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                permissions: {
+                    dailyReports: document.getElementById('permDailyReports').checked,
+                    musterAdmin: document.getElementById('permMusterAdmin').checked,
+                    rosterEdit: document.getElementById('permRosterEdit').checked,
+                    musterReset: document.getElementById('permMusterReset').checked
+                }
+            };
+
+            window.userAccounts.push(newAcc);
+            if (auth.currentUser) await setDoc(doc(db, ...USERS_COLLECTION_PATH, newAcc.id), newAcc);
+
+            document.getElementById('newAccName').value = '';
+            document.getElementById('newAccEmail').value = '';
+            document.getElementById('newAccPassword').value = '';
+
+            window.renderUserAccountsTable();
+            alert('User account created successfully!');
+        };
+
+        window.toggleUserPermission = async function(userId, permKey) {
+            if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) return alert('Unauthorized access.');
+            
+            const u = window.userAccounts.find(x => x.id === userId);
+            if (u) {
+                if (!u.permissions) u.permissions = {};
+                u.permissions[permKey] = !u.permissions[permKey];
+                if (auth.currentUser) await setDoc(doc(db, ...USERS_COLLECTION_PATH, u.id), u);
+                window.renderUserAccountsTable();
+            }
+        };
+
+        window.deleteUserAccount = async function(userId) {
+            if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) return alert('Unauthorized access.');
+            const u = window.userAccounts.find(x => x.id === userId);
+            if (u && u.email === MAIN_ADMIN_EMAIL) return alert('Cannot delete the primary Admin account.');
+
+            if (confirm('Delete this user account?')) {
+                window.userAccounts = window.userAccounts.filter(x => x.id !== userId);
+                if (auth.currentUser) await deleteDoc(doc(db, ...USERS_COLLECTION_PATH, userId));
+                window.renderUserAccountsTable();
+            }
+        };
+
+        window.renderUserAccountsTable = function() {
+            const tbody = document.getElementById('userAccountsTableBody');
+            if (!tbody) return;
+            document.getElementById('userAccountCount').textContent = window.userAccounts.length;
+
+            if (window.userAccounts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">No registered users.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = window.userAccounts.map(u => {
+                const isMainAdmin = u.email === MAIN_ADMIN_EMAIL;
+                const p = u.permissions || {};
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                        <td class="p-3 font-bold text-slate-900 dark:text-white">${escapeHtml(u.name)} ${isMainAdmin ? `<span class="text-[10px] text-purple-500 bg-purple-500/10 px-1.5 py-0.5 rounded ml-1">ADMIN</span>` : ''}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-400 font-mono">${escapeHtml(u.email)}</td>
+                        <td class="p-3 text-center"><input type="checkbox" ${p.dailyReports ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'dailyReports')" class="accent-purple-600"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${p.musterAdmin ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'musterAdmin')" class="accent-purple-600"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${p.rosterEdit ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'rosterEdit')" class="accent-purple-600"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${p.musterReset ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'musterReset')" class="accent-purple-600"></td>
+                        <td class="p-3 text-right">
+                            ${!isMainAdmin ? `<button onclick="deleteUserAccount('${u.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 px-2.5 py-1 rounded-lg transition">Delete</button>` : `<span class="text-[11px] text-slate-400">Protected</span>`}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
 
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -954,14 +1120,14 @@
             initFirebaseSync();
             initDateDefaults();
 
-            document.getElementById('startupPinInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') verifyStartupPin();
+            document.getElementById('loginPasswordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleUserLogin();
             });
 
             window.addEventListener('resize', () => { resizeDailyCanvas(); resizeMusterCanvas(); });
         });
 
-        // WORKER QR URL MODE (Bypasses initial login modal safely for field workers scanning QR)
+        // WORKER QR CODE SCANNED SESSIONS (Bypasses login for worker tablet scanning)
         function checkWorkerUrlMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const modeParam = urlParams.get('mode');
@@ -970,15 +1136,12 @@
             if (modeParam === 'worker') {
                 window.isWorkerOnlyMode = true;
 
-                // Hide initial login modal entirely for workers scanning QR
                 document.getElementById('startupLockModal').classList.add('hidden');
                 document.getElementById('mainHeaderBar').classList.add('hidden');
                 document.getElementById('workerHeaderBar').classList.remove('hidden');
 
-                // Hide tabs and admin options for worker mobile view
-                document.querySelectorAll('.admin-only-tab').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.perm-dailyReports, .perm-musterAdmin, .perm-rosterEdit').forEach(el => el.classList.add('hidden'));
 
-                // Configure success screen for Worker view (Tab Close note shown, Return button hidden)
                 document.getElementById('dailyWorkerSuccessNote').classList.remove('hidden');
                 document.getElementById('dailyReturnToSignInBtn').classList.add('hidden');
                 document.getElementById('musterWorkerSuccessNote').classList.remove('hidden');
@@ -1001,7 +1164,6 @@
                 }
                 lucide.createIcons();
             } else {
-                // Configure success screen for Standard Tablet View (Close note hidden, Return button shown)
                 document.getElementById('dailyWorkerSuccessNote').classList.add('hidden');
                 document.getElementById('dailyReturnToSignInBtn').classList.remove('hidden');
                 document.getElementById('musterWorkerSuccessNote').classList.add('hidden');
@@ -1059,10 +1221,26 @@
                     window.renderAdminTables();
                 });
 
-                onSnapshot(collection(db, ...USERS_COLLECTION_PATH), (snapshot) => {
+                onSnapshot(collection(db, ...USERS_COLLECTION_PATH), async (snapshot) => {
                     const users = [];
                     snapshot.forEach(doc => { users.push({ id: doc.id, ...doc.data() }); });
+                    
+                    // Auto-seed required Primary Admin Account if not present in DB
+                    let adminAcc = users.find(u => u.email === MAIN_ADMIN_EMAIL);
+                    if (!adminAcc && auth.currentUser) {
+                        adminAcc = {
+                            id: 'usr_admin_main',
+                            name: 'Jason Warren',
+                            email: MAIN_ADMIN_EMAIL,
+                            password: 'Warren@2020',
+                            permissions: { dailyReports: true, musterAdmin: true, rosterEdit: true, musterReset: true }
+                        };
+                        await setDoc(doc(db, ...USERS_COLLECTION_PATH, adminAcc.id), adminAcc);
+                        users.push(adminAcc);
+                    }
+
                     window.userAccounts = users;
+                    window.renderUserAccountsTable();
                 });
 
             } catch (err) {
@@ -1122,7 +1300,7 @@
         };
 
         window.dbAddPerson = async function(person) {
-            if (window.currentUserRole !== 'safety') { alert('Only Safety Managers can add personnel.'); return; }
+            if (!window.currentUserAccount?.permissions?.rosterEdit) return alert('No permission to modify roster.');
             window.masterRoster.push(person);
             sortRosterAlphabetically(window.masterRoster);
             window.updateDashboardMetrics();
@@ -1133,7 +1311,7 @@
         };
 
         window.dbUpdatePerson = async function(person) {
-            if (window.currentUserRole !== 'safety') { alert('Only Safety Managers can edit personnel.'); return; }
+            if (!window.currentUserAccount?.permissions?.rosterEdit) return alert('No permission to modify roster.');
             const index = window.masterRoster.findIndex(p => p.id === person.id);
             if (index !== -1) {
                 window.masterRoster[index] = person;
@@ -1147,7 +1325,7 @@
         };
 
         window.dbRemovePerson = async function(id) {
-            if (window.currentUserRole !== 'safety') { alert('Only Safety Managers can remove personnel.'); return; }
+            if (!window.currentUserAccount?.permissions?.rosterEdit) return alert('No permission to modify roster.');
             window.masterRoster = window.masterRoster.filter(p => p.id !== id);
             window.updateDashboardMetrics();
             window.renderAdminTables();
@@ -1173,27 +1351,41 @@
             window.currentAppMode = mode;
             const dailyWrapper = document.getElementById('dailyModeWrapper');
             const musterWrapper = document.getElementById('musterModeWrapper');
+            const userAdminWrapper = document.getElementById('userAdminModeWrapper');
+
             const modeDailyBtn = document.getElementById('modeDailyBtn');
             const modeMusterBtn = document.getElementById('modeMusterBtn');
+            const modeUserAdminBtn = document.getElementById('modeUserAdminBtn');
+
             const headerTitle = document.getElementById('headerTitleText');
             const headerIcon = document.getElementById('headerBrandIcon');
 
+            dailyWrapper.classList.add('hidden');
+            musterWrapper.classList.add('hidden');
+            userAdminWrapper.classList.add('hidden');
+
+            if (modeDailyBtn) modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+            if (modeMusterBtn) modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+            if (modeUserAdminBtn) modeUserAdminBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition items-center gap-1.5 bg-purple-600/20 text-purple-400 hover:bg-purple-600 hover:text-white";
+
             if (mode === 'daily') {
                 dailyWrapper.classList.remove('hidden');
-                musterWrapper.classList.add('hidden');
                 if (modeDailyBtn) modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md";
-                if (modeMusterBtn) modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
                 if (headerTitle) headerTitle.innerHTML = 'DAILY SITE SIGN-IN <span class="text-xs font-normal text-slate-400">/ REGISTRO DIARIO</span>';
                 if (headerIcon) headerIcon.className = "bg-amber-500 text-slate-950 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20";
                 setTimeout(resizeDailyCanvas, 50);
-            } else {
-                dailyWrapper.classList.add('hidden');
+            } else if (mode === 'muster') {
                 musterWrapper.classList.remove('hidden');
                 if (modeMusterBtn) modeMusterBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-red-600 text-white shadow-md";
-                if (modeDailyBtn) modeDailyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
                 if (headerTitle) headerTitle.innerHTML = 'EMERGENCY MUSTER <span class="text-xs font-normal text-slate-400">/ REGISTRO EMERGENCIA</span>';
                 if (headerIcon) headerIcon.className = "bg-red-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/30";
                 setTimeout(resizeMusterCanvas, 50);
+            } else if (mode === 'userAdmin') {
+                userAdminWrapper.classList.remove('hidden');
+                if (modeUserAdminBtn) modeUserAdminBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-purple-600 text-white shadow-md";
+                if (headerTitle) headerTitle.innerHTML = 'USER ADMINISTRATION <span class="text-xs font-normal text-slate-400">/ ADMINISTRACIÓN DE USUARIOS</span>';
+                if (headerIcon) headerIcon.className = "bg-purple-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-purple-900/30";
+                window.renderUserAccountsTable();
             }
         };
 
@@ -1327,7 +1519,7 @@
 
         window.switchDailySubTab = function(sub) {
             if (window.isWorkerOnlyMode && sub === 'log') return;
-            if (window.currentUserRole === 'superintendent' && sub === 'log') return; // Restriction for Supers
+            if (sub === 'log' && !window.currentUserAccount?.permissions?.dailyReports) return alert('Access to Daily Reports is restricted.');
 
             const checkView = document.getElementById('dailyCheckInView');
             const logView = document.getElementById('dailyLogView');
@@ -1353,7 +1545,7 @@
 
         window.switchMusterSubTab = function(sub) {
             if (window.isWorkerOnlyMode && sub === 'admin') return;
-            if (window.currentUserRole === 'superintendent' && sub === 'admin') return; // Restriction for Supers
+            if (sub === 'admin' && !window.currentUserAccount?.permissions?.musterAdmin) return alert('Access to Muster Dashboard is restricted.');
 
             const checkView = document.getElementById('musterCheckInView');
             const adminView = document.getElementById('musterAdminView');
@@ -1497,7 +1689,7 @@
         };
 
         window.deleteDailyLogRecord = async function(recordId) {
-            if (window.currentUserRole !== 'safety') return alert('Only Safety Managers can delete logs.');
+            if (!window.currentUserAccount?.permissions?.rosterEdit) return alert('No permission to remove log entries.');
             if (confirm("Remove this sign-in record? / ¿Eliminar este registro de asistencia?")) {
                 await window.dbDeleteDailyLog(recordId);
             }
@@ -1540,14 +1732,14 @@
                 return; 
             }
 
-            const isSafety = window.currentUserRole === 'safety';
+            const canEditRoster = window.currentUserAccount?.permissions?.rosterEdit;
 
             container.innerHTML = filteredRoster.map(p => `
                 <div class="p-3 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
                     <div>
                         <span class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(p.name)}</span>
                     </div>
-                    ${isSafety ? `
+                    ${canEditRoster ? `
                     <div class="flex items-center gap-2">
                         <button onclick="editRosterItem('${p.id}')" class="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 bg-amber-500/10 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit / Editar</button>
                         <button onclick="deleteRosterItem('${p.id}')" class="text-xs text-slate-400 hover:text-red-500 p-1.5 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -2016,9 +2208,8 @@
             window.print();
         };
 
-        // FIRESTORE HARD RESET FOR MUSTER SESSION
         window.confirmResetMusterSession = async function() {
-            if (window.currentUserRole !== 'safety') return alert('Only Safety Managers can reset emergency sessions.');
+            if (!window.currentUserAccount?.permissions?.musterReset) return alert('No permission to reset muster sessions.');
             if (confirm('RESET LIVE MUSTER SESSION?\n\nThis will clear emergency check-in records from database while keeping master roster intact.')) {
                 window.checkedInRecords = [];
                 window.updateDashboardMetrics();
