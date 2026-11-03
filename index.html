@@ -113,7 +113,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
 
-    <!-- USER EMAIL & PASSWORD LOGIN GATEWAY (NO PINs) -->
+    <!-- USER EMAIL & PASSWORD LOGIN GATEWAY (FIREBASE AUTHENTICATED) -->
     <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
             <div class="w-16 h-16 bg-amber-600/10 text-amber-500 rounded-full flex items-center justify-center mx-auto border border-amber-500/30 animate-pulse">
@@ -127,7 +127,7 @@
             <div class="space-y-3 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 mb-1">Email Address / Correo Electrónico *</label>
-                    <input type="email" id="loginEmailInput" placeholder="username@plateauexcavation.com" 
+                    <input type="email" id="loginEmailInput" placeholder="jwarren@plateauexcavation.com" 
                         class="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none">
                 </div>
 
@@ -868,7 +868,14 @@
     <!-- FIREBASE REALTIME SYNC & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -881,11 +888,15 @@
             measurementId: "G-835K5PRZP3"
         };
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'muster-point-defaultapp';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'muster-point-default-app';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Secondary App instance strictly for provisioning new accounts behind the scenes without logging out admin
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryAccountCreator");
+        const secondaryAuth = getAuth(secondaryApp);
 
         const ROSTER_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'master_roster'];
         const MUSTER_CHECKINS_PATH = ['artifacts', appId, 'public', 'data', 'muster_checkins'];
@@ -959,31 +970,49 @@
         function formatTimestampToMMDDYYYYTime(dateObj = new Date()) {
             const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
             const dd = String(dateObj.getDate()).padStart(2, '0');
-            const yyyy = dObj.getFullYear();
+            const yyyy = dateObj.getFullYear();
             const timeStr = dateObj.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
             return `${mm}/${dd}/${yyyy} ${timeStr}`;
         }
 
-        // INITIAL USER LOGIN LOGIC
-        window.handleUserLogin = function() {
+        // SECURE FIREBASE LOGIN HANDLER
+        window.handleUserLogin = async function() {
             const emailInput = document.getElementById('loginEmailInput').value.trim().toLowerCase();
             const passwordInput = document.getElementById('loginPasswordInput').value.trim();
             const errEl = document.getElementById('loginError');
 
-            let matchedUser = window.userAccounts.find(u => u.email.toLowerCase() === emailInput && u.password === passwordInput);
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+                const uid = userCredential.user.uid;
 
-            if (matchedUser) {
-                errEl.classList.add('hidden');
-                window.currentUserAccount = matchedUser;
-                applyUserPermissions(matchedUser);
+                const userDocRef = doc(db, ...USERS_COLLECTION_PATH, uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    window.currentUserAccount = { id: uid, ...userDocSnap.data() };
+                } else {
+                    window.currentUserAccount = {
+                        id: uid,
+                        email: emailInput,
+                        name: emailInput.split('@')[0],
+                        permissions: { dailyReports: true, musterAdmin: true, rosterEdit: emailInput === MAIN_ADMIN_EMAIL, musterReset: emailInput === MAIN_ADMIN_EMAIL }
+                    };
+                }
+
+                applyUserPermissions(window.currentUserAccount);
                 document.getElementById('startupLockModal').classList.add('hidden');
+                errEl.classList.add('hidden');
                 setTimeout(() => { resizeDailyCanvas(); resizeMusterCanvas(); }, 100);
-            } else {
+            } catch (error) {
+                console.error("Login failed:", error);
                 errEl.classList.remove('hidden');
             }
         };
 
-        window.handleUserLogout = function() {
+        window.handleUserLogout = async function() {
+            try {
+                await signOut(auth);
+            } catch(e) {}
             window.currentUserAccount = null;
             document.getElementById('loginEmailInput').value = '';
             document.getElementById('loginPasswordInput').value = '';
@@ -1000,62 +1029,81 @@
             badge.classList.add('flex');
             label.textContent = `${user.name} (${user.email === MAIN_ADMIN_EMAIL ? 'Main Admin' : 'User'})`;
 
-            // Display or hide exclusive Admin Control Panel button (Only for jwarren@plateauexcavation.com)
             if (user.email === MAIN_ADMIN_EMAIL) {
                 adminBtn.classList.remove('hidden');
                 adminBtn.classList.add('flex');
             } else {
                 adminBtn.classList.add('hidden');
+                if (window.currentAppMode === 'userAdmin') {
+                    window.switchAppMode('daily');
+                }
             }
 
-            // Apply module permissions across interface elements
-            const toggleElement = (selector, isAllowed) => {
+            const toggleVisibility = (selector, isPermitted) => {
                 document.querySelectorAll(selector).forEach(el => {
-                    if (isAllowed) el.classList.remove('hidden');
-                    else el.classList.add('hidden');
+                    if (isPermitted) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
                 });
             };
 
-            toggleElement('.perm-dailyReports', user.permissions?.dailyReports);
-            toggleElement('.perm-musterAdmin', user.permissions?.musterAdmin);
-            toggleElement('.perm-rosterEdit', user.permissions?.rosterEdit);
+            toggleVisibility('.perm-dailyReports', !!user.permissions?.dailyReports);
+            toggleVisibility('.perm-musterAdmin', !!user.permissions?.musterAdmin);
+            toggleVisibility('.perm-rosterEdit', !!user.permissions?.rosterEdit);
 
-            // Re-render user tables and roster
-            window.renderDailyRosterManagerList();
+            if (!user.permissions?.dailyReports) {
+                switchDailySubTab('checkin');
+            }
+
+            if (!user.permissions?.musterAdmin) {
+                switchMusterSubTab('checkin');
+            }
         }
 
-        // USER MANAGEMENT ADMIN FUNCTIONS
+        // CREATE USER ACCOUNT DIRECTLY IN FIREBASE AUTH & FIRESTORE
         window.createNewUserAccount = async function() {
-            if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) return alert('Unauthorized access.');
+            if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) {
+                return alert('Unauthorized access.');
+            }
 
             const name = document.getElementById('newAccName').value.trim();
             const email = document.getElementById('newAccEmail').value.trim().toLowerCase();
             const password = document.getElementById('newAccPassword').value.trim();
 
-            if (!name || !email || !password) return alert('Fill in all fields / Complete todos los campos.');
+            if (!name || !email || !password) {
+                return alert('Please fill in all required fields.');
+            }
 
-            const newAcc = {
-                id: 'usr_' + Date.now(),
-                name: name,
-                email: email,
-                password: password,
-                permissions: {
-                    dailyReports: document.getElementById('permDailyReports').checked,
-                    musterAdmin: document.getElementById('permMusterAdmin').checked,
-                    rosterEdit: document.getElementById('permRosterEdit').checked,
-                    musterReset: document.getElementById('permMusterReset').checked
-                }
-            };
+            try {
+                const newUserCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                const newUid = newUserCredential.user.uid;
 
-            window.userAccounts.push(newAcc);
-            if (auth.currentUser) await setDoc(doc(db, ...USERS_COLLECTION_PATH, newAcc.id), newAcc);
+                const newAccPayload = {
+                    id: newUid,
+                    name: name,
+                    email: email,
+                    permissions: {
+                        dailyReports: document.getElementById('permDailyReports').checked,
+                        musterAdmin: document.getElementById('permMusterAdmin').checked,
+                        rosterEdit: document.getElementById('permRosterEdit').checked,
+                        musterReset: document.getElementById('permMusterReset').checked
+                    }
+                };
 
-            document.getElementById('newAccName').value = '';
-            document.getElementById('newAccEmail').value = '';
-            document.getElementById('newAccPassword').value = '';
+                await setDoc(doc(db, ...USERS_COLLECTION_PATH, newUid), newAccPayload);
+                await signOut(secondaryAuth);
 
-            window.renderUserAccountsTable();
-            alert('User account created successfully!');
+                document.getElementById('newAccName').value = '';
+                document.getElementById('newAccEmail').value = '';
+                document.getElementById('newAccPassword').value = '';
+
+                alert(`User account for ${email} created successfully in Firebase!`);
+            } catch (err) {
+                console.error("Account creation error:", err);
+                alert(`Failed to create account: ${err.message}`);
+            }
         };
 
         window.toggleUserPermission = async function(userId, permKey) {
@@ -1225,14 +1273,12 @@
                     const users = [];
                     snapshot.forEach(doc => { users.push({ id: doc.id, ...doc.data() }); });
                     
-                    // Auto-seed required Primary Admin Account if not present in DB
                     let adminAcc = users.find(u => u.email === MAIN_ADMIN_EMAIL);
                     if (!adminAcc && auth.currentUser) {
                         adminAcc = {
                             id: 'usr_admin_main',
                             name: 'Jason Warren',
                             email: MAIN_ADMIN_EMAIL,
-                            password: 'Warren@2020',
                             permissions: { dailyReports: true, musterAdmin: true, rosterEdit: true, musterReset: true }
                         };
                         await setDoc(doc(db, ...USERS_COLLECTION_PATH, adminAcc.id), adminAcc);
