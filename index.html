@@ -127,7 +127,7 @@
             <div id="loginFieldsWrapper" class="space-y-3 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 mb-1">Email Address / Correo Electrónico *</label>
-                    <input type="email" id="loginEmailInput" placeholder="user@mail.com" 
+                    <input type="email" id="loginEmailInput" placeholder="mail@mail.com" 
                         class="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none">
                 </div>
 
@@ -718,9 +718,9 @@
                     <div>
                         <h2 class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                             <i data-lucide="shield-check" class="w-6 h-6 text-purple-500"></i>
-                            <span>User Account & Superintendent View Controls <span class="text-xs font-normal text-slate-400 block sm:inline">/ Administrador de Usuarios</span></span>
+                            <span>User Account & Module Access Control <span class="text-xs font-normal text-slate-400 block sm:inline">/ Administrador de Usuarios</span></span>
                         </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage superintendent credentials and restrict what view tabs and modules they can access.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage credentials and grant/deny specific app module permissions.</p>
                     </div>
                     <span class="bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-bold px-3 py-1.5 rounded-xl">
                         Exclusive Admin Portal
@@ -730,7 +730,7 @@
                 <!-- Create User Account Box -->
                 <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
                     <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-                        <i data-lucide="user-plus" class="w-5 h-5 text-purple-500"></i> <span>Create New Superintendent / User Account / Crear Cuenta</span>
+                        <i data-lucide="user-plus" class="w-5 h-5 text-purple-500"></i> <span>Create New App User Account / Crear Cuenta de Usuario</span>
                     </h3>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -749,7 +749,7 @@
                     </div>
 
                     <div class="pt-2">
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Superintendent View & Module Permissions / Permisos de Vista:</label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Module Access Permissions / Permisos de Acceso:</label>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
                             <label class="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
                                 <input type="checkbox" id="permDailyReports" checked class="rounded accent-purple-600"> Daily Reports
@@ -761,7 +761,7 @@
                                 <input type="checkbox" id="permRosterEdit" class="rounded accent-purple-600"> Edit Master Roster
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
-                                <input type="checkbox" id="permSignInOnly" class="rounded accent-purple-600"> Restrict to Check-In Only (Screenshots View)
+                                <input type="checkbox" id="permMusterReset" class="rounded accent-purple-600"> Muster Session Reset
                             </label>
                         </div>
                     </div>
@@ -784,7 +784,7 @@
                                         <th class="p-3.5 text-center">Daily Reports</th>
                                         <th class="p-3.5 text-center">Muster Admin</th>
                                         <th class="p-3.5 text-center">Roster Edit</th>
-                                        <th class="p-3.5 text-center">Check-In Only</th>
+                                        <th class="p-3.5 text-center">Muster Reset</th>
                                         <th class="p-3.5 text-right">Actions</th>
                                     </tr>
                                 </thead>
@@ -886,7 +886,8 @@
             signInWithCustomToken, 
             signInWithEmailAndPassword, 
             createUserWithEmailAndPassword, 
-            signOut 
+            signOut,
+            onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -906,6 +907,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Secondary App instance strictly for provisioning new accounts behind the scenes without logging out admin
         const secondaryApp = initializeApp(firebaseConfig, "SecondaryAccountCreator");
         const secondaryAuth = getAuth(secondaryApp);
 
@@ -986,12 +988,14 @@
             return `${mm}/${dd}/${yyyy} ${timeStr}`;
         }
 
+        // WORKER TIME-BASED ACCESS GATE (Allowed: 3:00 AM to 10:00 AM for anonymous/worker mode)
         function isWorkerTimeAllowed() {
             const now = new Date();
             const hour = now.getHours();
             return hour >= 3 && hour < 10;
         }
 
+        // SECURE FIREBASE LOGIN HANDLER (Unrestricted 24/7 for verified users)
         window.handleUserLogin = async function() {
             const emailInput = document.getElementById('loginEmailInput').value.trim().toLowerCase();
             const passwordInput = document.getElementById('loginPasswordInput').value.trim();
@@ -1011,7 +1015,7 @@
                         id: uid,
                         email: emailInput,
                         name: emailInput.split('@')[0],
-                        permissions: { dailyReports: true, musterAdmin: true, rosterEdit: emailInput === MAIN_ADMIN_EMAIL, musterReset: emailInput === MAIN_ADMIN_EMAIL, signInOnly: false }
+                        permissions: { dailyReports: true, musterAdmin: true, rosterEdit: emailInput === MAIN_ADMIN_EMAIL, musterReset: emailInput === MAIN_ADMIN_EMAIL }
                     };
                 }
 
@@ -1040,11 +1044,10 @@
             const badge = document.getElementById('activeUserBadge');
             const label = document.getElementById('activeUserLabel');
             const adminBtn = document.getElementById('modeUserAdminBtn');
-            const modeSwitcher = document.getElementById('modeSwitcherContainer');
 
             badge.classList.remove('hidden');
             badge.classList.add('flex');
-            label.textContent = `${user.name} (${user.email === MAIN_ADMIN_EMAIL ? 'Main Admin' : 'Superintendent'})`;
+            label.textContent = `${user.name} (${user.email === MAIN_ADMIN_EMAIL ? 'Main Admin' : 'User'})`;
 
             if (user && user.email === MAIN_ADMIN_EMAIL) {
                 adminBtn.classList.remove('hidden');
@@ -1055,18 +1058,6 @@
                 if (window.currentAppMode === 'userAdmin') {
                     window.switchAppMode('daily');
                 }
-            }
-
-            // If "Sign-In Only" is enabled for this superintendent, hide mode switcher & admin headers
-            if (user.permissions?.signInOnly && user.email !== MAIN_ADMIN_EMAIL) {
-                modeSwitcher.classList.add('hidden');
-                document.getElementById('dailySubTabHeader').classList.add('hidden');
-                document.getElementById('musterSubTabHeader').classList.add('hidden');
-                window.switchAppMode('daily');
-                window.switchDailySubTab('checkin');
-            } else {
-                modeSwitcher.classList.remove('hidden');
-                document.getElementById('dailySubTabHeader').classList.remove('hidden');
             }
 
             const toggleVisibility = (selector, isPermitted) => {
@@ -1082,8 +1073,17 @@
             toggleVisibility('.perm-dailyReports', !!user.permissions?.dailyReports);
             toggleVisibility('.perm-musterAdmin', !!user.permissions?.musterAdmin);
             toggleVisibility('.perm-rosterEdit', !!user.permissions?.rosterEdit);
+
+            if (!user.permissions?.dailyReports) {
+                switchDailySubTab('checkin');
+            }
+
+            if (!user.permissions?.musterAdmin) {
+                switchMusterSubTab('checkin');
+            }
         }
 
+        // CREATE USER ACCOUNT DIRECTLY IN FIREBASE AUTH & FIRESTORE
         window.createNewUserAccount = async function() {
             if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) {
                 return alert('Unauthorized access.');
@@ -1109,8 +1109,7 @@
                         dailyReports: document.getElementById('permDailyReports').checked,
                         musterAdmin: document.getElementById('permMusterAdmin').checked,
                         rosterEdit: document.getElementById('permRosterEdit').checked,
-                        musterReset: false,
-                        signInOnly: document.getElementById('permSignInOnly').checked
+                        musterReset: document.getElementById('permMusterReset').checked
                     }
                 };
 
@@ -1121,7 +1120,7 @@
                 document.getElementById('newAccEmail').value = '';
                 document.getElementById('newAccPassword').value = '';
 
-                alert(`User account for ${email} created successfully!`);
+                alert(`User account for ${email} created successfully in Firebase!`);
             } catch (err) {
                 console.error("Account creation error:", err);
                 alert(`Failed to create account: ${err.message}`);
@@ -1143,7 +1142,7 @@
         window.deleteUserAccount = async function(userId) {
             if (!window.currentUserAccount || window.currentUserAccount.email !== MAIN_ADMIN_EMAIL) return alert('Unauthorized access.');
             const u = window.userAccounts.find(x => x.id === userId);
-            if (u && u.email === MAIN_ADMIN_EMAIL) return alert('Cannot delete primary Admin.');
+            if (u && u.email === MAIN_ADMIN_EMAIL) return alert('Cannot delete the primary Admin account.');
 
             if (confirm('Delete this user account?')) {
                 window.userAccounts = window.userAccounts.filter(x => x.id !== userId);
@@ -1172,7 +1171,7 @@
                         <td class="p-3 text-center"><input type="checkbox" ${p.dailyReports ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'dailyReports')" class="accent-purple-600"></td>
                         <td class="p-3 text-center"><input type="checkbox" ${p.musterAdmin ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'musterAdmin')" class="accent-purple-600"></td>
                         <td class="p-3 text-center"><input type="checkbox" ${p.rosterEdit ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'rosterEdit')" class="accent-purple-600"></td>
-                        <td class="p-3 text-center"><input type="checkbox" ${p.signInOnly ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'signInOnly')" class="accent-purple-600"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${p.musterReset ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''} onchange="toggleUserPermission('${u.id}', 'musterReset')" class="accent-purple-600"></td>
                         <td class="p-3 text-right">
                             ${!isMainAdmin ? `<button onclick="deleteUserAccount('${u.id}')" class="text-xs text-red-500 hover:text-red-600 bg-red-500/10 px-2.5 py-1 rounded-lg transition">Delete</button>` : `<span class="text-[11px] text-slate-400">Protected</span>`}
                         </td>
@@ -1189,6 +1188,8 @@
             checkWorkerUrlMode();
             initFirebaseSync();
             initDateDefaults();
+            
+            // REFRESH / CLOSE WINDOW RE-AUTHENTICATION GUARD
             initRefreshAuthGuard();
 
             document.getElementById('loginPasswordInput').addEventListener('keypress', (e) => {
@@ -1198,12 +1199,17 @@
             window.addEventListener('resize', () => { resizeDailyCanvas(); resizeMusterCanvas(); });
         });
 
+        // REFRESH & WINDOW CLOSE SIGN-OUT GUARD: Requires re-login only on page refresh or browser close
         function initRefreshAuthGuard() {
+            // When user refreshes or closes the tab, ensure they must re-authenticate upon re-opening
             window.addEventListener('beforeunload', () => {
-                try { signOut(auth); } catch(e) {}
+                try {
+                    signOut(auth);
+                } catch(e) {}
             });
         }
 
+        // WORKER QR CODE SCANNED SESSIONS (Enforces 3am - 10am time limit for anonymous workers)
         function checkWorkerUrlMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const modeParam = urlParams.get('mode');
@@ -1320,7 +1326,7 @@
                             id: 'usr_admin_main',
                             name: 'Jason Warren',
                             email: MAIN_ADMIN_EMAIL,
-                            permissions: { dailyReports: true, musterAdmin: true, rosterEdit: true, musterReset: true, signInOnly: false }
+                            permissions: { dailyReports: true, musterAdmin: true, rosterEdit: true, musterReset: true }
                         };
                         await setDoc(doc(db, ...USERS_COLLECTION_PATH, adminAcc.id), adminAcc);
                         users.push(adminAcc);
