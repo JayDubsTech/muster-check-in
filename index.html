@@ -113,18 +113,18 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
 
-    <!-- USER EMAIL & PASSWORD LOGIN GATEWAY (FIREBASE AUTHENTICATED) -->
+    <!-- USER EMAIL & PASSWORD LOGIN GATEWAY (UNRESTRICTED FOR VERIFIED USERS) -->
     <div id="startupLockModal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
-            <div class="w-16 h-16 bg-amber-600/10 text-amber-500 rounded-full flex items-center justify-center mx-auto border border-amber-500/30 animate-pulse">
+            <div id="loginGateIcon" class="w-16 h-16 bg-amber-600/10 text-amber-500 rounded-full flex items-center justify-center mx-auto border border-amber-500/30 animate-pulse">
                 <i data-lucide="shield-check" class="w-8 h-8"></i>
             </div>
             <div>
-                <h3 class="text-xl font-bold text-white">SITE LOGIN <span class="text-xs font-normal text-slate-400 block">INICIO DE SESIÓN DEL SITIO</span></h3>
-                <p class="text-xs text-slate-400 mt-1">Enter your email and password / Ingrese sus credenciales</p>
+                <h3 id="loginGateTitle" class="text-xl font-bold text-white">SITE LOGIN <span class="text-xs font-normal text-slate-400 block">INICIO DE SESIÓN DEL SITIO</span></h3>
+                <p id="loginGateSubtitle" class="text-xs text-slate-400 mt-1">Verified user login available 24/7 / Acceso para usuarios verificados</p>
             </div>
-            
-            <div class="space-y-3 text-left">
+
+            <div id="loginFieldsWrapper" class="space-y-3 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 mb-1">Email Address / Correo Electrónico *</label>
                     <input type="email" id="loginEmailInput" placeholder="user@mail.com" 
@@ -142,9 +142,26 @@
                 Invalid email or password / Credenciales incorrectas
             </div>
 
-            <button onclick="handleUserLogin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20">
+            <button id="loginSubmitBtn" onclick="handleUserLogin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20">
                 LOG IN TO APP / INICIAR SESIÓN
             </button>
+        </div>
+    </div>
+
+    <!-- WORKER TIME-LOCKED NOTICE OVERLAY (Shows when anonymous/worker mode is accessed outside 3am - 10am) -->
+    <div id="workerTimeLockModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
+        <div class="bg-slate-900 border border-red-500/40 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-4">
+            <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto border border-red-500/30">
+                <i data-lucide="clock" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-white">ACCESS CLOSED <span class="text-xs font-normal text-slate-400 block">ACCESO CERRADO</span></h3>
+                <p class="text-xs text-red-300 mt-1 font-semibold">Worker mode is only available from 3:00 AM to 10:00 AM.</p>
+                <p class="text-[11px] text-slate-400 mt-1">El modo de trabajador solo está disponible de 3:00 AM a 10:00 AM.</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl text-xs text-slate-400 border border-slate-800">
+                If you are a site manager, please log in with your verified email account above.
+            </div>
         </div>
     </div>
 
@@ -206,7 +223,7 @@
         </div>
     </header>
 
-    <!-- WORKER MOBILE HEADER (Unchanged for QR scans) -->
+    <!-- WORKER MOBILE HEADER -->
     <div id="workerHeaderBar" class="hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-3 shadow-md flex justify-between items-center no-print">
         <div class="flex items-center gap-2">
             <div id="workerHeaderIcon" class="bg-amber-500 text-slate-950 p-2 rounded-lg">
@@ -214,7 +231,7 @@
             </div>
             <div>
                 <h2 id="workerHeaderTitle" class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Mobile Worker Check-In <span class="text-xs font-normal text-slate-400">/ Registro Móvil</span></h2>
-                <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Plateau Excavation Field Portal</p>
+                <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Plateau Excavation Field Portal (3AM - 10AM)</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -378,7 +395,7 @@
                         <button id="dailyAdminSubLogsBtn" onclick="switchDailyAdminSubTab('logs')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 flex items-center gap-2 transition">
                             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> <span>Signed-In Log / Asistencia</span>
                         </button>
-                        <button id="dailyAdminSubRosterBtn" onclick="switchDailyAdminSubTab('roster')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+                        <button id="dailyAdminSubRosterBtn" onclick="switchDailyAdminSubTab('roster')" class="perm-rosterEdit px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
                             <i data-lucide="users" class="w-4 h-4"></i> <span>Manage Personnel / Administrar Personal</span>
                         </button>
                     </div>
@@ -975,7 +992,15 @@
             return `${mm}/${dd}/${yyyy} ${timeStr}`;
         }
 
-        // SECURE FIREBASE LOGIN HANDLER
+        // WORKER TIME-BASED ACCESS GATE (Allowed: 3:00 AM to 10:00 AM for anonymous/worker mode)
+        function isWorkerTimeAllowed() {
+            const now = new Date();
+            const hour = now.getHours();
+            // Restricts anonymous worker mode outside 3:00 AM – 10:00 AM
+            return hour >= 3 && hour < 10;
+        }
+
+        // SECURE FIREBASE LOGIN HANDLER (Unrestricted 24/7 for verified users)
         window.handleUserLogin = async function() {
             const emailInput = document.getElementById('loginEmailInput').value.trim().toLowerCase();
             const passwordInput = document.getElementById('loginPasswordInput').value.trim();
@@ -1169,6 +1194,7 @@
             checkWorkerUrlMode();
             initFirebaseSync();
             initDateDefaults();
+            initBackgroundTabRedirectGuard();
 
             document.getElementById('loginPasswordInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleUserLogin();
@@ -1177,7 +1203,24 @@
             window.addEventListener('resize', () => { resizeDailyCanvas(); resizeMusterCanvas(); });
         });
 
-        // WORKER QR CODE SCANNED SESSIONS (Bypasses login for worker tablet scanning)
+        // BACKGROUND TAB DISCONNECT & AUTO-LOGOUT GUARD
+        function initBackgroundTabRedirectGuard() {
+            document.addEventListener("visibilitychange", async () => {
+                if (document.visibilityState === "hidden") {
+                    try {
+                        if (unsubRoster) unsubRoster();
+                        if (unsubMuster) unsubMuster();
+                        if (unsubOut) unsubOut();
+                        if (unsubDaily) unsubDaily();
+                        await signOut(auth);
+                    } catch (e) {}
+                } else if (document.visibilityState === "visible") {
+                    window.location.reload();
+                }
+            });
+        }
+
+        // WORKER QR CODE SCANNED SESSIONS (Enforces 3am - 10am time limit for anonymous workers)
         function checkWorkerUrlMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const modeParam = urlParams.get('mode');
@@ -1185,6 +1228,13 @@
 
             if (modeParam === 'worker') {
                 window.isWorkerOnlyMode = true;
+
+                // Enforce 3am - 10am time restriction exclusively for anonymous worker mode
+                if (!isWorkerTimeAllowed()) {
+                    document.getElementById('startupLockModal').classList.add('hidden');
+                    document.getElementById('workerTimeLockModal').classList.remove('hidden');
+                    return;
+                }
 
                 document.getElementById('startupLockModal').classList.add('hidden');
                 document.getElementById('mainHeaderBar').classList.add('hidden');
@@ -1228,6 +1278,12 @@
         }
 
         async function initFirebaseSync() {
+            // If anonymous worker mode is active outside 3am - 10am, do not initialize sync
+            if (window.isWorkerOnlyMode && !isWorkerTimeAllowed()) {
+                updateSyncBadge(false, "Worker Access Closed (3AM - 10AM Only)");
+                return;
+            }
+
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
